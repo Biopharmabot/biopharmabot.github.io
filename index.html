@@ -1,3 +1,209 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Biopharmabot</title>
-<style>body{font-family:system-ui,sans-serif;background:#111;color:#eee;display:grid;place-items:center;height:100vh;margin:0}p{font-family:ui-monospace,monospace;color:#999}</style></head>
-<body><div><h1>Biopharmabot</h1><p>[ — ] 준비 중</p></div></body></html>
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Biopharmabot</title>
+<meta name="description" content="바이오파마 뉴스 · DART 공시 · ClinicalTrials.gov 변경 · 미국 바이오 마켓 데일리 — 봇이 모은 것을 한 화면에">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: sticky tab bar → status strip → filter row → one dense feed column. Monochrome; semantic color only for relevance/up-down. */
+:root{
+  --bg:#f7f7f5; --fg:#181817; --mute:#6b6b66; --line:#d9d9d4; --panel:#ffffff; --panel2:#efefeb;
+  --up:#1f6f3f; --down:#b3261e; --warn:#8a6d00; --hi:#b3261e; --mid:#8a6d00; --accent:#181817;
+  --sans:"IBM Plex Sans KR",system-ui,-apple-system,"Segoe UI","Malgun Gothic",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#111110; --fg:#ececea; --mute:#8f8f89; --line:#2c2c2a; --panel:#181817; --panel2:#1f1f1d;
+  --up:#4cc27a; --down:#ff6b5e; --warn:#e2b93b; --hi:#ff6b5e; --mid:#e2b93b; --accent:#ececea; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111110; --fg:#ececea; --mute:#8f8f89; --line:#2c2c2a; --panel:#181817; --panel2:#1f1f1d;
+  --up:#4cc27a; --down:#ff6b5e; --warn:#e2b93b; --hi:#ff6b5e; --mid:#e2b93b; --accent:#ececea; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:14px;line-height:1.45;padding-inline:16px;padding-block:0 60px;max-width:1040px;margin:0 auto}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+a{color:inherit}
+.top{position:sticky;top:0;z-index:5;background:var(--bg);display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;border-bottom:1px solid var(--line);padding:12px 0 0}
+h1{font-size:17px;font-weight:600;margin:0 0 10px;letter-spacing:-.01em}
+.tabs{display:flex;gap:0;margin-left:auto}
+.tab{font:inherit;font-size:13px;background:none;border:0;border-bottom:2px solid transparent;color:var(--mute);padding:6px 10px 10px;cursor:pointer}
+.tab[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--fg)}
+.tab .n{font-family:var(--mono);font-size:11px;margin-left:4px;color:var(--mute)}
+.theme{font:inherit;font-size:12px;background:none;border:1px solid var(--line);color:var(--mute);border-radius:3px;padding:3px 8px;cursor:pointer;margin-bottom:10px}
+:is(button,input,select,a):focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.strip{display:flex;flex-wrap:wrap;gap:4px 20px;padding:8px 0;border-bottom:1px solid var(--line);font-size:12px;color:var(--mute)}
+.strip b{color:var(--fg);font-weight:500}
+.filters{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.filters:empty{display:none}
+.chip{border:1px solid var(--line);background:var(--panel);color:var(--mute);border-radius:999px;padding:3px 11px;font:inherit;font-size:12px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.filters input{font:inherit;font-size:13px;color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:5px 8px;min-width:0;flex:1 1 160px}
+.filters .r{margin-left:auto;font-size:12px;color:var(--mute);white-space:nowrap}
+.feed{display:grid;gap:0}
+.item{display:grid;grid-template-columns:72px 1fr;gap:4px 14px;padding:10px 0;border-bottom:1px solid var(--line);min-width:0}
+.item .t{font-family:var(--mono);font-size:11px;color:var(--mute);padding-top:3px;white-space:nowrap}
+.item .h{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline;min-width:0}
+.item .h a{font-weight:500;text-decoration:none}
+.item .h a:hover{text-decoration:underline}
+.item .s{font-size:13px;color:var(--fg);margin-top:3px;white-space:pre-wrap;overflow-wrap:anywhere;max-width:78ch}
+.item .m{font-size:11px;color:var(--mute);font-family:var(--mono);margin-top:3px;overflow-wrap:anywhere}
+.tag{border:1px solid var(--line);border-radius:3px;padding:0 6px;font-size:11px;font-family:var(--mono);white-space:nowrap;color:var(--mute)}
+.tag.hi{color:var(--hi);border-color:var(--hi)} .tag.mid{color:var(--mid);border-color:var(--mid)}
+.tag.new{color:var(--up);border-color:var(--up)}
+.up{color:var(--up)} .down{color:var(--down)}
+.empty{border:1px dashed var(--line);padding:26px 16px;color:var(--mute);text-align:center;font-size:13px;margin-top:12px}
+.empty b{color:var(--fg);font-weight:500}
+.more{display:block;margin:14px auto 0;font:inherit;font-size:13px;background:none;border:1px solid var(--line);color:var(--fg);padding:8px 16px;border-radius:3px;cursor:pointer}
+.more:disabled{opacity:.5}
+.day{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);padding:14px 0 4px;border-bottom:1px solid var(--line);font-family:var(--mono)}
+.mk{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:12px}
+@media (max-width:640px){.mk{grid-template-columns:1fr} .item{grid-template-columns:1fr} .item .t{padding-top:0}}
+.mk h3{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin:0 0 6px;font-weight:600}
+.mk table{border-collapse:collapse;width:100%}
+.mk td{padding:5px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
+.mk td:last-child{text-align:right}
+.mk td:first-child{color:var(--mute);font-family:var(--mono);font-size:11px;width:28px}
+.idx{display:flex;flex-wrap:wrap;gap:4px 20px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
+.idx span.k{color:var(--mute);margin-right:6px}
+.bar{display:inline-block;height:6px;background:var(--panel2);vertical-align:middle;border-radius:2px;overflow:hidden;width:70px;margin-right:6px}
+.bar i{display:block;height:100%}
+.foot{font-size:11px;color:var(--mute);margin-top:28px;line-height:1.7}
+.lines{margin:4px 0 0;padding-left:14px;font-size:12px;color:var(--mute)}
+.lines li{margin:1px 0}
+details.all{margin-top:14px}
+details.all summary{cursor:pointer;font-size:12px;color:var(--mute)}
+.tbl{overflow-x:auto}
+.tbl table{border-collapse:collapse;width:100%;min-width:480px}
+.tbl th,.tbl td{padding:5px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+.tbl th{font-size:11px;color:var(--mute);font-weight:500}
+.tbl th:nth-child(2),.tbl td:nth-child(2),.tbl th:nth-child(3),.tbl td:nth-child(3){text-align:left}
+</style>
+</head>
+<body>
+<div class="top">
+  <h1>Biopharmabot</h1>
+  <div class="tabs" role="tablist" id="tabs">
+    <button class="tab" role="tab" data-k="news">뉴스<span class="n" id="n_news"></span></button>
+    <button class="tab" role="tab" data-k="dart">DART<span class="n" id="n_dart"></span></button>
+    <button class="tab" role="tab" data-k="trials">임상<span class="n" id="n_trials"></span></button>
+    <button class="tab" role="tab" data-k="market">마켓<span class="n" id="n_market"></span></button>
+  </div>
+  <button class="theme" id="theme" type="button" title="테마">☾</button>
+</div>
+<div class="strip" id="strip"><span>[ — ] 읽는 중</span></div>
+<div class="filters" id="filters"></div>
+<div id="view"></div>
+<p class="foot">봇이 텔레그램으로 보낸 항목을 그대로 쌓아 보여 줍니다. 뉴스는 10분, DART는 평일 장중 1분, 임상 변경과 마켓은 아침 한 번 갱신됩니다. 요약은 AI가 쓴 것이라 원문 링크로 확인하세요. 투자 조언이 아닙니다.
+<br>뉴스: GlobeNewswire · Fierce · PRNewswire · Endpoints · Businesswire &nbsp;·&nbsp; DART: 국내 제약·바이오 상장사 &nbsp;·&nbsp; 임상: ClinicalTrials.gov 국내·미국 스폰서 &nbsp;·&nbsp; 마켓: 미국 바이오 300여 종목 종가</p>
+
+<script>
+(function(){
+  const BASE="https://storage.googleapis.com/biopharmabot-public/feed/";
+  const $=id=>document.getElementById(id);
+  const KINDS={news:"뉴스",dart:"DART",trials:"임상",market:"마켓"};
+  const CATS={news:["임상시험","딜","펀딩","규제","정책","실적","기타"],dart:[],trials:["KR","US","WATCH"],market:[]};
+  const REL={high:["HIGH","hi"],medium:["MID","mid"],low:["LOW",""]};
+  const TR_REGION={KR:"국내",US:"미국",WATCH:"워치"};
+  const TR_CHANGE={new:"신규 등록",first:"감시 편입",change:"변경"};
+  let tab="news", data={news:[],dart:[],trials:[],market:null}, loadedDays={news:[],dart:[],trials:[]}, q="", cat="ALL", rel="ALL", lastSeen=null;
+  const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const fmtPct=v=>v==null||!isFinite(v)?"—":(v>0?"+":"")+Number(v).toFixed(2)+"%";
+  const cls=v=>v>0?"up":v<0?"down":"";
+  const hhmm=ts=>{const d=new Date(ts);return isNaN(d)?"":d.toLocaleTimeString("ko-KR",{hour:"2-digit",minute:"2-digit",hour12:false,timeZone:"Asia/Seoul"});};
+  const dayOf=ts=>{const d=new Date(ts);return isNaN(d)?"":d.toLocaleDateString("sv-SE",{timeZone:"Asia/Seoul"});};
+  const kstToday=(off=0)=>new Date(Date.now()+9*3600e3-off*864e5).toISOString().slice(0,10);
+  try{lastSeen=localStorage.getItem("bpb.seen");const t=localStorage.getItem("bpb.theme");if(t)document.documentElement.dataset.theme=t;const h=location.hash.slice(1);if(KINDS[h])tab=h;}catch(e){}
+  $("theme").onclick=()=>{const cur=document.documentElement.dataset.theme||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light");const next=cur==="dark"?"light":"dark";document.documentElement.dataset.theme=next;try{localStorage.setItem("bpb.theme",next)}catch(e){}};
+
+  async function getJSON(path){try{const r=await fetch(BASE+path+"?t="+Math.floor(Date.now()/60000),{cache:"no-store"});if(!r.ok)return null;return await r.json();}catch(e){return null;}}
+  function merge(kind,arr){if(!Array.isArray(arr))return;const have=new Set(data[kind].map(x=>x.id));arr.forEach(x=>{if(!x.id||!have.has(x.id)){data[kind].push(x);have.add(x.id);}});data[kind].sort((a,b)=>(b.ts||"")<(a.ts||"")?-1:1);}
+  async function loadLatest(){
+    const [n,d,t,m]=await Promise.all([getJSON("news/latest.json"),getJSON("dart/latest.json"),getJSON("trials/latest.json"),getJSON("market/latest.json")]);
+    merge("news",n);merge("dart",d);merge("trials",t);if(m&&m.date)data.market=m;
+    render();
+  }
+  async function loadDay(kind,day){if(loadedDays[kind].includes(day))return false;loadedDays[kind].push(day);const arr=await getJSON(`${kind}/${day}.json`);merge(kind,arr||[]);return !!(arr&&arr.length);}
+  async function loadMore(kind){
+    const btn=$("more");if(btn){btn.disabled=true;btn.textContent="읽는 중…";}
+    const oldest=data[kind].length?dayOf(data[kind][data[kind].length-1].ts):kstToday();
+    let got=0,cursor=new Date(oldest+"T00:00:00+09:00");
+    for(let i=0;i<21&&got<1;i++){cursor=new Date(cursor.getTime()-864e5);const day=cursor.toLocaleDateString("sv-SE",{timeZone:"Asia/Seoul"});if(await loadDay(kind,day))got++;}
+    render();
+    if(!got){const b=$("more");if(b){b.disabled=true;b.textContent="3주 안에 더 이상 없음";}}
+  }
+
+  function setTab(k){tab=k;cat="ALL";rel="ALL";q="";try{history.replaceState(null,"","#"+k);}catch(e){}render();}
+  function renderTabs(){document.querySelectorAll(".tab").forEach(b=>{b.setAttribute("aria-selected",String(b.dataset.k===tab));b.onclick=()=>setTab(b.dataset.k);});
+    ["news","dart","trials"].forEach(k=>{const today=kstToday();const n=data[k].filter(x=>dayOf(x.ts)===today).length;$("n_"+k).textContent=n?n:"";});}
+  function renderStrip(){
+    const parts=[];const latest=k=>data[k][0]&&data[k][0].ts;
+    const fmt=ts=>ts?new Date(ts).toLocaleString("ko-KR",{month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit",hour12:false,timeZone:"Asia/Seoul"}):"—";
+    parts.push(`<span>뉴스 최근 <b>${fmt(latest("news"))}</b></span>`,`<span>DART 최근 <b>${fmt(latest("dart"))}</b></span>`,`<span>임상 최근 <b>${fmt(latest("trials"))}</b></span>`,`<span>마켓 <b>${data.market?data.market.date:"—"}</b></span>`);
+    if(lastSeen){const n=["news","dart","trials"].reduce((a,k)=>a+data[k].filter(x=>(x.ts||"")>lastSeen).length,0);parts.push(`<span>지난번 본 뒤로 <b>${n}건</b> 새로 옴</span>`);}
+    $("strip").innerHTML=parts.join("");
+  }
+  function renderFilters(){
+    const f=$("filters");if(tab==="market"){f.innerHTML="";return;}
+    const cats=CATS[tab];
+    let h=`<button class="chip" type="button" data-cat="ALL" aria-pressed="${cat==="ALL"}">전체</button>`+cats.map(c=>`<button class="chip" type="button" data-cat="${c}" aria-pressed="${cat===c}">${tab==="trials"?TR_REGION[c]:c}</button>`).join("");
+    if(tab==="news")h+=`<span style="width:8px"></span>`+["high","medium"].map(r=>`<button class="chip" type="button" data-rel="${r}" aria-pressed="${rel===r}">${REL[r][0]}</button>`).join("");
+    h+=`<input id="q" type="search" placeholder="${tab==="dart"?"회사·공시명 검색":tab==="trials"?"회사·NCT·질환 검색":"제목·요약·회사 검색"}" value="${esc(q)}"><span class="r" id="cnt"></span>`;
+    f.innerHTML=h;
+    f.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{cat=b.dataset.cat;render();});
+    f.querySelectorAll("[data-rel]").forEach(b=>b.onclick=()=>{rel=rel===b.dataset.rel?"ALL":b.dataset.rel;render();});
+    const qi=$("q");qi.oninput=()=>{q=qi.value;renderList();};
+  }
+  function filtered(){
+    const needle=q.trim().toLowerCase();
+    return data[tab].filter(x=>{
+      if(tab==="news"){if(cat!=="ALL"&&x.category!==cat)return false;if(rel!=="ALL"&&x.relevance!==rel)return false;}
+      if(tab==="trials"&&cat!=="ALL"&&x.region!==cat)return false;
+      if(!needle)return true;
+      const hay=[x.title,x.headline,x.summary,x.company,x.nct,x.sponsor,(x.cond||[]).join(" "),(x.interv||[]).join(" "),x.source].join(" ").toLowerCase();
+      return hay.includes(needle);
+    });
+  }
+  function itemHTML(x){
+    const isNew=lastSeen&&(x.ts||"")>lastSeen;
+    if(tab==="news"){const r=REL[x.relevance]||REL.low;
+      return`<div class="item"><div class="t">${hhmm(x.ts)}</div><div><div class="h"><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.headline||x.title)}</a><span class="tag">${esc(x.category||"")}</span>${r[1]?`<span class="tag ${r[1]}">${r[0]}</span>`:""}${isNew?`<span class="tag new">NEW</span>`:""}</div>
+        <div class="s">${esc(x.summary)}</div><div class="m">${esc(x.source||"")}${x.headline&&x.title&&x.headline!==x.title?" · "+esc(x.title):""}</div></div></div>`;}
+    if(tab==="dart"){
+      return`<div class="item"><div class="t">${hhmm(x.ts)}</div><div><div class="h"><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.company)}</a><span>${esc(x.title)}</span>${x.market?`<span class="tag">${esc(x.market)}</span>`:""}${isNew?`<span class="tag new">NEW</span>`:""}</div>
+        ${x.summary?`<div class="s">${esc(x.summary)}</div>`:""}<div class="m">${esc(x.stock_code||"")}${x.rcept_dt?" · 접수 "+esc(x.rcept_dt):""}</div></div></div>`;}
+    if(tab==="trials"){
+      return`<div class="item"><div class="t">${hhmm(x.ts)}</div><div><div class="h"><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.company)}</a><span class="tag">${TR_REGION[x.region]||esc(x.region)}</span><span class="tag ${x.change==="new"?"new":""}">${TR_CHANGE[x.change]||esc(x.change)}</span>${(x.phases||[]).length?`<span class="tag">${esc(x.phases.join("/"))}</span>`:""}${x.status?`<span class="tag">${esc(x.status)}</span>`:""}${isNew?`<span class="tag new">NEW</span>`:""}</div>
+        <div class="s">${esc(x.title)}</div>${(x.lines||[]).length?`<ul class="lines">${x.lines.map(l=>`<li>${esc(l)}</li>`).join("")}</ul>`:""}<div class="m">${esc(x.nct)}${(x.interv||[]).length?" · "+esc(x.interv.join(", ")):""}${(x.cond||[]).length?" · "+esc(x.cond.join(", ")):""}</div></div></div>`;}
+    return "";
+  }
+  function renderList(){
+    const v=$("view");
+    if(tab==="market"){renderMarket();return;}
+    const list=filtered();if($("cnt"))$("cnt").textContent=list.length?list.length+"건":"";
+    if(!data[tab].length){v.innerHTML=`<div class="empty"><b>아직 쌓인 항목이 없습니다.</b><br>봇이 다음에 보낼 때부터 여기에 쌓입니다.</div><button class="more" id="more" type="button">이전 날짜 더 보기</button>`;$("more").onclick=()=>loadMore(tab);return;}
+    if(!list.length){v.innerHTML=`<div class="empty">조건에 맞는 항목이 없습니다.</div>`;return;}
+    let h=`<div class="feed">`,day="";
+    list.forEach(x=>{const d=dayOf(x.ts);if(d!==day){day=d;h+=`<div class="day">${d===kstToday()?"오늘 · ":""}${d}</div>`;}h+=itemHTML(x);});
+    h+=`</div><button class="more" id="more" type="button">이전 날짜 더 보기</button>`;
+    v.innerHTML=h;$("more").onclick=()=>loadMore(tab);
+  }
+  function renderMarket(){
+    const m=data.market,v=$("view");
+    if(!m){v.innerHTML=`<div class="empty"><b>마켓 데이터가 아직 없습니다.</b><br>미국 장 마감 다음날 아침에 들어옵니다.</div>`;return;}
+    const row=(x,i)=>`<tr><td>${i+1}</td><td>${esc(x.name)}</td><td class="num ${cls(x.chg_pct)}"><span class="bar"><i style="width:${Math.min(100,Math.abs(x.chg_pct)*6)}%;background:${x.chg_pct>=0?"var(--up)":"var(--down)"}"></i></span>${fmtPct(x.chg_pct)}</td></tr>`;
+    v.innerHTML=`<div class="idx">${(m.index||[]).map(i=>`<span><span class="k">${esc(i.name)}</span><span class="num">${esc(i.value)}</span> <span class="num ${cls(i.chg_pct)}">${fmtPct(i.chg_pct)}</span></span>`).join("")}<span style="margin-left:auto;color:var(--mute);font-size:12px">거래일 ${esc(m.date)} · 종가 기준 · ${(m.stocks||[]).length}종목</span></div>
+      <div class="mk"><div><h3>Top 10</h3><table><tbody>${(m.top||[]).map(row).join("")}</tbody></table></div><div><h3>Bottom 10</h3><table><tbody>${(m.bottom||[]).map(row).join("")}</tbody></table></div></div>
+      ${(m.stocks||[]).length?`<details class="all"><summary>전체 ${m.stocks.length}종목 보기</summary><div class="tbl"><table><thead><tr><th>#</th><th>티커</th><th>회사</th><th>종가</th><th>등락</th></tr></thead><tbody>${m.stocks.map(s=>`<tr><td class="num">${s.rank}</td><td class="num">${esc(s.ticker)}</td><td>${esc(s.name)}</td><td class="num">$${Number(s.close).toFixed(2)}</td><td class="num ${cls(s.chg_pct)}">${fmtPct(s.chg_pct)}</td></tr>`).join("")}</tbody></table></div></details>`:""}`;
+  }
+  function render(){renderTabs();renderStrip();renderFilters();renderList();}
+
+  render();
+  loadLatest().then(()=>{try{localStorage.setItem("bpb.seen",new Date().toISOString());}catch(e){}});
+  setInterval(loadLatest,5*60*1000);
+})();
+</script>
+</body>
+</html>
