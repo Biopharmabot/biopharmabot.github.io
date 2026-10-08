@@ -10,7 +10,7 @@
 | 개요 | 지난번 본 뒤로 요약 · KPI 줄 · 카드(HIGH 뉴스·공시·임상·이번 주 카탈리스트·마켓 무버·13F 매집×등락·매집 종목 소식·14일 트렌드) | 전부 |
 | 뉴스 · DART · 임상 | 봇 feed (필터·검색·이전 날짜 더 보기 · 시간순/종목별 보기). 오른쪽 사이드바: 공시 스트림·회사별 언급·임상 변경. 13F 매집/축소 종목엔 태그 | feed |
 | 마켓 | 지수 띠 · KPI(등락 중앙값·급등락·RSI 과열/과매도·52주 고점권·거래량 2배) · Top/Bottom 10 · 전체 307종목 표(1D 양방향 막대·1W·1M·RSI14+1년 백분위·52주 고점比·거래량比·신호 배지·13F) | feed market (daily v1.8부터 기술지표 포함) |
-| 글로벌마켓 (개요 바로 다음) | 전체 시장 스냅샷(미국 장 마감 기준 아침). KPI 2줄(S&P·NASDAQ·KOSPI·KOSDAQ / NBI·XBI·DRG·KODEX 바이오·TIGER 헬스케어) · CNN Fear & Greed 게이지+7개 구성지표 · 국가별 블록: 왼쪽 지수(1D/1M/YTD/스파크) 오른쪽 그 국가 전일 섹터 ETF 등락(미국 SPDR, 유럽 iShares STOXX600, 일본 TOPIX-17, 중국 CSI+항셍, 한국 KODEX; 기타는 지수만) · 금리(야후 국채 + FRED 2Y/10Y/10Y−2Y/연방기금/HY·IG OAS) · 환율·원자재·VIX/MOVE | feed macro (daily v1.11 `macro.py`, `sectors{국가}` 필드) |
+| 글로벌마켓 (개요 바로 다음) | 전체 시장 스냅샷(미국 장 마감 기준 아침). KPI 2줄(S&P·NASDAQ·KOSPI·KOSDAQ / NBI·XBI·DRG·KODEX 바이오·TIGER 헬스케어) · CNN Fear & Greed 게이지+7개 구성지표 · 국가별 블록: 왼쪽 지수(1D/1M/YTD/스파크) 오른쪽 그 국가 전일 섹터 등락(미국 GICS SPDR ETF, 유럽 STOXX600 슈퍼섹터 iShares ETF, 일본 TOPIX-17 ETF, 중국 CSI 300 섹터지수 10개[csindex 공식 JSON·실패 시 ETF 대체], 한국 KOSPI 200 섹터지수 TIGER ETF 11개+KRX 헬스케어; 기타는 지수만) · 금리(야후 국채 + FRED 2Y/10Y/10Y−2Y/연방기금/HY·IG OAS) · 환율·원자재·VIX/MOVE | feed macro (daily v1.12 `macro.py`, `sectors{국가}`·`sector_src` 필드) |
 | 헷지펀드 | 13F 분기 동향(신규·순매수·순매도·혼조·청산·M&A소멸, 주식수/비중 기준, 티커 옆 전일 등락) · **수급 지도 산점도**(가로 13F 합산 비중 변화 · 세로 1M/1W/1D/3M 수익률, 사분면 담고·오름 등) · 종목별 시그널 표 · 교차 보유 매트릭스 · 펀드별 상위 보유 | `data/hedge.json` + feed market |
 | 캘린더 | Hub 저술 + Bloomberg 캘린더 합본. **월간 달력 격자**(날짜 클릭 → 그 날만) · 이번 주/다음 주(D-n)/월별 · 진행 중(이달·분기·반기) · 이후 · 미정 · 지난 예정일. 소스·지역·중요도·유형 필터. 같은 날짜·유형·티커면 한 건(Hub+BB) | `data/catalyst.json` · `data/bloomberg.json` |
 | 트렌드 | 최근 14일 일별 건수·카테고리·출처·회사 상위·카탈리스트 월별/유형/출처 | feed 날짜 파일 + data |
