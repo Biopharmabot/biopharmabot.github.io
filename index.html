@@ -94,9 +94,10 @@ details.all summary{cursor:pointer;font-size:12px;color:var(--mute)}
 .bar.w{width:44px;margin:0 4px 0 0}
 /* KPI tiles & cards */
 .kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:12px 0}
-.kpi div{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px 10px;min-width:0}
+.kpi>div{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px 10px;min-width:0}
 .kpi .k{font-size:11px;color:var(--mute)}
 .kpi .v{font-size:20px;font-weight:600;line-height:1.2;margin-top:2px}
+.kpi.bio div{border-left:3px solid var(--bar)}
 .kpi .d{font-size:11px;color:var(--mute);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;margin-top:4px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px 12px;min-width:0}
@@ -188,7 +189,7 @@ svg.spark{width:100%;height:56px;display:block}
 .two{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px;align-items:start}
 .side .card{margin-bottom:12px}
 .side .row .x{white-space:normal}
-@media (max-width:900px){.two{grid-template-columns:1fr}}
+@media (max-width:900px){.two{grid-template-columns:1fr} .mx,.mx.one{grid-template-columns:1fr}}
 .cogrp{font-size:13px;font-weight:600;padding:12px 0 2px;border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:baseline}
 .cogrp .n{font-weight:400;color:var(--mute);font-size:12px}
 /* month grid */
@@ -226,7 +227,16 @@ svg.spark{width:100%;height:56px;display:block}
 .ix th:first-child{text-align:left}
 .ix td.num{text-align:right}
 .ix td.sp{width:70px}
-.ix h4{margin:0 0 4px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);font-weight:600}
+.mx{display:grid;grid-template-columns:minmax(360px,11fr) minmax(300px,9fr);gap:8px 24px;align-items:start;margin:4px 0 18px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.mx.one{grid-template-columns:minmax(360px,11fr)}
+.mx>div{min-width:0;overflow-x:auto}
+.mx table{border-collapse:collapse;width:100%}
+.mx td{padding:4px 5px;border-bottom:1px solid var(--line);white-space:nowrap;font-size:12px}
+.mx th{font-size:10px;color:var(--mute);font-weight:500;text-align:right;padding:2px 5px;border-bottom:1px solid var(--line)}
+.mx th:first-child{text-align:left}
+.mx td.num{text-align:right}
+.mx td.sp{width:70px}
+.mx h4,.ix h4{margin:0 0 4px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);font-weight:600}
 svg.sp{width:66px;height:20px;display:block}
 .comp{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px;margin-top:8px}
 .comp div{border:1px solid var(--line);border-radius:4px;padding:5px 8px;font-size:12px}
@@ -243,11 +253,11 @@ svg.sp{width:66px;height:20px;display:block}
   </div>
   <div class="nav" role="tablist" id="tabs">
     <button role="tab" data-k="home">개요</button>
+    <button role="tab" data-k="macro">글로벌마켓</button>
     <button role="tab" data-k="news">뉴스<span class="n" id="n_news"></span></button>
     <button role="tab" data-k="dart">DART<span class="n" id="n_dart"></span></button>
     <button role="tab" data-k="trials">임상<span class="n" id="n_trials"></span></button>
     <button role="tab" data-k="market">마켓</button>
-    <button role="tab" data-k="macro">시장</button>
     <button role="tab" data-k="hedge">헷지펀드</button>
     <button role="tab" data-k="cal">캘린더<span class="n" id="n_cal"></span></button>
     <button role="tab" data-k="trend">트렌드</button>
@@ -265,7 +275,7 @@ svg.sp{width:66px;height:20px;display:block}
 (function(){
   const BASE=/[?&]feed=local/.test(location.search)?"devfeed/":"https://storage.googleapis.com/biopharmabot-public/feed/";
   const $=id=>document.getElementById(id);
-  const KINDS={home:"개요",news:"뉴스",dart:"DART",trials:"임상",market:"마켓",macro:"시장",hedge:"헷지펀드",cal:"캘린더",trend:"트렌드"};
+  const KINDS={home:"개요",news:"뉴스",dart:"DART",trials:"임상",market:"마켓",macro:"글로벌마켓",hedge:"헷지펀드",cal:"캘린더",trend:"트렌드"};
   const CATS={news:["임상시험","딜","펀딩","규제","정책","실적","기타"],dart:[],trials:["KR","US","WATCH"]};
   const REL={high:["HIGH","hi"],medium:["MID","mid"],low:["LOW",""]};
   const TR_REGION={KR:"국내",US:"글로벌",WATCH:"워치"};
@@ -385,11 +395,11 @@ svg.sp{width:66px;height:20px;display:block}
     if(cal||bb){const n=calAll().filter(c=>isDated(c)&&c.imp!=="low"&&c.sort>=kstToday()&&c.sort<=kstToday(-7)).length;$("n_cal").textContent=n?n:"";}}
   function renderStrip(){
     const parts=[`<span>오늘 <b>${kstToday()}</b> KST</span>`];const latest=k=>data[k][0]&&data[k][0].ts;
-    if(data.macro)parts.push(`<span>시장 <b>${esc(data.macro.date)}</b></span>`);parts.push(`<span>뉴스 최근 <b>${fmtTs(latest("news"))}</b></span>`,`<span>DART 최근 <b>${fmtTs(latest("dart"))}</b></span>`,`<span>임상 최근 <b>${fmtTs(latest("trials"))}</b></span>`,`<span>마켓 <b>${data.market?data.market.date:"—"}</b></span>`);
+    if(data.macro)parts.push(`<span>글로벌마켓 <b>${esc(data.macro.date)}</b></span>`);parts.push(`<span>뉴스 최근 <b>${fmtTs(latest("news"))}</b></span>`,`<span>DART 최근 <b>${fmtTs(latest("dart"))}</b></span>`,`<span>임상 최근 <b>${fmtTs(latest("trials"))}</b></span>`,`<span>마켓 <b>${data.market?data.market.date:"—"}</b></span>`);
     if(hedge)parts.push(`<span>13F <b>${esc(hedge.quarter)}</b></span>`);if(bb)parts.push(`<span>BB 카탈리스트 <b>${esc(bb.asof)}</b></span>`);
     if(lastSeen){const n=["news","dart","trials"].reduce((a,k)=>a+data[k].filter(x=>(x.ts||"")>lastSeen).length,0);parts.push(`<span>지난번 본 뒤로 <b>${n}건</b> 새로 옴</span>`);}
     $("strip").innerHTML=parts.join("");
-    $("status").innerHTML=`<i></i>feed 뉴스 ${data.news.length} · 시장 ${data.macro?data.macro.date:"—"} · 공시 ${data.dart.length} · 임상 ${data.trials.length} · 마켓 ${data.market?data.market.date+" "+(data.market.stocks||[]).length+"종목":"—"} · 13F ${hedge?hedge.quarter:"—"} · Hub ${cal?cal.n:"—"} · BB ${bb?bb.asof:"—"}`;
+    $("status").innerHTML=`<i></i>feed 뉴스 ${data.news.length} · 글로벌마켓 ${data.macro?data.macro.date:"—"} · 공시 ${data.dart.length} · 임상 ${data.trials.length} · 마켓 ${data.market?data.market.date+" "+(data.market.stocks||[]).length+"종목":"—"} · 13F ${hedge?hedge.quarter:"—"} · Hub ${cal?cal.n:"—"} · BB ${bb?bb.asof:"—"}`;
   }
   function renderFilters(){
     const f=$("filters");
@@ -490,7 +500,7 @@ svg.sp{width:66px;height:20px;display:block}
       ${rows.length?`<h3 class="sec">전체 ${rows.length}종목 <span style="font-weight:400;text-transform:none;letter-spacing:0">· ${esc(m.date)} 종가 기준 · 열 이름을 눌러 정렬 · 신호: 급등락 ±5% · 거래량 20일 평균 2배 · RSI14 70/30 · 52주 고/저점 3% 이내</span></h3>`+sortTable("mk",rows,cols,"chg_pct",-1):""}`;
     bindSort();
   }
-  /* ───────── macro (시장) ───────── */
+  /* ───────── macro (글로벌마켓) ───────── */
   const spl=(arr,up)=>{if(!arr||arr.length<2)return"";const w=66,h=20,mn=Math.min(...arr),mx=Math.max(...arr),r=mx-mn||1;const pts=arr.map((v,i)=>`${(i/(arr.length-1)*w).toFixed(1)},${(h-2-(v-mn)/r*(h-4)).toFixed(1)}`).join(" ");const c=up==null?"var(--bar)":up?"var(--up)":"var(--down)";return`<svg class="sp" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><polyline points="${pts}" fill="none" stroke="${c}" stroke-width="1.5"/></svg>`;};
   const fmtN=(v,d)=>v==null?"—":Number(v).toLocaleString("en-US",{minimumFractionDigits:d??(Math.abs(v)<10?3:Math.abs(v)<1000?2:0),maximumFractionDigits:d??(Math.abs(v)<10?3:Math.abs(v)<1000?2:0)});
   const fmtBp=v=>v==null?"—":(v>0?"+":"")+v.toFixed(1)+"bp";
@@ -501,30 +511,25 @@ svg.sp{width:66px;height:20px;display:block}
     return`<table><thead><tr><th></th><th>값</th><th>1D</th>${cols.map(c=>`<th>${c}</th>`).join("")}<th>30일</th></tr></thead><tbody>${rows.map(r=>`<tr><td title="${esc(r.name)} ${esc(r.t)}">${esc(r.name)}${opts.tk?` <span class="tag">${esc(r.t)}</span>`:""}</td><td class="num">${fmtN(r.last)}</td><td class="num ${cls(r.chg)}">${bbar(r.chg,8,1)}${fmtPct(r.chg)}</td>${cols.map(c=>`<td class="num ${cls(r[key[c]])}">${fmtPct(r[key[c]])}</td>`).join("")}<td class="sp">${spl(r.spark,r.chg_1m==null?null:r.chg_1m>=0)}</td></tr>`).join("")}</tbody></table>`;}
   function renderMacro(){
     const v=$("view"),m=data.macro;
-    if(!m){v.innerHTML=`<div class="empty"><b>시장 데이터가 아직 없습니다.</b><br>daily 봇이 아침 07:30에 미국 장 마감 기준으로 넣습니다 (v1.10부터).</div>`;return;}
+    if(!m){v.innerHTML=`<div class="empty"><b>글로벌마켓 데이터가 아직 없습니다.</b><br>daily 봇이 아침 07:30에 미국 장 마감 기준으로 넣습니다 (v1.10부터).</div>`;return;}
     const fg=m.fear_greed;const allIdx=Object.values(m.indices).flat();const find=t=>allIdx.find(r=>r.t===t);
-    const spx=find("^GSPC"),nbi=find("^NBI"),xbi=find("XBI"),kospi=find("^KS11"),ks_q=find("^KQ11");
-    const t10=(m.rates||[]).find(r=>r.t==="^TNX"),vix=(m.vol||[]).find(r=>r.t==="^VIX"),hy=(m.fred||[]).find(r=>r.id==="BAMLH0A0HYM2"),sp2=(m.fred||[]).find(r=>r.id==="T10Y2Y");
-    const kpi=`<div class="kpi">
-      ${spx?`<div><div class="k">S&P 500 · ${esc(spx.date)}</div><div class="v num ${cls(spx.chg)}">${fmtPct(spx.chg)}</div><div class="d">${fmtN(spx.last)} · YTD ${fmtPct(spx.ytd)}</div></div>`:""}
-      ${xbi?`<div><div class="k">XBI 바이오 ETF</div><div class="v num ${cls(xbi.chg)}">${fmtPct(xbi.chg)}</div><div class="d">vs S&P ${spx?fmtPct(xbi.chg-spx.chg):"—"} · 1M ${fmtPct(xbi.chg_1m)}</div></div>`:""}
-      ${kospi?`<div><div class="k">KOSPI · ${esc(kospi.date)}</div><div class="v num ${cls(kospi.chg)}">${fmtPct(kospi.chg)}</div><div class="d">${fmtN(kospi.last)}${ks_q?" · KOSDAQ "+fmtPct(ks_q.chg):""}</div></div>`:""}
-      ${t10?`<div><div class="k">미 10년 금리</div><div class="v num">${t10.last.toFixed(2)}%</div><div class="d"><span class="${t10.chg_bp>0?"down":"up"}">${fmtBp(t10.chg_bp)}</span> · 1M ${fmtBp(t10.chg_1m_bp)}${sp2?" · 10Y−2Y "+sp2.last.toFixed(2)+"%p":""}</div></div>`:""}
-      ${hy?`<div><div class="k">하이일드 스프레드 (OAS)</div><div class="v num">${hy.last.toFixed(2)}%</div><div class="d"><span class="${hy.chg_bp>0?"down":"up"}">${fmtBp(hy.chg_bp)}</span> · 1M ${fmtBp(hy.chg_1m_bp)} · ${esc(hy.date)}</div></div>`:""}
-      ${vix?`<div><div class="k">VIX</div><div class="v num">${vix.last.toFixed(2)}</div><div class="d"><span class="${vix.chg>0?"down":"up"}">${fmtPct(vix.chg)}</span> · 1M ${fmtPct(vix.chg_1m)}</div></div>`:""}
-      ${fg?`<div><div class="k">CNN Fear &amp; Greed · ${esc(fg.asof)}</div><div class="v num">${fg.score.toFixed(0)}</div><div class="d">${FG_KO[fg.rating]||esc(fg.rating)} · 1주 전 ${fg.w1.toFixed(0)} · 1달 전 ${fg.m1.toFixed(0)}</div></div>`:""}
-    </div>`;
+    const tile=(r,label,extra)=>r?`<div><div class="k">${esc(label||r.name)} <span class="tag">${esc(r.date)}</span></div><div class="v num ${cls(r.chg)}">${fmtPct(r.chg)}</div><div class="d">${fmtN(r.last)} · 1M ${fmtPct(r.chg_1m)} · YTD ${fmtPct(r.ytd)}${extra||""}</div></div>`:"";
+    const spx=find("^GSPC"),ndq=find("^IXIC"),kospi=find("^KS11"),kosdaq=find("^KQ11"),nbi=find("^NBI"),drg=find("^DRG"),xbi=find("XBI"),kbio=find("244580.KS"),khc=find("143860.KS");
+    const kpi=`<div class="kpi">${tile(spx,"S&P 500")}${tile(ndq,"NASDAQ")}${tile(kospi,"KOSPI")}${tile(kosdaq,"KOSDAQ")}</div>
+      <div class="kpi bio">${tile(nbi,"NASDAQ Biotech (NBI)")}${tile(xbi,"XBI 바이오 ETF",spx?` · vs S&P ${fmtPct(xbi.chg-spx.chg)}`:"")}${tile(drg,"NYSE Arca 제약 (DRG)")}${tile(kbio,"KODEX 바이오",kospi?` · vs KOSPI ${fmtPct(kbio.chg-kospi.chg)}`:"")}${tile(khc,"TIGER 헬스케어")}</div>`;
     const lastD=rows=>rows&&rows.length?rows.map(r=>r.date).sort().slice(-1)[0]:"";
     const sec=(title,rows,full)=>rows&&rows.length?`<div><h4>${title} <span style="font-weight:400;letter-spacing:0;text-transform:none">· ${esc(lastD(rows))} 마감</span></h4>${pxTable(rows,{full})}</div>`:"";
-    const idx=`<h3 class="sec">글로벌 지수 <span style="font-weight:400;text-transform:none;letter-spacing:0">· 각 표 제목의 날짜가 그 시장의 마지막 마감일 (스냅샷 ${esc(m.generated_at.slice(0,16).replace("T"," "))} KST)</span></h3><div class="ix">${Object.entries(m.indices).map(([g,rows])=>sec(g,rows)).join("")}</div>`;
-    const sbar=rows=>{const mx=Math.max(1,...rows.map(r=>Math.abs(r.chg)));return`<div class="hbar" style="grid-template-columns:minmax(90px,auto) 1fr 64px">${rows.map(r=>`<span>${esc(r.name)}</span><span class="b" style="background:none;position:relative;height:10px"><span style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--line)"></span><i style="position:absolute;top:0;height:100%;${r.chg>=0?"left:50%":"right:50%"};width:${(Math.abs(r.chg)/mx*50).toFixed(1)}%;background:${r.chg>=0?"var(--up)":"var(--down)"};border-radius:2px"></i></span><span class="n num ${cls(r.chg)}" style="color:inherit">${fmtPct(r.chg)}</span>`).join("")}</div>`;};
-    const sectors=`<h3 class="sec">전일 섹터 퍼포먼스 <span style="font-weight:400;text-transform:none;letter-spacing:0">· 괄호 안이 마감일</span></h3><div class="ix"><div><h4>미국 · S&P 섹터 ETF + 바이오/의료기기/제약 (${esc((m.us_sectors[0]||{}).date||"")})</h4>${sbar(m.us_sectors)}<details class="all"><summary>1W · 1M · 3M · YTD 표</summary>${pxTable(m.us_sectors,{tk:1,full:1})}</details></div><div><h4>한국 · KODEX 섹터 ETF (${esc((m.kr_sectors[0]||{}).date||"")})</h4>${m.kr_sectors.length?sbar(m.kr_sectors)+`<details class="all"><summary>1W · 1M · 3M · YTD 표</summary>${pxTable(m.kr_sectors,{tk:1,full:1})}</details>`:`<div class="none">—</div>`}</div></div>`;
+    const sbar=rows=>{const mx=Math.max(1,...rows.map(r=>Math.abs(r.chg)));return`<div class="hbar" style="grid-template-columns:minmax(90px,auto) 1fr 64px">${rows.map(r=>`<span title="${esc(r.t)}">${esc(r.name)}</span><span class="b" style="background:none;position:relative;height:10px"><span style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--line)"></span><i style="position:absolute;top:0;height:100%;${r.chg>=0?"left:50%":"right:50%"};width:${(Math.abs(r.chg)/mx*50).toFixed(1)}%;background:${r.chg>=0?"var(--up)":"var(--down)"};border-radius:2px"></i></span><span class="n num ${cls(r.chg)}" style="color:inherit">${fmtPct(r.chg)}</span>`).join("")}</div>`;};
+    const SEC_SRC={"미국":"S&P 섹터 ETF(SPDR) + 바이오·의료기기·제약","유럽":"iShares STOXX Europe 600 섹터 ETF (Xetra, EUR)","일본":"NEXT FUNDS TOPIX-17 ETF (도쿄, JPY)","중국·홍콩":"상해 CSI 섹터 ETF (CNY) + 홍콩 항셍 ETF (HKD)","한국":"KODEX 섹터 ETF"};
+    const secs=m.sectors||{"미국":m.us_sectors,"한국":m.kr_sectors};
+    const region=(g,rows)=>{const sr=secs[g]||[];return`<div class="mx${sr.length?"":" one"}"><div><h4>${esc(g)} 지수 <span style="font-weight:400;letter-spacing:0;text-transform:none">· ${esc(lastD(rows))} 마감</span></h4>${pxTable(rows)}</div>${sr.length?`<div><h4>${esc(g)} 전일 섹터 <span style="font-weight:400;letter-spacing:0;text-transform:none">· ${esc(lastD(sr))} 마감 · ${esc(SEC_SRC[g]||"")}</span></h4>${sbar(sr)}<details class="all"><summary>1W · 1M · 3M · YTD 표</summary>${pxTable(sr,{tk:1,full:1})}</details></div>`:""}</div>`;};
+    const idx=`<h3 class="sec">글로벌 지수 · 전일 섹터 퍼포먼스 <span style="font-weight:400;text-transform:none;letter-spacing:0">· 왼쪽 지수, 오른쪽 그 국가의 섹터 ETF 등락 · 각 표 제목의 날짜가 그 시장의 마지막 마감일 (스냅샷 ${esc(m.generated_at.slice(0,16).replace("T"," "))} KST)</span></h3>${Object.entries(m.indices).filter(([g,rows])=>rows&&rows.length).map(([g,rows])=>region(g,rows)).join("")}`;
     const rates=`<h3 class="sec">금리 · 크레딧</h3><div class="ix"><div><h4>미국 국채 (야후 · ${esc(lastD(m.rates))} 마감)</h4><table><thead><tr><th class="l"></th><th>수준</th><th>1D</th><th>1W</th><th>1M</th><th>30일</th></tr></thead><tbody>${(m.rates||[]).map(r=>`<tr><td>${esc(r.name)}</td><td class="num">${r.last.toFixed(2)}%</td><td class="num ${r.chg_bp>0?"down":r.chg_bp<0?"up":""}">${fmtBp(r.chg_bp)}</td><td class="num">${fmtBp(r.chg_1w_bp)}</td><td class="num">${fmtBp(r.chg_1m_bp)}</td><td class="sp">${spl(r.spark,r.chg_1m_bp==null?null:r.chg_1m_bp<=0)}</td></tr>`).join("")}</tbody></table></div>
       <div><h4>FRED (미 연준 · 각 행의 날짜가 기준일 · 1~2일 지연)</h4><table><thead><tr><th class="l"></th><th>수준</th><th>1D</th><th>1M</th><th>30일</th></tr></thead><tbody>${(m.fred||[]).map(r=>`<tr><td>${esc(r.name)} <span class="tag">${esc(r.date.slice(5))}</span></td><td class="num">${r.last.toFixed(2)}${r.id==="T10Y2Y"?"%p":"%"}</td><td class="num ${r.chg_bp>0?"down":r.chg_bp<0?"up":""}">${fmtBp(r.chg_bp)}</td><td class="num">${fmtBp(r.chg_1m_bp)}</td><td class="sp">${spl(r.spark,r.chg_1m_bp==null?null:r.chg_1m_bp<=0)}</td></tr>`).join("")}</tbody></table><div class="note">금리·스프레드는 오르면 빨강(위험자산에 불리), 내리면 초록으로 칠했습니다.</div></div></div>`;
     const fxc=`<h3 class="sec">환율 · 원자재 · 변동성</h3><div class="ix">${sec("환율",m.fx)}${sec("원자재",m.commodities)}${sec("변동성",m.vol)}</div>`;
     const gauge=fg?`<h3 class="sec">CNN Fear &amp; Greed <span style="font-weight:400;text-transform:none;letter-spacing:0">· ${esc(fg.asof)} 기준 · 미국 주식시장 심리 7개 지표 합성 · 0 극단적 공포 ~ 100 극단적 탐욕</span></h3><div class="card"><div class="gauge"><div><div class="big">${fg.score.toFixed(0)}</div><div class="lab">${FG_KO[fg.rating]||esc(fg.rating)} · ${esc(fg.asof)}</div></div><div style="flex:1;min-width:0"><div class="meter"><i style="left:${fg.score}%"></i>${[0,25,50,75,100].map(t=>`<span class="tk" style="left:${t}%">${t}</span>`).join("")}</div><div class="lab" style="margin-top:14px">전일 ${fg.prev.toFixed(0)} · 1주 전 ${fg.w1.toFixed(0)} · 1달 전 ${fg.m1.toFixed(0)} · 1년 전 ${fg.y1.toFixed(0)}</div></div><div style="width:200px">${spl(fg.hist.map(h=>h.v),null)}<div class="lab">최근 ${fg.hist.length}일</div></div></div>
       <div class="comp">${Object.entries(fg.components||{}).map(([k,c])=>`<div>${esc(FG_COMP[k]||k)}<b class="${c.score>=56?"up":c.score<=44?"down":""}">${c.score.toFixed(0)} <small style="font-weight:400;color:var(--mute)">${FG_KO[c.rating]||esc(c.rating)}</small></b></div>`).join("")}</div></div>`:"";
-    v.innerHTML=`<div class="hdr"><b>시장 · ${esc(m.date)} 미국 마감 기준</b><span class="sub">스냅샷 생성 ${esc(m.generated_at.slice(0,16).replace("T"," "))} KST · 각 표마다 자기 마감일 표시 · 야후 파이낸스 일봉 · FRED · CNN${m.errors&&m.errors.length?` · 일부 실패: ${esc(m.errors.join("; ")).slice(0,120)}`:""}</span></div>${kpi}${gauge}${idx}${sectors}${rates}${fxc}<div class="note">출처 ${esc(m.source)} · 생성 ${esc(m.generated_at)} · 실시간 아님 · 투자 조언 아님</div>`;
+    v.innerHTML=`<div class="hdr"><b>글로벌마켓 · ${esc(m.date)} 미국 마감 기준</b><span class="sub">스냅샷 생성 ${esc(m.generated_at.slice(0,16).replace("T"," "))} KST · 각 표마다 자기 마감일 표시 · 야후 파이낸스 일봉 · FRED · CNN${m.errors&&m.errors.length?` · 일부 실패: ${esc(m.errors.join("; ")).slice(0,120)}`:""}</span></div>${kpi}${gauge}${idx}${rates}${fxc}<div class="note">출처 ${esc(m.source)} · 생성 ${esc(m.generated_at)} · 실시간 아님 · 투자 조언 아님</div>`;
   }
 
   /* generic sortable table: cols [{k,l,n(numeric),f(render)}] */
@@ -712,7 +717,7 @@ svg.sp{width:66px;height:20px;display:block}
       ${card("이번 주 카탈리스트",week.length?`${today} ~ ${kstToday(-7)} · HIGH·MID`:"이번 주 날짜 확정분 없음 · 30일 내 HIGH·MID",`cal`,(week.length?week:month.filter(isDated)).slice(0,10).map(evRow).join(""))}
       ${card("마켓 무버",m?`${esc(m.date)} 종가 · ▲${(m.stocks||[]).filter(s=>s.chg_pct>0).length} ▼${(m.stocks||[]).filter(s=>s.chg_pct<0).length}`:"",`market`,m?`<div class="two2"><div><h4>상승</h4>${(m.top||[]).slice(0,6).map(mkRowS).join("")}</div><div><h4>하락</h4>${(m.bottom||[]).slice(0,6).map(mkRowS).join("")}</div></div>`:"")}
       ${card("13F 매집 · 축소 × 전일 등락",hedge?`${esc(hedge.quarter)} 보유(${qInfo(hedge.quarter).end} 기준) × 등락 ${m?esc(m.date):"—"}`:"",`hedge`,hedge?`<div class="two2"><div><h4>매집 ${hedge.accum.length}</h4>${byMove(hedge.accum).slice(0,7).map(hfRow).join("")}</div><div><h4>축소 · 청산 ${hedge.distrib.length}</h4>${byMove(hedge.distrib).slice(0,7).map(hfRow).join("")}</div></div>${m?"":`<div class="none">마켓 데이터가 들어오면 등락이 붙습니다</div>`}`:"")}
-      ${data.macro?card("시장",`${esc(data.macro.date)} · 지수 · 금리 · 심리`,`macro`,(()=>{const mc=data.macro;const all=Object.values(mc.indices).flat();const pick=["^GSPC","^IXIC","^NBI","^STOXX","^N225","000300.SS","^KS11","^KQ11"].map(t=>all.find(r=>r.t===t)).filter(Boolean);const t10=(mc.rates||[]).find(r=>r.t==="^TNX"),hy=(mc.fred||[]).find(r=>r.id==="BAMLH0A0HYM2"),vix=(mc.vol||[]).find(r=>r.t==="^VIX"),fg=mc.fear_greed;return`<div class="two2"><div>${pick.map(r=>row("",esc(r.name),`<span class="num ${cls(r.chg)}">${bbar(r.chg,8,1)}${fmtPct(r.chg)}</span>`)).join("")}</div><div>${fg?row("",`Fear &amp; Greed`,`<span class="num"><b>${fg.score.toFixed(0)}</b> ${FG_KO[fg.rating]||esc(fg.rating)}</span>`):""}${t10?row("",`미 10년`,`<span class="num">${t10.last.toFixed(2)}% <span class="${t10.chg_bp>0?"down":"up"}">${fmtBp(t10.chg_bp)}</span></span>`):""}${hy?row("",`HY 스프레드`,`<span class="num">${hy.last.toFixed(2)}% <span class="${hy.chg_bp>0?"down":"up"}">${fmtBp(hy.chg_bp)}</span></span>`):""}${vix?row("",`VIX`,`<span class="num">${vix.last.toFixed(2)} <span class="${vix.chg>0?"down":"up"}">${fmtPct(vix.chg)}</span></span>`):""}${(mc.us_sectors||[]).length?row("",`섹터 1위 / 꼴찌`,`<span class="num"><span class="up">${esc(mc.us_sectors[0].name)} ${fmtPct(mc.us_sectors[0].chg)}</span> · <span class="down">${esc(mc.us_sectors[mc.us_sectors.length-1].name)} ${fmtPct(mc.us_sectors[mc.us_sectors.length-1].chg)}</span></span>`):""}</div></div>`;})()):""}
+      ${data.macro?card("글로벌마켓",`${esc(data.macro.date)} · 지수 · 금리 · 심리`,`macro`,(()=>{const mc=data.macro;const all=Object.values(mc.indices).flat();const pick=["^GSPC","^IXIC","^NBI","^STOXX","^N225","000300.SS","^KS11","^KQ11"].map(t=>all.find(r=>r.t===t)).filter(Boolean);const t10=(mc.rates||[]).find(r=>r.t==="^TNX"),hy=(mc.fred||[]).find(r=>r.id==="BAMLH0A0HYM2"),vix=(mc.vol||[]).find(r=>r.t==="^VIX"),fg=mc.fear_greed;return`<div class="two2"><div>${pick.map(r=>row("",esc(r.name),`<span class="num ${cls(r.chg)}">${bbar(r.chg,8,1)}${fmtPct(r.chg)}</span>`)).join("")}</div><div>${fg?row("",`Fear &amp; Greed`,`<span class="num"><b>${fg.score.toFixed(0)}</b> ${FG_KO[fg.rating]||esc(fg.rating)}</span>`):""}${t10?row("",`미 10년`,`<span class="num">${t10.last.toFixed(2)}% <span class="${t10.chg_bp>0?"down":"up"}">${fmtBp(t10.chg_bp)}</span></span>`):""}${hy?row("",`HY 스프레드`,`<span class="num">${hy.last.toFixed(2)}% <span class="${hy.chg_bp>0?"down":"up"}">${fmtBp(hy.chg_bp)}</span></span>`):""}${vix?row("",`VIX`,`<span class="num">${vix.last.toFixed(2)} <span class="${vix.chg>0?"down":"up"}">${fmtPct(vix.chg)}</span></span>`):""}${(mc.us_sectors||[]).length?row("",`섹터 1위 / 꼴찌`,`<span class="num"><span class="up">${esc(mc.us_sectors[0].name)} ${fmtPct(mc.us_sectors[0].chg)}</span> · <span class="down">${esc(mc.us_sectors[mc.us_sectors.length-1].name)} ${fmtPct(mc.us_sectors[mc.us_sectors.length-1].chg)}</span></span>`):""}</div></div>`;})()):""}
       ${m&&(m.stocks||[]).some(s=>s.rsi14!=null)?card("기술 신호","급등락 · 거래량 · RSI · 52주",`market`,(m.stocks||[]).map(s=>({s,n:sigs(s).length})).filter(o=>o.n).sort((a,b)=>b.n-a.n||Math.abs(b.s.chg_pct)-Math.abs(a.s.chg_pct)).slice(0,8).map(o=>row("",`${tkChip(o.s.ticker,accumSet().has(o.s.ticker)?"acc":distSet().has(o.s.ticker)?"dis":"")} ${coLink(o.s.name)}`,`${sigHTML(o.s)}<span class="num ${cls(o.s.chg_pct)}">${fmtPct(o.s.chg_pct)}</span>`)).join("")):""}
       ${card("13F 매집·축소 종목 소식","뉴스·임상 중 헷지펀드 신호 종목",`hedge`,accumHits.length?accumHits.slice(0,8).map(({k,x})=>k==="news"?row(hhmm(x.ts),`<a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.headline||x.title)}</a>`,hfTagFor([x.title,x.headline,x.summary].join(" "))):row(hhmm(x.ts),`${coLink(x.company)} · ${esc(x.title)}`,hfTagFor(x.company+" "+x.sponsor))).join(""):"")}
       ${card("14일 트렌드","일별 건수",`trend`,trendDays?["news","dart","trials"].map(k=>{const days=[...trendDays].reverse();return`<div class="row"><span class="t" style="width:48px">${KINDS[k]}</span><span class="x">${spark(days.map(d=>data[k].filter(x=>dayOf(x.ts)===d).length),days.map(d=>d.slice(5)))}</span></div>`;}).join(""):`<div class="none"><a href="#trend" data-go="trend">트렌드 탭</a>을 열면 14일치를 읽어옵니다</div>`)}
