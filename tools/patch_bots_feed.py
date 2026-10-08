@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 """봇 4개에 feed_publish(공개 버킷 저장)를 심는 1회성 패치. 멱등: 이미 패치된 파일은 건너뜀.
-대상: C:\biopharmabot-rss-cloudrun\main.py · C:\biopharmabot-dart\main.py · C:\biopharmabot-ctgov\main.py · C:\biopharmabot-daily\daily.py
+대상: bots/rss/main.py · bots/dart/main.py · bots/ctgov/main.py · bots/daily/daily.py (이 파일 기준 ../bots). 2026-10-07 적용 완료.
 """
-import re, sys
+import re, sys, os
+BOTS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "bots")
 sys.stdout.reconfigure(encoding="utf-8")
 
 SNIP = r'''
@@ -65,7 +66,7 @@ def patch(path, anchor, edits):
 
 
 # 1) RSS — 뉴스
-patch("C:/biopharmabot-rss-cloudrun/main.py", 'SEEN_BLOB = "rss_seen_articles.json"', [(
+patch(BOTS + "/rss/main.py", 'SEEN_BLOB = "rss_seen_articles.json"', [(
 """                tg_ok = send_telegram(article, analysis)
                 if tg_ok:
                     sonnet_sent += 1
@@ -83,7 +84,7 @@ patch("C:/biopharmabot-rss-cloudrun/main.py", 'SEEN_BLOB = "rss_seen_articles.js
 """)])
 
 # 2) DART — 공시
-patch("C:/biopharmabot-dart/main.py", 'GCS_BUCKET = os.environ.get("GCS_BUCKET", "biopharmabot-data")', [(
+patch(BOTS + "/dart/main.py", 'GCS_BUCKET = os.environ.get("GCS_BUCKET", "biopharmabot-data")', [(
 """    if send_telegram_text(message):
         tag = "AI" if current_summary else "기본"
         print(f"[TG:{tag}] {filing['corp_name']} - {filing['report_nm'][:30]}")
@@ -106,7 +107,7 @@ REC = """{"id": f"{nct}:{today}", "nct": nct, "company": company, "region": regi
                                "status": new.get("status", ""), "phases": new.get("phases", []),
                                "cond": new.get("cond", [])[:3], "interv": new.get("interv", [])[:3],
                                "lines": LINES, "url": f"https://clinicaltrials.gov/study/{nct}"}"""
-patch("C:/biopharmabot-ctgov/main.py", "TELEGRAM_SAFE = 3900", [(
+patch(BOTS + "/ctgov/main.py", "TELEGRAM_SAFE = 3900", [(
 """    entries, changed, unchanged = [], 0, 0
     REGION_ORDER = {"KR": 0, "US": 1, "WATCH": 2}
 """,
@@ -138,7 +139,7 @@ patch("C:/biopharmabot-ctgov/main.py", "TELEGRAM_SAFE = 3900", [(
 """)])
 
 # 4) daily — 미국 마켓
-patch("C:/biopharmabot-daily/daily.py", 'ET = ZoneInfo("America/New_York")', [(
+patch(BOTS + "/daily/daily.py", 'ET = ZoneInfo("America/New_York")', [(
 """    ok = send_photo(png, caption)
     print("전송", "성공" if ok else "실패")
 """,
@@ -153,12 +154,12 @@ patch("C:/biopharmabot-daily/daily.py", 'ET = ZoneInfo("America/New_York")', [(
                        for i, (t, close, chg, _) in enumerate(ranked, 1)],
         }], single=True)
 """)])
-p = "C:/biopharmabot-daily/daily.py"; s = open(p, encoding="utf-8").read()
+p = BOTS + "/daily/daily.py"; s = open(p, encoding="utf-8").read()
 s = s.replace("from datetime import date, datetime, timedelta\n", "from datetime import date, datetime, timedelta, timezone\n", 1)
 if "\nimport json\n" not in s:
     s = s.replace("import csv\n", "import csv\nimport json\n", 1)
 open(p, "w", encoding="utf-8", newline="").write(s)
-r = "C:/biopharmabot-daily/requirements.txt"; t = open(r, encoding="utf-8").read()
+r = BOTS + "/daily/requirements.txt"; t = open(r, encoding="utf-8").read()
 if "google-cloud-storage" not in t:
     open(r, "a", encoding="utf-8").write("\ngoogle-cloud-storage\n")
 print("done")

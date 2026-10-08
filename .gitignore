@@ -1,0 +1,4 @@
+# bots/*와 archive/*는 각각 별도 git 저장소(원격 GitHub). 이 저장소(biopharmabot.github.io)는 페이지 소스와 tools/만 추적한다.
+bots/
+archive/
+__pycache__/
