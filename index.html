@@ -396,7 +396,6 @@ svg.sp{width:66px;height:20px;display:block}
     const parts=[`<span>오늘 <b>${kstToday()}</b> KST</span>`];const latest=k=>data[k][0]&&data[k][0].ts;
     if(data.macro)parts.push(`<span>글로벌마켓 <b>${esc(data.macro.date)}</b></span>`);parts.push(`<span>뉴스 최근 <b>${fmtTs(latest("news"))}</b></span>`,`<span>DART 최근 <b>${fmtTs(latest("dart"))}</b></span>`,`<span>임상 최근 <b>${fmtTs(latest("trials"))}</b></span>`,`<span>마켓 <b>${data.market?data.market.date:"—"}</b></span>`);
     if(hedge)parts.push(`<span>13F <b>${esc(hedge.quarter)}</b></span>`);if(bb)parts.push(`<span>BB 카탈리스트 <b>${esc(bb.asof)}</b></span>`);
-    if(lastSeen){const n=["news","dart","trials"].reduce((a,k)=>a+data[k].filter(x=>(x.ts||"")>lastSeen).length,0);parts.push(`<span>지난번 본 뒤로 <b>${n}건</b> 새로 옴</span>`);}
     $("strip").innerHTML=parts.join("");
     $("status").innerHTML=`<i></i>feed 뉴스 ${data.news.length} · 글로벌마켓 ${data.macro?data.macro.date:"—"} · 공시 ${data.dart.length} · 임상 ${data.trials.length} · 마켓 ${data.market?data.market.date+" "+(data.market.stocks||[]).length+"종목":"—"} · 13F ${hedge?hedge.quarter:"—"} · Hub ${cal?cal.n:"—"} · BB ${bb?bb.asof:"—"}`;
   }
@@ -510,7 +509,7 @@ svg.sp{width:66px;height:20px;display:block}
     return`<table><thead><tr><th></th><th>값</th><th>1D</th>${cols.map(c=>`<th>${c}</th>`).join("")}<th>30일</th></tr></thead><tbody>${rows.map(r=>`<tr><td title="${esc(r.name)} ${esc(r.t)}">${esc(r.name)}${opts.tk?` <span class="tag">${esc(r.t)}</span>`:""}</td><td class="num">${fmtN(r.last)}</td><td class="num ${cls(r.chg)}">${bbar(r.chg,8,1)}${fmtPct(r.chg)}</td>${cols.map(c=>`<td class="num ${cls(r[key[c]])}">${fmtPct(r[key[c]])}</td>`).join("")}<td class="sp">${spl(r.spark,r.chg_1m==null?null:r.chg_1m>=0)}</td></tr>`).join("")}</tbody></table>`;}
   function renderMacro(){
     const v=$("view"),m=data.macro;
-    if(!m){v.innerHTML=`<div class="empty"><b>글로벌마켓 데이터가 아직 없습니다.</b><br>daily 봇이 아침 07:30에 미국 장 마감 기준으로 넣습니다 (v1.10부터).</div>`;return;}
+    if(!m){v.innerHTML=`<div class="empty"><b>글로벌마켓 데이터가 아직 없습니다.</b></div>`;return;}
     const fg=m.fear_greed;const allIdx=Object.values(m.indices).flat();const find=t=>allIdx.find(r=>r.t===t);
     const tile=(r,label,extra)=>r?`<div><div class="k">${esc(label||r.name)} <span class="tag">${esc(r.date)}</span></div><div class="v num ${cls(r.chg)}">${fmtPct(r.chg)}</div><div class="d">${fmtN(r.last)} · 1M ${fmtPct(r.chg_1m)} · YTD ${fmtPct(r.ytd)}${extra||""}</div></div>`:"";
     const spx=find("^GSPC"),ndq=find("^IXIC"),kospi=find("^KS11"),kosdaq=find("^KQ11"),nbi=find("^NBI"),drg=find("^DRG"),xbi=find("XBI"),kbio=find("244580.KS"),khc=find("143860.KS");
@@ -700,7 +699,7 @@ svg.sp{width:66px;height:20px;display:block}
     const byMove=arr=>[...arr].sort((a,b)=>Math.abs((stockOf(b)||{}).chg_pct||0)-Math.abs((stockOf(a)||{}).chg_pct||0));
     const top=(arr,n)=>[...arr.filter(isNew),...arr.filter(x=>!isNew(x))].slice(0,n);
     const trialsPick=[...data.trials.filter(x=>x.change==="new"||/중단|terminat|withdraw|suspend/i.test((x.lines||[]).join(" ")+x.status)),...data.trials].filter((x,i,a)=>a.indexOf(x)===i);
-    v.innerHTML=`<div class="hdr"><b>${since?`지난번 본 뒤로 ${newN}건`:"처음 오셨군요"}</b><span class="sub">${since?`마지막 방문 ${fmtTs(since)} · HIGH 뉴스 ${hiNew.length} · 공시 ${data.dart.filter(isNew).length} · 임상 ${data.trials.filter(isNew).length}`:"다음 방문부터 새로 온 것만 추려 보여 줍니다"}</span></div>
+    v.innerHTML=`<div class="hdr"><b>개요 · ${esc(today)}</b></div>
     <div class="kpi">
       <div><div class="k">오늘 뉴스</div><div class="v">${data.news.filter(x=>dayOf(x.ts)===today).length}</div><div class="d">HIGH ${hiNews.filter(x=>dayOf(x.ts)===today).length}</div></div>
       <div><div class="k">오늘 공시</div><div class="v">${data.dart.filter(x=>dayOf(x.ts)===today).length}</div><div class="d">${data.dart[0]?"최근 "+fmtTs(data.dart[0].ts):"—"}</div></div>
