@@ -1,23 +1,45 @@
 # Biopharmabot 대시보드
 
-- 공개 페이지: https://biopharmabot.github.io (이 저장소 `index.html` · GitHub Pages)
-- 데이터: 공개 버킷 `gs://biopharmabot-public/feed/<kind>/latest.json` (`kind` = news · dart · trials · market). 봇이 텔레그램으로 보낸 항목을 `feed_publish()`로 같이 적는다. 페이지는 fetch만 한다(DB·로그인 없음).
+- 공개 페이지: https://biopharmabot.github.io (이 저장소 `index.html` · GitHub Pages · 로그인 없음)
+- 실시간 feed: 공개 버킷 `gs://biopharmabot-public/feed/<kind>/latest.json` (`kind` = news · dart · trials · market). 봇이 텔레그램으로 보낸 항목을 `feed_publish()`로 같이 적는다.
+- 정적 데이터(`data/`): 이 저장소에 커밋하는 JSON. 헷지펀드 13F(분기) · Hub 카탈리스트 · Bloomberg 카탈리스트(주 1회) · 회사 매핑.
+
+## 탭 (2026-10-08 개편 · mooboard · 박종현 coverage 대시보드 · bio-research.ai 참고)
+| 탭 | 내용 | 데이터 |
+|---|---|---|
+| 개요 | 지난번 본 뒤로 요약 · KPI 줄 · 카드(HIGH 뉴스·공시·임상·이번 주 카탈리스트·마켓 무버·13F 매집×등락·매집 종목 소식·14일 트렌드) | 전부 |
+| 뉴스 · DART · 임상 · 마켓 | 봇 feed 그대로 (필터·검색·이전 날짜 더 보기). 13F 매집/축소 종목엔 태그 | feed |
+| 헷지펀드 | 13F 분기 동향(신규·순매수·순매도·혼조·청산·M&A소멸, 주식수/비중 기준) · 종목별 시그널 표 · 교차 보유 매트릭스 · 펀드별 상위 보유 | `data/hedge.json` |
+| 캘린더 | Hub 저술 + Bloomberg 캘린더 합본. 소스·지역·중요도·유형 필터, 월별 묶음, 날짜 미확정·미정·지난 예정일 분리. 같은 날짜·유형·티커면 한 건(Hub+BB) | `data/catalyst.json` · `data/bloomberg.json` |
+| 트렌드 | 최근 14일 일별 건수·카테고리·출처·회사 상위·카탈리스트 월별/유형/출처 | feed 날짜 파일 + data |
+| 회사 모아보기 | 회사명·티커 클릭 또는 상단 「회사·티커 바로가기」 → 마켓·13F·카탈리스트·뉴스·공시·임상을 한 패널에. 딥링크 `#<탭>&co=<티커 또는 회사명>` | 전부 |
 
 ## 폴더
 ```
-Biopharmabot/              ← git: Biopharmabot/biopharmabot.github.io (페이지 + tools만 추적)
-  index.html               페이지 소스 (뉴스·DART·임상·마켓 탭)
-  tools/deploy_bots.sh     봇 재배포: bash tools/deploy_bots.sh rss dart ctgov daily
-  tools/patch_bots_feed.py feed_publish 패치(1회성 · 적용 완료)
-  bots/                    (gitignore · 각각 별도 git 저장소)
-    rss/     rss-monitor-svc   Cloud Run 서비스 · 뉴스 (원격 biopharmabot-rss-cloudrun)
-    dart/    dart-monitor-svc  Cloud Run 서비스 · DART 공시
-    ctgov/   ctgov-monitor-svc Cloud Run 서비스 · ClinicalTrials.gov 변경 (daily/tickers.csv를 읽음)
-    daily/   biopharma-daily-job Cloud Run 잡 · 미국 바이오 마켓 데일리 (deploy.sh 자체 보유)
-  archive/biopharmabot-v1/ 1세대 GitHub Actions 봇 (중지 · ARCHIVED.md 참고)
+Biopharmabot/                ← git: Biopharmabot/biopharmabot.github.io (페이지·tools·data 추적)
+  index.html                 페이지 소스 (단일 파일 · 외부 라이브러리 없음)
+  data/hedge.json            tools/export_hedge.py     ← D:\13F\out\Hedge_fund_<분기>.xlsx (분기 1회)
+  data/catalyst.json         tools/export_catalyst.py  ← D:\Hub\hub.sqlite catalyst (upcoming/imminent · 수시)
+  data/companies.json        (export_catalyst.py가 같이 씀) Hub company krx·bloomberg + bots/daily/tickers.csv
+  data/bloomberg.json        tools/export_bloomberg.py ← D:\Catalyst\raw\excel\Biopharma_catalyst_YYYYMMDD.xlsx 최신 (주 1회)
+  tools/deploy_bots.sh       봇 재배포: bash tools/deploy_bots.sh rss dart ctgov daily (이미지 태그는 파일 안에서 올림)
+  tools/patch_bots_feed.py   feed_publish 패치(1회성 · 적용 완료)
+  bots/                      (gitignore · 각각 별도 로컬 git 저장소 · 원격 없음)
+    rss/    rss-monitor-svc    Cloud Run 서비스 · 뉴스 (10분)
+    dart/   dart-monitor-svc   Cloud Run 서비스 · DART 공시 (평일 07~19시 매분)
+    ctgov/  ctgov-monitor-svc  Cloud Run 서비스 · ClinicalTrials.gov 변경 (매일 08:00 KST)
+    daily/  biopharma-daily-job Cloud Run 잡 · 미국 바이오 마켓 데일리 (화~토 07:30 KST)
+  archive/biopharmabot-v1/   1세대 GitHub Actions 봇 (중지 · ARCHIVED.md 참고)
 ```
-2026-10-08 `C:\biopharmabot*`에서 여기로 이동. GCP 프로젝트 `project-56beef4a-f1e9-4e7b-b7a` · 리전 asia-northeast3.
+GCP 프로젝트 `project-56beef4a-f1e9-4e7b-b7a` · 리전 asia-northeast3. 모델: 분류·요약 Haiku 5.5, 심층분석·MoA Sonnet 5.5 (2026-10-08).
 
-## 현재 상태 / 할 일
-- 봇 4개 소스에 feed_publish 패치는 들어가 있으나 **아직 재배포 전** (배포본 rss v50 · dart v19.14 · ctgov v1.3 · daily v1.6). `bash tools/deploy_bots.sh rss dart ctgov daily` 실행 후 다음 발송부터 feed가 쌓인다.
-- 각 봇 폴더의 수정분(main.py 등)은 아직 커밋 전. 배포가 확인되면 각 폴더에서 commit·push.
+## 갱신 루틴
+- **매주** Bloomberg raw를 `D:\Catalyst\raw\excel\`에 받은 뒤: `python tools/export_bloomberg.py` → commit·push.
+- **분기** 13F 파이프라인(`D:\13F` run_all.py) 끝난 뒤: `python tools/export_hedge.py` → commit·push.
+- **수시** Hub catalyst 저술이 바뀌면: `python tools/export_catalyst.py` → commit·push.
+- 페이지 수정: `index.html` 고치고 push하면 GitHub Pages 반영. 로컬 확인은 `python -m http.server 8799` (8765는 Hub agentview가 씀).
+
+## 알아둘 것
+- 뉴스·임상의 회사 매칭은 회사명·티커 문자열 기반이라 누락·오탐이 있다. feed에 티커를 넣으면 정확해진다(봇 수정 필요).
+- 캘린더 중요도: Hub high/medium/low 그대로, Bloomberg는 Key Catalyst → HIGH, 나머지 → LOW. 기본 필터는 HIGH·MID.
+- 예정일이 지났는데 상태가 upcoming인 Hub 행은 「지난 예정일」로 접어 둔다(저술 미갱신분). 45일 넘게 지난 건 export에서 뺀다.
