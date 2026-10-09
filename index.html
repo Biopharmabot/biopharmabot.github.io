@@ -744,13 +744,29 @@ svg.sp{width:66px;height:20px;display:block}
     const sec=(t,body,n)=>`<h3 class="sec">${t}${n?` <span style="font-weight:400">${n}</span>`:""}</h3>${body||`<div class="note">없음</div>`}`;
     dr.innerHTML=`<div class="hd"><b>${esc(e.name)}</b>${e.tk.map(t=>`<span class="tag">${esc(t)}</span>`).join("")}${e.krx?`<span class="tag">${esc(e.krx)}</span>`:""}${hfTagFor("",e.tk)}<button type="button" id="drClose">닫기 ✕</button></div>
       ${d.market.length?sec("마켓",d.market.map(s=>`<div class="row" style="display:flex;gap:12px;padding:6px 0"><span class="num">${esc(s.ticker)}</span><span>종가 $${Number(s.close).toFixed(2)}</span><span class="num ${cls(s.chg_pct)}">${fmtPct(s.chg_pct)}</span><span style="color:var(--mute)">${data.market.date} · 등락 순위 ${s.rank}/${data.market.stocks.length}</span></div>`).join("")):""}
-      ${hedge&&(d.hedge.length||d.sig.length)?sec(`13F ${esc(hedge.quarter)}`,d.hedge.map(h=>`<div class="note" style="color:var(--fg)">보유 ${h.n}개 펀드 · 합산 비중 ${fmtW(h.sum)} (<span class="${cls(h.d)}">${fmtD(h.d)}</span>)</div><div class="grp"><div class="k">펀드별</div><div class="v">${FUNDS.filter(f=>h.w[f]!=null).map(f=>`<span class="tag">${esc(f)} ${fmtW(h.w[f])}</span>`).join("")}</div></div>`).join("")+d.sig.map(s=>`<div class="grp"><div class="k">${esc(hedge.prev)}→${esc(hedge.quarter)}</div><div class="v"><span class="tag">늘림 ${s.add}</span><span class="tag">신규 ${s.new}</span><span class="tag">줄임 ${s.trim}</span><span class="tag">청산 ${s.exit}</span><span class="tag"><b class="${cls(s.net)}">Net ${s.net>0?"+":""}${s.net}</b></span><span class="tag">Σ비중Δ <span class="${cls(s.wtd)}">${fmtD(s.wtd)}</span></span></div></div>`).join("")):""}
+      ${hedge&&(e.tk.length||d.hedge.length||d.sig.length)?sec(`13F ${esc(hedge.quarter)}`,d.hedge.length||d.sig.length?d.hedge.map(h=>`<div class="note" style="color:var(--fg)">보유 ${h.n}개 펀드 · 합산 비중 ${fmtW(h.sum)} (<span class="${cls(h.d)}">${fmtD(h.d)}</span>)</div><div class="grp"><div class="k">펀드별</div><div class="v">${FUNDS.filter(f=>h.w[f]!=null).map(f=>`<span class="tag">${esc(f)} ${fmtW(h.w[f])}</span>`).join("")}</div></div>`).join("")+d.sig.map(s=>`<div class="grp"><div class="k">${esc(hedge.prev)}→${esc(hedge.quarter)}</div><div class="v"><span class="tag">늘림 ${s.add}</span><span class="tag">신규 ${s.new}</span><span class="tag">줄임 ${s.trim}</span><span class="tag">청산 ${s.exit}</span><span class="tag"><b class="${cls(s.net)}">Net ${s.net>0?"+":""}${s.net}</b></span><span class="tag">Σ비중Δ <span class="${cls(s.wtd)}">${fmtD(s.wtd)}</span></span></div></div>`).join(""):`<div class="note">추적 8개 펀드 보유 없음</div>`):""}
+      <div id="drTrials"></div>
       ${sec("카탈리스트",d.cat.length?`<div class="cal">${d.cat.filter(c=>c.sort>=kstToday()||c.prec==="tbd").slice(0,25).map(evHTML).join("")}</div>`:"",d.cat.length)}
       ${sec("뉴스",d.news.length?`<div class="feed">${d.news.slice(0,15).map(x=>itemHTML(x,"news")).join("")}</div>`:"",d.news.length)}
-      ${sec("DART 공시",d.dart.length?`<div class="feed">${d.dart.slice(0,15).map(x=>itemHTML(x,"dart")).join("")}</div>`:"",d.dart.length)}
-      ${sec("임상 변경",d.trials.length?`<div class="feed">${d.trials.slice(0,15).map(x=>itemHTML(x,"trials")).join("")}</div>`:"",d.trials.length)}
-      <div class="note">뉴스·임상은 회사명·티커 문자열 매칭이라 누락·오탐이 있을 수 있습니다. 지금 읽어 둔 범위(최근 300건 + 열어 본 날짜)만 봅니다.</div>`;
+      ${!e.tk.length||e.krx||d.dart.length?sec("DART 공시",d.dart.length?`<div class="feed">${d.dart.slice(0,15).map(x=>itemHTML(x,"dart")).join("")}</div>`:"",d.dart.length):""}`;
     $("ov").classList.add("on");dr.classList.add("on");$("drClose").onclick=closeCompany;
+    loadCompanyTrials(e);
+  }
+  /* 임상 현황: ctgov 봇이 매일 올리는 회사별 파일(feed/ctgov/company/<티커|회사명>.json). 리드 스폰서 시험 중
+     최근 3개월 시작 · 완료(primary/study) 예정 ±3개월 · 최근 1개월 갱신 만 담겨 있다. */
+  const TR_ST={RECRUITING:"모집 중",ACTIVE_NOT_RECRUITING:"진행 중(모집 종료)",NOT_YET_RECRUITING:"모집 예정",ENROLLING_BY_INVITATION:"초청 모집",COMPLETED:"완료",TERMINATED:"중단",SUSPENDED:"일시 중지",WITHDRAWN:"철회",UNKNOWN:"미확인"};
+  const TR_WHY={new:"신규",completion:"완료 임박",updated:"최근 갱신"};
+  const phTxt=p=>(p||[]).map(x=>x.replace("PHASE","P").replace("EARLY_P1","P0").replace("NA","N/A")).join("/");
+  let trialsSeq=0;
+  async function loadCompanyTrials(e){
+    const box=$("drTrials");if(!box)return;const seq=++trialsSeq;
+    const keys=[...e.tk,e.name].filter(Boolean).map(k=>k.replace(/[\/\?#%\s]+/g,"-"));
+    box.innerHTML=`<h3 class="sec">임상 현황</h3><div class="note">불러오는 중…</div>`;
+    let doc=null;for(const k of keys){doc=await getJSON(`ctgov/company/${encodeURIComponent(k)}.json`);if(doc)break;}
+    if(seq!==trialsSeq)return;
+    if(!doc){box.innerHTML=`<h3 class="sec">임상 현황</h3><div class="note">ClinicalTrials.gov 감시 대상이 아니거나 최근 3개월 내 시작·완료·갱신된 시험이 없습니다.</div>`;return;}
+    const row=t=>`<div class="ev"><div class="d" title="${esc(t.nct)}">${esc(phTxt(t.phases)||"—")}<br><span style="color:var(--mute)">${esc(TR_ST[t.status]||t.status)}</span></div><div><div class="h"><a href="https://clinicaltrials.gov/study/${esc(t.nct)}" target="_blank" rel="noopener">${esc(t.title)}</a>${t.why.map(w=>`<span class="tag ${w==="new"?"new":""}">${TR_WHY[w]||w}</span>`).join("")}</div><div class="m">${esc((t.interv||[]).join(", "))}${t.cond&&t.cond.length?" · "+esc(t.cond.join(", ")):""}${t.enroll?" · n="+t.enroll:""}</div><div class="m">${t.start?"시작 "+esc(t.start):""}${t.pcd?" · 1차 완료 "+esc(t.pcd)+(t.pcd_t==="ACTUAL"?"":"(예정)"):""}${t.cd&&t.cd!==t.pcd?" · 종료 "+esc(t.cd):""}${t.last_post?" · 갱신 "+esc(t.last_post):""}${t.why_stopped?" · 중단 사유: "+esc(t.why_stopped):""}</div></div></div>`;
+    box.innerHTML=`<h3 class="sec">임상 현황 <span style="font-weight:400">${doc.items.length}</span> <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--mute)">· 리드 스폰서 시험 ${doc.n_all}건 중 진행 중 ${doc.n_ongoing}건 · ${esc(doc.asof)}</span></h3><div class="cal">${doc.items.map(row).join("")}</div>`;
   }
   /* KPI 타일 → 조건에 맞는 종목 목록을 같은 서랍에 띄운다. 종목을 누르면 회사 서랍으로 넘어간다. */
   const SCREENS={

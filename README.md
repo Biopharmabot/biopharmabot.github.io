@@ -14,7 +14,7 @@
 | 헷지펀드 | 13F 분기 동향(신규·순매수·순매도·혼조·청산·M&A소멸, 주식수/비중 기준, 티커 옆 전일 등락) · **수급 지도 산점도**(가로 13F 합산 비중 변화 · 세로 1M/1W/1D/3M 수익률, 사분면 담고·오름 등) · 종목별 시그널 표 · 교차 보유 매트릭스 · 펀드별 상위 보유 | `data/hedge.json` + feed market |
 | 캘린더 | Hub 저술 + Bloomberg 캘린더 합본. **월간 달력 격자**(날짜 클릭 → 그 날만) · 이번 주/다음 주(D-n)/월별 · 진행 중(이달·분기·반기) · 이후 · 미정 · 지난 예정일. 소스·지역·중요도·유형 필터. 같은 날짜·유형·티커면 한 건(Hub+BB) | `data/catalyst.json` · `data/bloomberg.json` |
 | 트렌드 | 최근 14일 일별 건수·카테고리·출처·회사 상위·카탈리스트 월별/유형/출처 | feed 날짜 파일 + data |
-| 회사 모아보기 | 회사명·티커 클릭 또는 상단 「회사·티커 바로가기」 → 마켓·13F·카탈리스트·뉴스·공시·임상을 한 패널에. 딥링크 `#<탭>&co=<티커 또는 회사명>` | 전부 |
+| 회사 모아보기 | 회사명·티커 클릭 또는 상단 「회사·티커 바로가기」 → 마켓 · 13F(미국 티커 회사만) · **임상 현황** · 카탈리스트 · 뉴스 · DART 공시(국내 회사만)를 한 패널에. 딥링크 `#<탭>&co=<티커 또는 회사명>`. 임상 현황 = ctgov 봇(v1.8)이 매일 08:00 스냅샷에서 만드는 `feed/ctgov/company/<티커 또는 회사명>.json`(+index.json): 회사가 리드 스폰서인 시험 중 최근 3개월 시작 · primary/study completion ±3개월 · 최근 1개월 갱신인 것만, 최근 활동순 최대 80건. "13F 매집/축소" 태그는 화면에 안 보임(2026-10-10) | 전부 + feed ctgov |
 
 ## 폴더
 ```
@@ -34,7 +34,7 @@ ews.sqlite (로컬 조회용 사본 · 원할 때 실행 · 새 날짜만 추가
   bots/                      (gitignore · 각각 별도 로컬 git 저장소 · 원격 없음)
     rss/    rss-monitor-svc    Cloud Run 서비스 · 뉴스 (10분)
     dart/   dart-monitor-svc   Cloud Run 서비스 · DART 공시 (평일 07~19시 매분)
-    ctgov/  ctgov-monitor-svc  Cloud Run 서비스 · ClinicalTrials.gov 변경 (매일 08:00 KST)
+    ctgov/  ctgov-monitor-svc  Cloud Run 서비스 · ClinicalTrials.gov 변경 (매일 08:00 KST) · 미국 스폰서 = us_universe.py(tickers.csv − 의료기기·도구·진단·CRO) → us_sponsors.json, 유니버스 바뀌면 재생성 후 재배포(새 스폰서는 첫 실행 때 알림 없이 전체 수집)
     daily/  biopharma-daily-job Cloud Run 잡 · 미국 바이오 마켓 데일리 (화~토 07:30 KST) · macro.py = 글로벌마켓 스냅샷(무료 소스: 야후·FRED CSV·CNN F&G, 크립토 제외)
   archive/biopharmabot-v1/   1세대 GitHub Actions 봇 (중지 · ARCHIVED.md 참고)
 ```
