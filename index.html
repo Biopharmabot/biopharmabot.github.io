@@ -138,7 +138,8 @@ h3.sec.big{font-size:15px;letter-spacing:.02em;text-transform:none;color:var(--f
 .note{font-size:12px;color:var(--mute);margin:6px 0}
 .grp{display:grid;grid-template-columns:76px 1fr;gap:4px 10px;font-size:13px;padding:4px 0;border-bottom:1px solid var(--line)}
 .grp .k{font-family:var(--mono);font-size:11px;color:var(--mute);padding-top:2px}
-.grp .v{display:flex;flex-wrap:wrap;gap:4px 6px}
+.grp .v{display:flex;flex-wrap:wrap;gap:6px 18px}
+.grp .hco{display:inline-flex;align-items:baseline;gap:5px;white-space:nowrap}
 .tk{font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-radius:3px;padding:0 5px;cursor:pointer;background:var(--panel)}
 .tk:hover{border-color:var(--acc);color:var(--acc)}
 /* 2026-10-10 사용자 결정: 13F 매집/축소 칩 색 없음(모두 회색) */
@@ -587,7 +588,9 @@ svg.sp{width:66px;height:20px;display:block}
     const totMV=H.funds.reduce((a,f)=>a+f.mv,0);
     const catCount=t=>calAll().filter(c=>c.tk.includes(t)&&c.sort>=kstToday()&&c.imp!=="low").length;
     // 그룹 항목: 티커 + 「늘린↑줄인↓」 펀드 수. 데이터의 괄호(4↑1↓)가 있으면 그대로, 없으면 그룹의 순방향 n 을 방향에 맞춰 n↑0↓ / 0↑n↓ 로 쓴다. 전일 등락은 표시하지 않는다(2026-10-10).
-    const grp=(label,arr,extra,dir)=>(arr||[]).length?`<h3 class="sec">${label}</h3>`+arr.map(r=>`<div class="grp"><div class="k">${r.n!=null?r.n+"개 펀드":""}</div><div class="v">${r.items.map(it=>{const t=it.replace(/\(.*?\)|\*/g,"").trim();const m=/\((\d+)↑(\d+)↓\)/.exec(it);const ud=m?`${m[1]}↑ ${m[2]}↓`:r.n!=null?(dir==="down"?`0↑ ${r.n}↓`:`${r.n}↑ 0↓`):"";return tkChip(t,extra)+(ud?`<span class="tag">${ud}</span>`:"");}).join("")}</div></div>`).join(""):"";
+    const nameOf=(()=>{const m=new Map();[...(H.signals||[]),...(H.matrix||[])].forEach(x=>{if(x.t&&x.issuer&&!m.has(x.t))m.set(x.t,x.issuer);});return t=>m.get(t)||"";})();
+    const titleCase=n=>n.replace(/\b([A-Z])([A-Z]+)\b/g,(w,a,b)=>a+b.toLowerCase()).replace(/\b(Inc|Ltd|Plc|Corp|Co|Sa|Nv|Ag|Se|Spa|As|Ab)\b\.?/g,m=>m.toUpperCase()==="INC"?"Inc.":m);
+    const grp=(label,arr,extra,dir)=>(arr||[]).length?`<h3 class="sec">${label}</h3>`+arr.map(r=>`<div class="grp"><div class="k">${r.n!=null?r.n+"개 펀드":""}</div><div class="v">${r.items.map(it=>{const t=it.replace(/\(.*?\)|\*/g,"").trim();const m=/\((\d+)↑(\d+)↓\)/.exec(it);const ud=m?`${m[1]}↑ ${m[2]}↓`:r.n!=null?(dir==="down"?`0↑ ${r.n}↓`:`${r.n}↑ 0↓`):"";const nm=nameOf(t);return`<span class="hco">${nm?coLink(nm,titleCase(nm)):""}${tkChip(t,extra)}${ud?`<span class="tag">${ud}</span>`:""}</span>`;}).join("")}</div></div>`).join(""):"";
     const sig=H.signals.map(s=>({...s,chg:(data.market&&data.market.stocks||[]).find(x=>x.ticker===s.t)?.chg_pct??null,ncat:catCount(s.t)}));
     v.innerHTML=`<div class="hdr"><b>13F ${esc(H.quarter)}</b><span class="sub">보유 기준일 ${qInfo(H.quarter).end}</span></div>
     <div class="kpi"><div><div class="k">8펀드 13F 시총</div><div class="v">${fmtM(totMV)}</div><div class="d">${H.funds.map(f=>f.name.split(" ")[0]).join(" · ")}</div></div>
