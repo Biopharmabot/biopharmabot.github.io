@@ -273,7 +273,6 @@ svg.sp{width:66px;height:20px;display:block}
     <button role="tab" data-k="macro">글로벌마켓</button>
     <button role="tab" data-k="market">US 헬스케어</button>
     <button role="tab" data-k="news">뉴스</button>
-    <button role="tab" data-k="dart">DART<span class="n" id="n_dart"></span></button>
     <button role="tab" data-k="trials">임상<span class="n" id="n_trials"></span></button>
     <button role="tab" data-k="hedge">헷지펀드</button>
     <button role="tab" data-k="cal">캘린더<span class="n" id="n_cal"></span></button>
@@ -317,8 +316,8 @@ svg.sp{width:66px;height:20px;display:block}
   async function getJSON(path,abs){try{const r=await fetch((abs?"":BASE)+path+"?t="+Math.floor(Date.now()/60000),{cache:"no-store"});if(!r.ok)return null;return await r.json();}catch(e){return null;}}
   function merge(kind,arr){if(!Array.isArray(arr))return;const have=new Set(data[kind].map(x=>x.id));arr.forEach(x=>{if(!x.id||!have.has(x.id)){data[kind].push(x);have.add(x.id);}});data[kind].sort((a,b)=>(b.ts||"")<(a.ts||"")?-1:1);}
   async function loadLatest(){
-    const [n,d,t,m,mc]=await Promise.all([getJSON("news/latest.json"),getJSON("dart/latest.json"),getJSON("trials/latest.json"),getJSON("market/latest.json"),getJSON("macro/latest.json")]);
-    merge("news",n);merge("dart",d);merge("trials",t);if(m&&m.date)data.market=m;if(mc&&mc.date)data.macro=mc;
+    const [n,d,t,m,mc]=await Promise.all([getJSON("news/latest.json"),null,getJSON("trials/latest.json"),getJSON("market/latest.json"),getJSON("macro/latest.json")]);
+    merge("news",n);merge("trials",t);   // DART 는 대시보드에서 수집 안 함(2026-10-10 사용자 결정, 봇·텔레그램은 그대로)if(m&&m.date)data.market=m;if(mc&&mc.date)data.macro=mc;
     render();
   }
   async function loadStatic(){
@@ -337,7 +336,7 @@ svg.sp{width:66px;height:20px;display:block}
   async function loadTrendDays(n=14){
     if(trendDays)return;trendDays=[];
     const days=[];for(let i=0;i<n;i++)days.push(kstToday(i));
-    await Promise.all(days.flatMap(d=>["news","dart","trials"].map(k=>loadDay(k,d))));
+    await Promise.all(days.flatMap(d=>["news","trials"].map(k=>loadDay(k,d))));
     trendDays=days;render();
   }
 
@@ -407,10 +406,10 @@ svg.sp{width:66px;height:20px;display:block}
   /* ───────── nav / common render ───────── */
   function setTab(k){tab=k;cat="ALL";rel="ALL";q="";try{history.replaceState(null,"","#"+k);}catch(e){}if(k==="trend")loadTrendDays();render();window.scrollTo(0,0);}
   function renderTabs(){document.querySelectorAll("#tabs button").forEach(b=>{b.setAttribute("aria-selected",String(b.dataset.k===tab));b.onclick=()=>setTab(b.dataset.k);});
-    ["dart","trials"].forEach(k=>{const today=kstToday();const n=data[k].filter(x=>dayOf(x.ts)===today).length;$("n_"+k).textContent=n?n:"";});   // 뉴스 탭 배지는 없음(2026-10-10)
+    ["trials"].forEach(k=>{const today=kstToday();const n=data[k].filter(x=>dayOf(x.ts)===today).length;$("n_"+k).textContent=n?n:"";});   // 뉴스 탭 배지는 없음(2026-10-10)
     if(cal||bb){const n=calAll().filter(c=>isDated(c)&&c.imp!=="low"&&c.sort>=kstToday()&&c.sort<=kstToday(-7)).length;$("n_cal").textContent=n?n:"";}}
   function renderStrip(){
-    $("status").innerHTML=`<i></i>feed 뉴스 ${data.news.length} · 글로벌마켓 ${data.macro?data.macro.date:"—"} · 공시 ${data.dart.length} · 임상 ${data.trials.length} · 마켓 ${data.market?data.market.date+" "+(data.market.stocks||[]).length+"종목":"—"} · 13F ${hedge?hedge.quarter:"—"} · Hub ${cal?cal.n:"—"} · BB ${bb?bb.asof:"—"}`;
+    $("status").innerHTML=`<i></i>feed 뉴스 ${data.news.length} · 글로벌마켓 ${data.macro?data.macro.date:"—"} · 임상 ${data.trials.length} · 마켓 ${data.market?data.market.date+" "+(data.market.stocks||[]).length+"종목":"—"} · 13F ${hedge?hedge.quarter:"—"} · Hub ${cal?cal.n:"—"} · BB ${bb?bb.asof:"—"}`;
   }
   function renderFilters(){
     const f=$("filters");
@@ -464,8 +463,8 @@ svg.sp{width:66px;height:20px;display:block}
     const dart=data.dart.slice(0,8).map(x=>row(x.ts.slice(5,10)+" "+hhmm(x.ts),`${coLink(x.company)} · <a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.title)}</a>`)).join("");
     const tr=data.trials.slice(0,6).map(x=>row(dayOf(x.ts).slice(5),`${coLink(x.company)} · ${esc(x.title)}`,`<span class="tag ${x.change==="new"?"new":""}">${TR_CHANGE[x.change]||esc(x.change)}</span>`)).join("");
     const cov=mt.rows.slice(0,15).map(o=>row("",`${coLink(o.e.name)}${o.e.tk[0]?` <span class="tag">${esc(o.e.tk[0])}</span>`:""}`,`<span class="num" title="뉴스 ${o.news} · 공시 ${o.dart} · 임상 ${o.trials}">${o.total}</span>`)).join("");
-    return`<div class="side">${tab!=="dart"?`<section class="card"><div class="hd"><b>공시 스트림</b><a href="#dart" data-go="dart">DART →</a></div>${dart||`<div class="none">아직 없음</div>`}</section>`:""}
-      <section class="card"><div class="hd"><b>회사별 언급</b><span class="sub">뉴스·공시·임상 합산</span></div>${cov||`<div class="none">아직 없음</div>`}</section>
+    return`<div class="side">
+      <section class="card"><div class="hd"><b>회사별 언급</b><span class="sub">뉴스·임상 합산</span></div>${cov||`<div class="none">아직 없음</div>`}</section>
       ${tab!=="trials"?`<section class="card"><div class="hd"><b>임상 변경</b><a href="#trials" data-go="trials">임상 →</a></div>${tr||`<div class="none">아직 없음</div>`}</section>`:""}</div>`;
   }
   function renderList(){
@@ -484,7 +483,7 @@ svg.sp{width:66px;height:20px;display:block}
       list.forEach(x=>{const d=dayOf(x.ts);if(d!==day){day=d;h+=`<div class="day">${d===kstToday()?"오늘 · ":""}${d}</div>`;}h+=itemHTML(x);});
       main=h+`</div><button class="more" id="more" type="button">이전 날짜 더 보기</button>`;
     }
-    v.innerHTML=tab==="news"?main:`<div class="two"><div>${main}</div>${sidebarHTML()}</div>`;   // 뉴스 탭은 사이드바 없음(2026-10-10)
+    v.innerHTML=main;   // 사이드바(공시 스트림·회사별 언급·임상 변경) 없음 — 2026-10-10 사용자 결정
     const b=$("more");if(b)b.onclick=()=>loadMore(tab);
     v.querySelectorAll("[data-go]").forEach(a=>a.onclick=e=>{e.preventDefault();setTab(a.dataset.go);});
   }
@@ -686,11 +685,10 @@ svg.sp{width:66px;height:20px;display:block}
     const wk=(k)=>{const a=data[k].filter(x=>dayOf(x.ts)>=kstToday(6)).length,b=data[k].filter(x=>dayOf(x.ts)>=kstToday(13)&&dayOf(x.ts)<kstToday(6)).length;return[a,b];};
     const tile=(k,label)=>{const [a,b]=wk(k);return`<div class="tile"><div class="k">${label} · 일별 건수 (14일)</div><div class="v">${a}<small style="font-size:12px;font-weight:400;color:var(--mute)"> 최근 7일${b?` · 그 전 7일 ${b} (${a>=b?"+":""}${b?Math.round((a/b-1)*100):0}%)`:""}</small></div>${spark(daily(k),lab)}</div>`;};
     v.innerHTML=`<div class="hdr"><b>트렌드</b><span class="sub">최근 14일 · ${firstDay?`데이터는 ${firstDay}부터 (봇 feed 시작 2026-10-08)`:"아직 쌓인 데이터 없음"} · 쌓일수록 의미가 생깁니다</span></div>
-    <div class="tiles">${tile("news","뉴스")}${tile("dart","DART 공시")}${tile("trials","임상 변경")}
+    <div class="tiles">${tile("news","뉴스")}${tile("trials","임상 변경")}
       <div class="tile"><div class="k">뉴스 카테고리 (14일 · ${N.length}건)</div>${N.length?hbars(countBy(N,x=>x.category||"기타"),N.length):`<div class="none">—</div>`}</div>
       <div class="tile"><div class="k">뉴스 관련도</div>${N.length?hbars([["HIGH",N.filter(x=>x.relevance==="high").length],["MID",N.filter(x=>x.relevance==="medium").length],["LOW",N.filter(x=>!["high","medium"].includes(x.relevance)).length]],N.length):`<div class="none">—</div>`}</div>
       <div class="tile"><div class="k">뉴스 출처</div>${N.length?hbars(countBy(N,x=>x.source).slice(0,8),N.length):`<div class="none">—</div>`}</div>
-      <div class="tile"><div class="k">공시 많은 회사 (14일)</div>${D.length?hbars(countBy(D,x=>x.company).slice(0,10).map(p=>[p[0],p[1],coLink(p[0])])):`<div class="none">—</div>`}</div>
       <div class="tile"><div class="k">임상 변경 유형</div>${T.length?hbars(countBy(T,x=>TR_CHANGE[x.change]||x.change),T.length):`<div class="none">—</div>`}</div>
       <div class="tile"><div class="k">임상 변경 많은 회사 (14일)</div>${T.length?hbars(countBy(T,x=>x.company).slice(0,10).map(p=>[p[0],p[1],coLink(p[0])])):`<div class="none">—</div>`}</div>
       <div class="tile"><div class="k">임상 단계 (변경분)</div>${T.length?hbars(countBy(T.flatMap(x=>(x.phases&&x.phases.length?x.phases:["미상"])),x=>x)):`<div class="none">—</div>`}</div>
@@ -702,7 +700,7 @@ svg.sp{width:66px;height:20px;display:block}
   function renderHome(){
     const v=$("view");const since=prevSeen;const today=kstToday();const A=accumSet();
     const isNew=x=>since&&(x.ts||"")>since;
-    const newN=["news","dart","trials"].reduce((a,k)=>a+data[k].filter(isNew).length,0);
+    const newN=["news","trials"].reduce((a,k)=>a+data[k].filter(isNew).length,0);
     const hiNews=data.news.filter(x=>x.relevance==="high");const hiNew=hiNews.filter(isNew);
     const m=data.market;const byName=m?new Map((m.stocks||[]).map(s=>[s.name,s])):new Map();
     const accumHits=[...data.news.filter(x=>hfHit([x.title,x.headline,x.summary].join(" "))).map(x=>({k:"news",x})),...data.trials.filter(x=>hfHit(x.company+" "+x.sponsor)).map(x=>({k:"trials",x}))].sort((a,b)=>(b.x.ts||"")<(a.x.ts||"")?-1:1);
@@ -723,7 +721,6 @@ svg.sp{width:66px;height:20px;display:block}
     v.innerHTML=`<div class="hdr"><b>개요 · ${esc(today)}</b></div>
     <div class="kpi">
       <div><div class="k">오늘 뉴스</div><div class="v">${data.news.filter(x=>dayOf(x.ts)===today).length}</div><div class="d">HIGH ${hiNews.filter(x=>dayOf(x.ts)===today).length}</div></div>
-      <div><div class="k">오늘 공시</div><div class="v">${data.dart.filter(x=>dayOf(x.ts)===today).length}</div><div class="d">${data.dart[0]?"최근 "+fmtTs(data.dart[0].ts):"—"}</div></div>
       <div><div class="k">임상 변경</div><div class="v">${data.trials.filter(x=>dayOf(x.ts)===today).length}</div><div class="d">${data.trials[0]?"최근 "+dayOf(data.trials[0].ts):"—"}</div></div>
       <div><div class="k">이번 주 카탈리스트</div><div class="v">${week.length}</div><div class="d">30일 내 날짜 확정 ${month.filter(isDated).length}</div></div>
       ${m?`<div><div class="k">마켓 ${esc(m.date)}</div><div class="v num ${cls((m.index||[])[0]?.chg_pct)}">${fmtPct((m.index||[])[0]?.chg_pct)}</div><div class="d">${esc((m.index||[])[0]?.name||"")}${(m.index||[])[1]?" · "+esc(m.index[1].name)+" "+fmtPct(m.index[1].chg_pct):""}</div></div>`:""}
@@ -731,7 +728,6 @@ svg.sp{width:66px;height:20px;display:block}
     </div>
     <div class="grid">
       ${card("HIGH 뉴스",(since&&hiNew.length?`새로 ${hiNew.length}건 · `:"")+(hiNews[0]?"최근 "+fmtTs(hiNews[0].ts):"—"),`news`,hiNews.length?top(hiNews,7).map(newsRow).join(""):"")}
-      ${card("공시",data.dart[0]?"최근 "+fmtTs(data.dart[0].ts):"—",`dart`,data.dart.length?top(data.dart,7).map(dartRow).join(""):"")}
       ${card("임상 변경",(data.trials[0]?"최근 "+dayOf(data.trials[0].ts)+" · ":"")+"신규 등록·중단 우선",`trials`,data.trials.length?trialsPick.slice(0,7).map(trRow).join(""):"")}
       ${card("이번 주 카탈리스트",week.length?`${today} ~ ${kstToday(-7)} · HIGH·MID`:"이번 주 날짜 확정분 없음 · 30일 내 HIGH·MID",`cal`,(week.length?week:month.filter(isDated)).slice(0,10).map(evRow).join(""))}
       ${card("마켓 무버",m?`${esc(m.date)} 종가 · ▲${(m.stocks||[]).filter(s=>s.chg_pct>0).length} ▼${(m.stocks||[]).filter(s=>s.chg_pct<0).length}`:"",`market`,m?`<div class="two2"><div><h4>상승</h4>${(m.top||[]).slice(0,6).map(mkRowS).join("")}</div><div><h4>하락</h4>${(m.bottom||[]).slice(0,6).map(mkRowS).join("")}</div></div>`:"")}
@@ -739,7 +735,7 @@ svg.sp{width:66px;height:20px;display:block}
       ${data.macro?card("글로벌마켓",`${esc(data.macro.date)} · 지수 · 금리 · 심리`,`macro`,(()=>{const mc=data.macro;const all=Object.values(mc.indices).flat();const pick=["^GSPC","^IXIC","^NBI","^STOXX","^N225","000300.SS","^KS11","^KQ11"].map(t=>all.find(r=>r.t===t)).filter(Boolean);const t10=(mc.rates||[]).find(r=>r.t==="^TNX"),hy=(mc.fred||[]).find(r=>r.id==="BAMLH0A0HYM2"),vix=(mc.vol||[]).find(r=>r.t==="^VIX"),fg=mc.fear_greed;return`<div class="two2"><div>${pick.map(r=>row("",esc(r.name),`<span class="num ${cls(r.chg)}">${bbar(r.chg,8,1)}${fmtPct(r.chg)}</span>`)).join("")}</div><div>${fg?row("",`Fear &amp; Greed`,`<span class="num"><b>${fg.score.toFixed(0)}</b> ${FG_KO[fg.rating]||esc(fg.rating)}</span>`):""}${t10?row("",`미 10년`,`<span class="num">${t10.last.toFixed(2)}% <span class="${t10.chg_bp>0?"down":"up"}">${fmtBp(t10.chg_bp)}</span></span>`):""}${hy?row("",`HY 스프레드`,`<span class="num">${hy.last.toFixed(2)}% <span class="${hy.chg_bp>0?"down":"up"}">${fmtBp(hy.chg_bp)}</span></span>`):""}${vix?row("",`VIX`,`<span class="num">${vix.last.toFixed(2)} <span class="${vix.chg>0?"down":"up"}">${fmtPct(vix.chg)}</span></span>`):""}${(mc.us_sectors||[]).length?row("",`섹터 1위 / 꼴찌`,`<span class="num"><span class="up">${esc(mc.us_sectors[0].name)} ${fmtPct(mc.us_sectors[0].chg)}</span> · <span class="down">${esc(mc.us_sectors[mc.us_sectors.length-1].name)} ${fmtPct(mc.us_sectors[mc.us_sectors.length-1].chg)}</span></span>`):""}</div></div>`;})()):""}
       ${m&&(m.stocks||[]).some(s=>s.rsi14!=null)?card("기술 신호","급등락 · 거래량 · RSI · 52주",`market`,(m.stocks||[]).map(s=>({s,n:sigs(s).length})).filter(o=>o.n).sort((a,b)=>b.n-a.n||Math.abs(b.s.chg_pct)-Math.abs(a.s.chg_pct)).slice(0,8).map(o=>row("",`${tkChip(o.s.ticker,accumSet().has(o.s.ticker)?"acc":distSet().has(o.s.ticker)?"dis":"")} ${coLink(o.s.name)}`,`${sigHTML(o.s)}<span class="num ${cls(o.s.chg_pct)}">${fmtPct(o.s.chg_pct)}</span>`)).join("")):""}
       ${card("13F 매집·축소 종목 소식","뉴스·임상 중 헷지펀드 신호 종목",`hedge`,accumHits.length?accumHits.slice(0,8).map(({k,x})=>k==="news"?row(hhmm(x.ts),`<a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.headline||x.title)}</a>`,hfTagFor([x.title,x.headline,x.summary].join(" "))):row(hhmm(x.ts),`${coLink(x.company)} · ${esc(x.title)}`,hfTagFor(x.company+" "+x.sponsor))).join(""):"")}
-      ${card("14일 트렌드","일별 건수",`trend`,trendDays?["news","dart","trials"].map(k=>{const days=[...trendDays].reverse();return`<div class="row"><span class="t" style="width:48px">${KINDS[k]}</span><span class="x">${spark(days.map(d=>data[k].filter(x=>dayOf(x.ts)===d).length),days.map(d=>d.slice(5)))}</span></div>`;}).join(""):`<div class="none"><a href="#trend" data-go="trend">트렌드 탭</a>을 열면 14일치를 읽어옵니다</div>`)}
+      ${card("14일 트렌드","일별 건수",`trend`,trendDays?["news","trials"].map(k=>{const days=[...trendDays].reverse();return`<div class="row"><span class="t" style="width:48px">${KINDS[k]}</span><span class="x">${spark(days.map(d=>data[k].filter(x=>dayOf(x.ts)===d).length),days.map(d=>d.slice(5)))}</span></div>`;}).join(""):`<div class="none"><a href="#trend" data-go="trend">트렌드 탭</a>을 열면 14일치를 읽어옵니다</div>`)}
     </div>`;
     v.querySelectorAll("[data-go]").forEach(a=>a.onclick=e=>{e.preventDefault();setTab(a.dataset.go);});
   }
@@ -755,7 +751,7 @@ svg.sp{width:66px;height:20px;display:block}
       ${sec("카탈리스트",d.cat.length?`<div class="cal">${d.cat.filter(c=>c.sort>=kstToday()||c.prec==="tbd").slice(0,25).map(evHTML).join("")}</div>`:"",d.cat.length)}
       ${hedge&&(e.tk.length||d.hedge.length||d.sig.length)?sec(`13F ${esc(hedge.quarter)}`,d.hedge.length||d.sig.length?d.hedge.map(h=>`<div class="note" style="color:var(--fg)">보유 ${h.n}개 펀드 · 합산 비중 ${fmtW(h.sum)} (<span class="${cls(h.d)}">${fmtD(h.d)}</span>)</div><div class="grp"><div class="k">펀드별</div><div class="v">${FUNDS.filter(f=>h.w[f]!=null).map(f=>`<span class="tag">${esc(f)} ${fmtW(h.w[f])}</span>`).join("")}</div></div>`).join("")+d.sig.map(s=>`<div class="grp"><div class="k">${esc(hedge.prev)}→${esc(hedge.quarter)}</div><div class="v"><span class="tag">늘림 ${s.add}</span><span class="tag">신규 ${s.new}</span><span class="tag">줄임 ${s.trim}</span><span class="tag">청산 ${s.exit}</span><span class="tag"><b class="${cls(s.net)}">Net ${s.net>0?"+":""}${s.net}</b></span><span class="tag">Σ비중Δ <span class="${cls(s.wtd)}">${fmtD(s.wtd)}</span></span></div></div>`).join(""):`<div class="note">추적 8개 펀드 보유 없음</div>`):""}
       <div id="drTrials"></div>
-      ${e.krx||!e.tk.length?sec("DART 공시",d.dart.length?`<div class="feed">${d.dart.slice(0,15).map(x=>itemHTML(x,"dart")).join("")}</div>`:"",d.dart.length):""}`;
+`;
     $("ov").classList.add("on");dr.classList.add("on");$("drClose").onclick=closeCompany;
     loadCompanyTrials(e);
   }
