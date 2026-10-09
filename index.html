@@ -519,9 +519,9 @@ svg.sp{width:66px;height:20px;display:block}
     const tile=(r,label,extra)=>{if(!r)return"";const body=`<div class="k">${esc(label||r.name)}</div><div class="v num ${cls(r.chg)}">${fmtPct(r.chg)}</div><div class="d">${fmtN(r.last)} · 1M ${fmtPct(r.chg_1m)} · YTD ${fmtPct(r.ytd)}${extra||""}</div>`;
       const h=HOLD[r.t];return h?`<a class="tl" href="${h}" target="_blank" rel="noopener" title="구성종목 보기 (${esc(r.date)})">${body}</a>`:`<div title="${esc(r.date)}">${body}</div>`;};
     const spx=find("^GSPC"),ndq=find("^IXIC"),kospi=find("^KS11"),kosdaq=find("^KQ11"),nbi=find("^NBI"),ibb=find("IBB"),xbi=find("XBI"),pph=find("PPH"),kmed=find("KRD020020156"),qmed=find("KRD020020610");
-    const stoxx=find("^STOXX"),n225=find("^N225"),csi=find("000300.SS"),hsi=find("^HSI"),dji=find("^DJI"),dax=find("^GDAXI"),topix=find("1306.T"),shc=find("000001.SS");
+    const stoxx=find("^STOXX"),n225=find("^N225"),csi=find("000300.SS"),hsi=find("^HSI"),dji=find("^DJI"),dax=find("^GDAXI"),ftse=find("^FTSE"),shc=find("000001.SS");
     const vs=(r,b,label)=>r&&b&&r.chg!=null&&b.chg!=null?` · vs ${label} ${fmtPct(r.chg-b.chg)}`:"";
-    const kpi=`<div class="kpi top">${tile(spx,"S&P 500")}${tile(ndq,"NASDAQ")}${tile(dji,"Dow")}${tile(stoxx,"STOXX 600")}${tile(dax,"DAX")}${tile(n225,"Nikkei 225")}${tile(topix,"TOPIX")}${tile(csi,"CSI 300")}${tile(shc,"상해종합")}${tile(hsi,"항셍")}${tile(kospi,"KOSPI")}${tile(kosdaq,"KOSDAQ")}</div>
+    const kpi=`<div class="kpi top">${tile(spx,"S&P 500")}${tile(ndq,"NASDAQ")}${tile(dji,"Dow")}${tile(stoxx,"STOXX 600")}${tile(dax,"DAX")}${tile(ftse,"FTSE 100")}${tile(n225,"Nikkei 225")}${tile(csi,"CSI 300")}${tile(shc,"상해종합")}${tile(hsi,"항셍")}${tile(kospi,"KOSPI")}${tile(kosdaq,"KOSDAQ")}</div>
       <div class="kpi bio">${tile(nbi,"NASDAQ Biotech (NBI)")}${tile(ibb,"IBB 바이오 ETF")}${tile(xbi,"XBI 바이오 ETF",vs(xbi,spx,"S&P"))}${tile(pph,"대형 제약 (PPH)",vs(pph,spx,"S&P"))}${tile(kmed,"KOSPI 의약품",vs(kmed,kospi,"KOSPI"))}${tile(qmed,"KOSDAQ 제약",vs(qmed,kosdaq,"KOSDAQ"))}</div>`;
     const lastD=rows=>rows&&rows.length?rows.map(r=>r.date).sort().slice(-1)[0]:"";
     const sec=(title,rows,full)=>rows&&rows.length?`<div><h4>${title} <span style="font-weight:400;letter-spacing:0;text-transform:none">· ${esc(lastD(rows))}</span></h4>${pxTable(rows,{full})}</div>`:"";
