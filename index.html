@@ -269,14 +269,13 @@ svg.sp{width:66px;height:20px;display:block}
     <button class="theme" id="theme" type="button" title="테마">☾</button>
   </div>
   <div class="nav" role="tablist" id="tabs">
-    <button role="tab" data-k="home">개요</button>
-    <button role="tab" data-k="macro">글로벌 마켓</button>
-    <button role="tab" data-k="market">US 헬스케어 종목</button>
-    <button role="tab" data-k="news">헬스케어 뉴스</button>
-    <button role="tab" data-k="trials">임상시험 변경<span class="n" id="n_trials"></span></button>
-    <button role="tab" data-k="hedge">헷지펀드 13F</button>
-    <button role="tab" data-k="cal">카탈리스트 캘린더<span class="n" id="n_cal"></span></button>
-    <button role="tab" data-k="trend">14일 트렌드</button>
+    <button role="tab" data-k="home">Overview</button>
+    <button role="tab" data-k="macro">Global Markets</button>
+    <button role="tab" data-k="market">US Healthcare</button>
+    <button role="tab" data-k="news">Healthcare News</button>
+    <button role="tab" data-k="trials">Clinical Trial Monitor<span class="n" id="n_trials"></span></button>
+    <button role="tab" data-k="hedge">Hedge Fund Monitor</button>
+    <button role="tab" data-k="cal">Catalyst<span class="n" id="n_cal"></span></button>
   </div>
 </div>
 <div class="filters" id="filters"></div>
@@ -288,7 +287,7 @@ svg.sp{width:66px;height:20px;display:block}
 (function(){
   const BASE=/[?&]feed=local/.test(location.search)?"devfeed/":"https://storage.googleapis.com/biopharmabot-public/feed/";
   const $=id=>document.getElementById(id);
-  const KINDS={home:"개요",news:"뉴스",dart:"DART",trials:"임상",market:"US 헬스케어",macro:"글로벌마켓",hedge:"헷지펀드",cal:"캘린더",trend:"트렌드"};
+  const KINDS={home:"개요",news:"뉴스",dart:"DART",trials:"임상",market:"US 헬스케어",macro:"글로벌마켓",hedge:"헷지펀드",cal:"캘린더"};   // trend 탭 제거(2026-10-10)
   const CATS={news:["임상시험","딜","펀딩","규제","정책","실적","기타"],dart:[],trials:["KR","US","WATCH"]};
   const REL={high:["HIGH","hi"],medium:["MID","mid"],low:["LOW",""]};
   const TR_REGION={KR:"국내",US:"글로벌",WATCH:"워치"};
@@ -404,7 +403,7 @@ svg.sp{width:66px;height:20px;display:block}
   const mkChg=t=>{const s=(data.market&&data.market.stocks||[]).find(x=>x.ticker===t);return s?`<span class="num ${cls(s.chg_pct)}">${fmtPct(s.chg_pct)}</span>`:"";};
 
   /* ───────── nav / common render ───────── */
-  function setTab(k){tab=k;cat="ALL";rel="ALL";q="";try{history.replaceState(null,"","#"+k);}catch(e){}if(k==="trend")loadTrendDays();render();window.scrollTo(0,0);}
+  function setTab(k){tab=k;cat="ALL";rel="ALL";q="";try{history.replaceState(null,"","#"+k);}catch(e){}render();window.scrollTo(0,0);}
   function renderTabs(){document.querySelectorAll("#tabs button").forEach(b=>{b.setAttribute("aria-selected",String(b.dataset.k===tab));b.onclick=()=>setTab(b.dataset.k);});
     ["trials"].forEach(k=>{const today=kstToday();const n=data[k].filter(x=>dayOf(x.ts)===today).length;$("n_"+k).textContent=n?n:"";});   // 뉴스 탭 배지는 없음(2026-10-10)
     if(cal||bb){const n=calAll().filter(c=>isDated(c)&&c.imp!=="low"&&c.sort>=kstToday()&&c.sort<=kstToday(-7)).length;$("n_cal").textContent=n?n:"";}}
@@ -413,7 +412,7 @@ svg.sp{width:66px;height:20px;display:block}
   }
   function renderFilters(){
     const f=$("filters");
-    if(["home","market","macro","hedge","trend"].includes(tab)){f.innerHTML="";return;}
+    if(["home","market","macro","hedge"].includes(tab)){f.innerHTML="";return;}
     if(tab==="cal"){renderCalFilters();return;}
     const cats=CATS[tab];
     let h=`<button class="chip" type="button" data-cat="ALL" aria-pressed="${cat==="ALL"}">전체</button>`+cats.map(c=>`<button class="chip" type="button" data-cat="${c}" aria-pressed="${cat===c}">${tab==="trials"?TR_REGION[c]:c}</button>`).join("");
@@ -733,7 +732,6 @@ svg.sp{width:66px;height:20px;display:block}
       ${data.macro?card("글로벌마켓",`${esc(data.macro.date)} · 지수 · 금리 · 심리`,`macro`,(()=>{const mc=data.macro;const all=Object.values(mc.indices).flat();const pick=["^GSPC","^IXIC","^NBI","^STOXX","^N225","000300.SS","^KS11","^KQ11"].map(t=>all.find(r=>r.t===t)).filter(Boolean);const t10=(mc.rates||[]).find(r=>r.t==="^TNX"),hy=(mc.fred||[]).find(r=>r.id==="BAMLH0A0HYM2"),vix=(mc.vol||[]).find(r=>r.t==="^VIX"),fg=mc.fear_greed;return`<div class="two2"><div>${pick.map(r=>row("",esc(r.name),`<span class="num ${cls(r.chg)}">${bbar(r.chg,8,1)}${fmtPct(r.chg)}</span>`)).join("")}</div><div>${fg?row("",`Fear &amp; Greed`,`<span class="num"><b>${fg.score.toFixed(0)}</b> ${FG_KO[fg.rating]||esc(fg.rating)}</span>`):""}${t10?row("",`미 10년`,`<span class="num">${t10.last.toFixed(2)}% <span class="${t10.chg_bp>0?"down":"up"}">${fmtBp(t10.chg_bp)}</span></span>`):""}${hy?row("",`HY 스프레드`,`<span class="num">${hy.last.toFixed(2)}% <span class="${hy.chg_bp>0?"down":"up"}">${fmtBp(hy.chg_bp)}</span></span>`):""}${vix?row("",`VIX`,`<span class="num">${vix.last.toFixed(2)} <span class="${vix.chg>0?"down":"up"}">${fmtPct(vix.chg)}</span></span>`):""}${(mc.us_sectors||[]).length?row("",`섹터 1위 / 꼴찌`,`<span class="num"><span class="up">${esc(mc.us_sectors[0].name)} ${fmtPct(mc.us_sectors[0].chg)}</span> · <span class="down">${esc(mc.us_sectors[mc.us_sectors.length-1].name)} ${fmtPct(mc.us_sectors[mc.us_sectors.length-1].chg)}</span></span>`):""}</div></div>`;})()):""}
       ${m&&(m.stocks||[]).some(s=>s.rsi14!=null)?card("기술 신호","급등락 · 거래량 · RSI · 52주",`market`,(m.stocks||[]).map(s=>({s,n:sigs(s).length})).filter(o=>o.n).sort((a,b)=>b.n-a.n||Math.abs(b.s.chg_pct)-Math.abs(a.s.chg_pct)).slice(0,8).map(o=>row("",`${tkChip(o.s.ticker,accumSet().has(o.s.ticker)?"acc":distSet().has(o.s.ticker)?"dis":"")} ${coLink(o.s.name)}`,`${sigHTML(o.s)}<span class="num ${cls(o.s.chg_pct)}">${fmtPct(o.s.chg_pct)}</span>`)).join("")):""}
       ${card("13F 매집·축소 종목 소식","뉴스·임상 중 헷지펀드 신호 종목",`hedge`,accumHits.length?accumHits.slice(0,8).map(({k,x})=>k==="news"?row(hhmm(x.ts),`<a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.headline||x.title)}</a>`,hfTagFor([x.title,x.headline,x.summary].join(" "))):row(hhmm(x.ts),`${coLink(x.company)} · ${esc(x.title)}`,hfTagFor(x.company+" "+x.sponsor))).join(""):"")}
-      ${card("14일 트렌드","일별 건수",`trend`,trendDays?["news","trials"].map(k=>{const days=[...trendDays].reverse();return`<div class="row"><span class="t" style="width:48px">${KINDS[k]}</span><span class="x">${spark(days.map(d=>data[k].filter(x=>dayOf(x.ts)===d).length),days.map(d=>d.slice(5)))}</span></div>`;}).join(""):`<div class="none"><a href="#trend" data-go="trend">트렌드 탭</a>을 열면 14일치를 읽어옵니다</div>`)}
     </div>`;
     v.querySelectorAll("[data-go]").forEach(a=>a.onclick=e=>{e.preventDefault();setTab(a.dataset.go);});
   }
@@ -795,10 +793,10 @@ svg.sp{width:66px;height:20px;display:block}
   ji.onblur=()=>setTimeout(()=>jl.hidden=true,150);
 
   function render(){renderTabs();renderStrip();renderFilters();
-    if(tab==="home")renderHome();else if(tab==="market")renderMarket();else if(tab==="macro")renderMacro();else if(tab==="hedge")renderHedge();else if(tab==="cal")renderCal();else if(tab==="trend")renderTrend();else renderList();}
+    if(tab==="home")renderHome();else if(tab==="market")renderMarket();else if(tab==="macro")renderMacro();else if(tab==="hedge")renderHedge();else if(tab==="cal")renderCal();else renderList();}
 
   render();
-  Promise.all([loadStatic(),loadLatest()]).then(()=>{buildCompanyIndex();render();if(tab==="trend")loadTrendDays();const m=location.hash.match(/[#&]co=([^&]+)/);if(m)openCompany(decodeURIComponent(m[1]));});
+  Promise.all([loadStatic(),loadLatest()]).then(()=>{buildCompanyIndex();render();const m=location.hash.match(/[#&]co=([^&]+)/);if(m)openCompany(decodeURIComponent(m[1]));});
   setInterval(loadLatest,5*60*1000);
 })();
 </script>
