@@ -274,7 +274,6 @@ svg.sp{width:66px;height:20px;display:block}
 </div>
 <div class="filters" id="filters"></div>
 <div id="view"></div>
-<p class="foot">뉴스: GlobeNewswire · Fierce · PRNewswire · Endpoints · Businesswire &nbsp;·&nbsp; DART &nbsp;·&nbsp; ClinicalTrials.gov &nbsp;·&nbsp; Yahoo Finance · FRED · CNN &nbsp;·&nbsp; 13F: Baker Bros · RA Capital · Orbimed · RTW · Avoro · Deerfield · Perceptive · Deep Track &nbsp;·&nbsp; 투자 조언 아님</p>
 <div class="status" id="status"><i></i>읽는 중</div><div class="tip" id="tip"></div><div class="ov" id="ov"></div>
 <div class="dr" id="dr" role="dialog" aria-modal="true"></div>
 
@@ -540,7 +539,7 @@ svg.sp{width:66px;height:20px;display:block}
     const fxc=`<h3 class="sec">환율 · 원자재 · 변동성</h3><div class="ix">${sec("환율",m.fx)}${sec("원자재",m.commodities)}${sec("변동성",m.vol)}</div>`;
     const gauge=fg?`<h3 class="sec">CNN Fear &amp; Greed <span style="font-weight:400;text-transform:none;letter-spacing:0">· ${esc(fg.asof)}</span></h3><a class="card tl" href="https://www.cnn.com/markets/fear-and-greed" target="_blank" rel="noopener" title="CNN Fear & Greed 원문 보기" style="display:block;color:inherit;text-decoration:none"><div class="gauge"><div><div class="big">${fg.score.toFixed(0)}</div><div class="lab">${FG_KO[fg.rating]||esc(fg.rating)}</div></div><div><div class="meter"><i style="left:${fg.score}%"></i></div><div class="ticks">${[0,25,50,75,100].map(t=>`<span>${t}</span>`).join("")}</div><div class="hist"><span>전일 <b>${fg.prev.toFixed(0)}</b></span><span>1주 전 <b>${fg.w1.toFixed(0)}</b></span><span>1달 전 <b>${fg.m1.toFixed(0)}</b></span><span>1년 전 <b>${fg.y1.toFixed(0)}</b></span></div></div><div class="sp">${spl(fg.hist.map(h=>h.v),null)}<div class="lab">최근 ${fg.hist.length}일</div></div></div>
       <div class="comp">${Object.entries(fg.components||{}).map(([k,c])=>`<div><span>${esc(FG_COMP[k]||k)}</span><b class="${c.score>=56?"up":c.score<=44?"down":""}">${c.score.toFixed(0)}<small>${FG_KO[c.rating]||esc(c.rating)}</small></b></div>`).join("")}</div></a>`:"";
-    v.innerHTML=`<div class="hdr"><b>글로벌마켓 · ${esc(m.date)}</b><span class="sub">갱신 ${esc(m.generated_at.slice(0,16).replace("T"," "))} KST${m.errors&&m.errors.length?` · 일부 소스 실패 ${m.errors.length}건 (하단 참고)`:""}</span></div>${kpi}${gauge}${idx}${rates}${fxc}<div class="note">${esc(m.source)}${m.errors&&m.errors.length?`<br>실패: ${esc(m.errors.join(" · ")).slice(0,300)}`:""}</div>`;
+    v.innerHTML=`<div class="hdr"><b>글로벌마켓 · ${esc(m.date)}</b><span class="sub">갱신 ${esc(m.generated_at.slice(0,16).replace("T"," "))} KST${m.errors&&m.errors.length?` · 일부 소스 실패 ${m.errors.length}건 (하단 참고)`:""}</span></div>${kpi}${gauge}${idx}${rates}${fxc}${m.errors&&m.errors.length?`<div class="note">실패: ${esc(m.errors.join(" · ")).slice(0,300)}</div>`:""}`;
   }
 
   /* generic sortable table: cols [{k,l,n(numeric),f(render)}] */
