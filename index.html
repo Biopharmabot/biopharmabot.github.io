@@ -97,8 +97,10 @@ details.all summary{cursor:pointer;font-size:12px;color:var(--mute)}
 .kpi>a.tl:hover,a.card.tl:hover{border-color:var(--accent)}
 .kpi .k{font-size:11px;color:var(--mute)}
 .kpi .v{font-size:20px;font-weight:600;line-height:1.2;margin-top:2px}
-.kpi .d{white-space:normal}
-.kpi .d{font-size:11px;color:var(--mute);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi .d{font-size:11px;color:var(--mute);margin-top:2px;line-height:1.35}
+.kpi.top{grid-template-columns:repeat(8,minmax(0,1fr))}.kpi.bio{grid-template-columns:repeat(6,minmax(0,1fr))}
+@media(max-width:1100px){.kpi.top{grid-template-columns:repeat(4,minmax(0,1fr))}.kpi.bio{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:600px){.kpi.top,.kpi.bio{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;margin-top:4px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px 12px;min-width:0}
 .card.wide{grid-column:1/-1}
@@ -519,7 +521,7 @@ svg.sp{width:66px;height:20px;display:block}
     const spx=find("^GSPC"),ndq=find("^IXIC"),kospi=find("^KS11"),kosdaq=find("^KQ11"),nbi=find("^NBI"),ibb=find("IBB"),xbi=find("XBI"),pph=find("PPH"),kmed=find("KRD020020156"),qmed=find("KRD020020610");
     const stoxx=find("^STOXX"),n225=find("^N225"),csi=find("000300.SS"),hsi=find("^HSI");
     const vs=(r,b,label)=>r&&b&&r.chg!=null&&b.chg!=null?` · vs ${label} ${fmtPct(r.chg-b.chg)}`:"";
-    const kpi=`<div class="kpi">${tile(spx,"S&P 500")}${tile(ndq,"NASDAQ")}${tile(stoxx,"STOXX 600")}${tile(n225,"Nikkei 225")}${tile(csi,"CSI 300")}${tile(hsi,"항셍")}${tile(kospi,"KOSPI")}${tile(kosdaq,"KOSDAQ")}</div>
+    const kpi=`<div class="kpi top">${tile(spx,"S&P 500")}${tile(ndq,"NASDAQ")}${tile(stoxx,"STOXX 600")}${tile(n225,"Nikkei 225")}${tile(csi,"CSI 300")}${tile(hsi,"항셍")}${tile(kospi,"KOSPI")}${tile(kosdaq,"KOSDAQ")}</div>
       <div class="kpi bio">${tile(nbi,"NASDAQ Biotech (NBI)")}${tile(ibb,"IBB 바이오 ETF")}${tile(xbi,"XBI 바이오 ETF",vs(xbi,spx,"S&P"))}${tile(pph,"대형 제약 (PPH)",vs(pph,spx,"S&P"))}${tile(kmed,"KOSPI 의약품",vs(kmed,kospi,"KOSPI"))}${tile(qmed,"KOSDAQ 제약",vs(qmed,kosdaq,"KOSDAQ"))}</div>`;
     const lastD=rows=>rows&&rows.length?rows.map(r=>r.date).sort().slice(-1)[0]:"";
     const sec=(title,rows,full)=>rows&&rows.length?`<div><h4>${title} <span style="font-weight:400;letter-spacing:0;text-transform:none">· ${esc(lastD(rows))}</span></h4>${pxTable(rows,{full})}</div>`:"";
