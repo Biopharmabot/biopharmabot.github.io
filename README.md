@@ -24,6 +24,9 @@ Biopharmabot/                ← git: Biopharmabot/biopharmabot.github.io (페�
   data/catalyst.json         tools/export_catalyst.py  ← D:\Hub\hub.sqlite catalyst (upcoming/imminent · 수시)
   data/companies.json        (export_catalyst.py가 같이 씀) Hub company krx·bloomberg + bots/daily/tickers.csv
   data/bloomberg.json        tools/export_bloomberg.py ← D:\Catalyst\raw\excel\Biopharma_catalyst_YYYYMMDD.xlsx 최신 (주 1회)
+  tools/sync_news_db.py      GCS feed(news·dart·trials 날짜 파일) → db/news.sqlite (로컬 조회용 사본 · 원할 때 실행 · 새 날짜만 추가)
+  tools/backfill_telegram.py 텔레그램 채널 내보내기(HTML) → feed 날짜 파일 생성·GCS 업로드 (2026-10-09 1회 수행 · 4/24~10/8 뉴스·DART)
+  db/                        (gitignore) news.sqlite · backfill/ 임시 산출물
   tools/deploy_bots.sh       봇 재배포: bash tools/deploy_bots.sh rss dart ctgov daily (이미지 태그는 파일 안에서 올림)
   tools/patch_bots_feed.py   feed_publish 패치(1회성 · 적용 완료)
   bots/                      (gitignore · 각각 별도 로컬 git 저장소 · 원격 없음)
@@ -41,6 +44,10 @@ GCP 프로젝트 `project-56beef4a-f1e9-4e7b-b7a` · 리전 asia-northeast3. 모
 - **수시** Hub catalyst 저술이 바뀌면: `python tools/export_catalyst.py` → commit·push.
 - 페이지 수정: `index.html` 고치고 push하면 GitHub Pages 반영. 로컬 확인은 `python -m http.server 8799` (8765는 Hub agentview가 씀). `?feed=local`을 붙이면 `devfeed/`(gitignore)의 feed를 읽는다 — 마켓 개발용 샘플은 bots/daily의 fetch_all+technicals로 만든다.
 - 개편 참고: mooboard.xyz · 박종현 coverage(newsbot-3uj.pages.dev/coverage/coverage: 개요 카드·KPI 줄·기계적 수급 표·수급 지도 산점도·뉴스 사이드바·월간 달력) · bio-research.ai.
+
+## 뉴스 DB
+- 원본은 GCS `feed/<kind>/<날짜>.json` (삭제 없음 · 텔레그램에 전송된 건만 · 제목·요약·카테고리·중요도·출처·URL). 2026-04-24부터 텔레그램 백필분이 들어 있고(헤드라인·발행시각은 비어 있음), 2026-10-08부터는 봇이 직접 씀. 임상 변경(trials)은 백필 없이 10-09부터.
+- 로컬 조회는 `python tools/sync_news_db.py` → `db/news.sqlite` (feed 테이블 + feed_fts 전문검색).
 
 ## 알아둘 것
 - 뉴스·임상의 회사 매칭은 회사명·티커 문자열 기반이라 누락·오탐이 있다. feed에 티커를 넣으면 정확해진다(봇 수정 필요).

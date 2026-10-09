@@ -3,3 +3,4 @@ bots/
 archive/
 __pycache__/
 devfeed/
+db/
