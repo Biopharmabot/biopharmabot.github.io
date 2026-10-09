@@ -42,12 +42,18 @@ def parse(text: str) -> dict | None:
     return out
 
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("src"); ap.add_argument("--out", required=True); a = ap.parse_args()
+    ap = argparse.ArgumentParser(); ap.add_argument("src"); ap.add_argument("--out", required=True)
+    ap.add_argument("--exclude", default="", help="제외할 텔레그램 메시지 ID(쉼표). 결과 데이터 없는 공지·부수 분석·본문 미확보 건 등")
+    a = ap.parse_args(); excl = {int(x) for x in a.exclude.split(",") if x.strip()}
     d = json.load(io.open(a.src, encoding="utf-8"))
     byday, items = {}, []
     for m in d.get("messages", []):
         if m.get("type") != "message": continue
         text = plain(m.get("text", "")).strip()
+        if m.get("id") in excl:
+            if "① 임상 데이터" in text:
+                ts0 = datetime.fromisoformat(m["date"]).replace(tzinfo=KST); byday.setdefault(ts0.strftime("%Y-%m-%d"), [])
+            continue
         if not text or "① 임상 데이터" not in text: continue
         p = parse(text)
         if not p: continue
