@@ -529,8 +529,8 @@ svg.sp{width:66px;height:20px;display:block}
     const SEC_SRC=Object.assign({"미국":"GICS 11섹터 SPDR ETF","유럽":"STOXX 600 슈퍼섹터 (iShares ETF)","일본":"TOPIX-17 (NEXT FUNDS ETF)","중국·홍콩":"항셍 종합산업지수","한국":"KOSPI 200 섹터지수 (KRX)"},m.sector_src||{});
     const secs=m.sectors||{"미국":m.us_sectors,"한국":m.kr_sectors};
     const h4=(t,d)=>`<h4>${esc(t)} <span style="font-weight:400;letter-spacing:0;text-transform:none">· ${esc(d)}</span></h4>`;
-    // 중국·홍콩 블록: 왼쪽은 중국(본토) 지수 / 홍콩 지수로 나눠 묶고, 오른쪽 섹터는 홍콩(항셍 종합산업지수)뿐이므로 '홍콩 섹터'로 표기.
-    const idxCol=(g,rows)=>{if(g!=="중국·홍콩")return h4(g+" 지수",lastD(rows))+pxTable(rows);const hk=rows.filter(r=>r.t.startsWith("HSI:")),cn=rows.filter(r=>!r.t.startsWith("HSI:"));return h4("중국 지수",lastD(cn))+pxTable(cn)+`<div style="height:10px"></div>`+h4("홍콩 지수",lastD(hk))+pxTable(hk);};
+    // 중국·홍콩 블록: 한 표 안에서 중국(본토) 지수 → 홍콩 지수 순으로 묶는다. 오른쪽 섹터는 홍콩(항셍 종합산업지수)뿐이므로 '홍콩 섹터'로 표기.
+    const idxCol=(g,rows)=>{if(g==="중국·홍콩")rows=[...rows.filter(r=>!r.t.startsWith("HSI:")),...rows.filter(r=>r.t.startsWith("HSI:"))];return h4(g+" 지수",lastD(rows))+pxTable(rows);};
     const secTitle=g=>g==="중국·홍콩"?"홍콩 섹터":g+" 섹터";
     const region=(g,rows)=>{const sr=secs[g]||[];return`<div class="mx${sr.length?"":" one"}"><div>${idxCol(g,rows)}</div>${sr.length?`<div>${h4(secTitle(g),lastD(sr)+" · "+(SEC_SRC[g]||""))}${sbar(sr)}<details class="all"><summary>1W · 1M · 3M · YTD 표</summary>${pxTable(sr,{tk:1,full:1})}</details></div>`:""}</div>`;};
     const idx=`<h3 class="sec">글로벌 지수 · 전일 섹터 퍼포먼스</h3>${["미국","중국·홍콩","한국"].filter(g=>m.indices[g]&&m.indices[g].length).map(g=>region(g,m.indices[g])).join("")}`;
