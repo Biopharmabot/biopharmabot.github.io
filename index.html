@@ -297,7 +297,7 @@ svg.sp{width:66px;height:20px;display:block}
   const PREC={day:"",range:"기간",month:"월 중",quarter:"분기 중",half:"반기 중",year:"연중",tbd:"미정"};
   const SRC={hub:"Hub",bb:"BB",both:"Hub+BB"};
   const FUNDS=["Baker Bros","RA Capital","Orbimed","RTW","Avoro","Deerfield","Perceptive","Deep Track"];
-  let tab="home", data={news:[],dart:[],trials:[],market:null,macro:null}, loadedDays={news:[],dart:[],trials:[]}, q="", cat="ALL", rel="ALL", lastSeen=null, prevSeen=null;
+  let tab="home", data={news:[],dart:[],trials:[],market:null,macro:null}, loadedDays={news:[],dart:[],trials:[]}, q="", cat="ALL", rel="ALL";
   let hedge=null, cal=null, bb=null, comps=[], view="time", scY="ret_1m", calMonth=null, calDay=null, calF={region:"ALL",imp:{high:true,medium:true,low:false},type:"ALL",q:"",src:{hub:true,bb:true}}, hBasis="shares", sortState={}, trendDays=null;
   const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
   const fmtPct=v=>v==null||!isFinite(v)?"—":(v>0?"+":"")+Number(v).toFixed(2)+"%";
@@ -309,7 +309,7 @@ svg.sp{width:66px;height:20px;display:block}
   const dayOf=ts=>{const d=new Date(ts);return isNaN(d)?"":d.toLocaleDateString("sv-SE",{timeZone:"Asia/Seoul"});};
   const kstToday=(off=0)=>new Date(Date.now()+9*3600e3-off*864e5).toISOString().slice(0,10);
   const fmtTs=ts=>ts?new Date(ts).toLocaleString("ko-KR",{month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit",hour12:false,timeZone:"Asia/Seoul"}):"—";
-  try{prevSeen=lastSeen=localStorage.getItem("bpb.seen");const t=localStorage.getItem("bpb.theme");if(t)document.documentElement.dataset.theme=t;const h=location.hash.slice(1).split("&")[0];if(KINDS[h])tab=h;}catch(e){}
+  try{const t=localStorage.getItem("bpb.theme");if(t)document.documentElement.dataset.theme=t;const h=location.hash.slice(1).split("&")[0];if(KINDS[h])tab=h;}catch(e){}
   $("theme").onclick=()=>{const cur=document.documentElement.dataset.theme||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light");const next=cur==="dark"?"light":"dark";document.documentElement.dataset.theme=next;try{localStorage.setItem("bpb.theme",next)}catch(e){}};
 
   /* ───────── data ───────── */
@@ -436,7 +436,7 @@ svg.sp{width:66px;height:20px;display:block}
     });
   }
   function itemHTML(x,kind){
-    kind=kind||tab;const isNew=lastSeen&&(x.ts||"")>lastSeen;
+    kind=kind||tab;
     if(kind==="news"){const r=REL[x.relevance]||REL.low;
       return`<div class="item"><div class="t">${dayOf(x.ts)}</div><div><div class="h"><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.headline||x.title)}</a><span class="tag">${esc(x.category||"")}</span><span class="tag ${r[1]}">${r[0]}</span>${hfTagFor([x.title,x.headline,x.summary].join(" "))}</div>
         <div class="s">${esc(x.summary)}</div><div class="m">${esc(x.source||"")}${x.headline&&x.title&&x.headline!==x.title?" · "+esc(x.title):""}</div></div></div>`;}
@@ -698,10 +698,8 @@ svg.sp{width:66px;height:20px;display:block}
 
   /* ───────── home ───────── */
   function renderHome(){
-    const v=$("view");const since=prevSeen;const today=kstToday();const A=accumSet();
-    const isNew=x=>since&&(x.ts||"")>since;
-    const newN=["news","trials"].reduce((a,k)=>a+data[k].filter(isNew).length,0);
-    const hiNews=data.news.filter(x=>x.relevance==="high");const hiNew=hiNews.filter(isNew);
+    const v=$("view");const today=kstToday();const A=accumSet();   // '지난번 본 뒤로' 기능 없음(2026-10-10 사용자 결정)
+    const hiNews=data.news.filter(x=>x.relevance==="high");
     const m=data.market;const byName=m?new Map((m.stocks||[]).map(s=>[s.name,s])):new Map();
     const accumHits=[...data.news.filter(x=>hfHit([x.title,x.headline,x.summary].join(" "))).map(x=>({k:"news",x})),...data.trials.filter(x=>hfHit(x.company+" "+x.sponsor)).map(x=>({k:"trials",x}))].sort((a,b)=>(b.x.ts||"")<(a.x.ts||"")?-1:1);
     const accumMk=m?(m.stocks||[]).filter(s=>A.has(s.ticker)).sort((a,b)=>Math.abs(b.chg_pct)-Math.abs(a.chg_pct)):[];
@@ -716,7 +714,7 @@ svg.sp{width:66px;height:20px;display:block}
     const mkRowS=x=>{const s=byName.get(x.name)||x;return row("",`${coLink(x.name)}`,`<span class="num ${cls(x.chg_pct)}">${bbar(x.chg_pct,6,1)}${fmtPct(x.chg_pct)}</span>`);};
     const hfRow=t=>{const st=stockOf(t);const e=findCompany(t);return row("",`${tkChip(t,accumSet().has(t)?"acc":"dis")} ${e?coLink(e.name):""}`,st?`<span class="num ${cls(st.chg_pct)}">${bbar(st.chg_pct,6,1)}${fmtPct(st.chg_pct)}</span>`:"");};
     const byMove=arr=>[...arr].sort((a,b)=>Math.abs((stockOf(b)||{}).chg_pct||0)-Math.abs((stockOf(a)||{}).chg_pct||0));
-    const top=(arr,n)=>[...arr.filter(isNew),...arr.filter(x=>!isNew(x))].slice(0,n);
+    const top=(arr,n)=>arr.slice(0,n);
     const trialsPick=[...data.trials.filter(x=>x.change==="new"||/중단|terminat|withdraw|suspend/i.test((x.lines||[]).join(" ")+x.status)),...data.trials].filter((x,i,a)=>a.indexOf(x)===i);
     v.innerHTML=`<div class="hdr"><b>개요 · ${esc(today)}</b></div>
     <div class="kpi">
@@ -727,7 +725,7 @@ svg.sp{width:66px;height:20px;display:block}
       ${hedge?`<div><div class="k">13F ${esc(hedge.quarter)} 매집</div><div class="v">${hedge.accum.length}</div><div class="d">${qInfo(hedge.quarter).end} 보유 기준 · 축소·청산 ${hedge.distrib.length}</div></div>`:""}
     </div>
     <div class="grid">
-      ${card("HIGH 뉴스",(since&&hiNew.length?`새로 ${hiNew.length}건 · `:"")+(hiNews[0]?"최근 "+fmtTs(hiNews[0].ts):"—"),`news`,hiNews.length?top(hiNews,7).map(newsRow).join(""):"")}
+      ${card("HIGH 뉴스",hiNews[0]?"최근 "+fmtTs(hiNews[0].ts):"—",`news`,hiNews.length?top(hiNews,7).map(newsRow).join(""):"")}
       ${card("임상 변경",(data.trials[0]?"최근 "+dayOf(data.trials[0].ts)+" · ":"")+"신규 등록·중단 우선",`trials`,data.trials.length?trialsPick.slice(0,7).map(trRow).join(""):"")}
       ${card("이번 주 카탈리스트",week.length?`${today} ~ ${kstToday(-7)} · HIGH·MID`:"이번 주 날짜 확정분 없음 · 30일 내 HIGH·MID",`cal`,(week.length?week:month.filter(isDated)).slice(0,10).map(evRow).join(""))}
       ${card("마켓 무버",m?`${esc(m.date)} 종가 · ▲${(m.stocks||[]).filter(s=>s.chg_pct>0).length} ▼${(m.stocks||[]).filter(s=>s.chg_pct<0).length}`:"",`market`,m?`<div class="two2"><div><h4>상승</h4>${(m.top||[]).slice(0,6).map(mkRowS).join("")}</div><div><h4>하락</h4>${(m.bottom||[]).slice(0,6).map(mkRowS).join("")}</div></div>`:"")}
@@ -800,7 +798,7 @@ svg.sp{width:66px;height:20px;display:block}
     if(tab==="home")renderHome();else if(tab==="market")renderMarket();else if(tab==="macro")renderMacro();else if(tab==="hedge")renderHedge();else if(tab==="cal")renderCal();else if(tab==="trend")renderTrend();else renderList();}
 
   render();
-  Promise.all([loadStatic(),loadLatest()]).then(()=>{buildCompanyIndex();render();try{localStorage.setItem("bpb.seen",new Date().toISOString());}catch(e){}if(tab==="trend")loadTrendDays();const m=location.hash.match(/[#&]co=([^&]+)/);if(m)openCompany(decodeURIComponent(m[1]));});
+  Promise.all([loadStatic(),loadLatest()]).then(()=>{buildCompanyIndex();render();if(tab==="trend")loadTrendDays();const m=location.hash.match(/[#&]co=([^&]+)/);if(m)openCompany(decodeURIComponent(m[1]));});
   setInterval(loadLatest,5*60*1000);
 })();
 </script>
