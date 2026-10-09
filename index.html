@@ -288,7 +288,7 @@ svg.sp{width:66px;height:20px;display:block}
 </div>
 <div class="filters" id="filters"></div>
 <div id="view"></div>
-<div class="status" id="status"><i></i>읽는 중</div><div class="tip" id="tip"></div><div class="ov" id="ov"></div>
+<div class="tip" id="tip"></div><div class="ov" id="ov"></div>
 <div class="dr" id="dr" role="dialog" aria-modal="true"></div>
 
 <script>
@@ -425,7 +425,7 @@ svg.sp{width:66px;height:20px;display:block}
   function renderTabs(){document.querySelectorAll("#tabs button").forEach(b=>{b.setAttribute("aria-selected",String(b.dataset.k===tab));b.onclick=()=>setTab(b.dataset.k);});
   }   // 탭 배지 없음(2026-10-10)
   function renderStrip(){
-    $("status").innerHTML=`<i></i>feed 뉴스 ${data.news.length} · 글로벌마켓 ${data.macro?data.macro.date:"—"} · 임상 ${data.trials.length} · 마켓 ${data.market?data.market.date+" "+(data.market.stocks||[]).length+"종목":"—"} · 13F ${hedge?hedge.quarter:"—"} · Hub ${cal?cal.n:"—"} · BB ${bb?bb.asof:"—"}`;
+    // 우하단 상태 표시 제거(2026-10-10 사용자 결정)
   }
   function renderFilters(){
     const f=$("filters");
