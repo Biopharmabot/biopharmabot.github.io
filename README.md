@@ -24,7 +24,7 @@ Biopharmabot/                ← git: Biopharmabot/biopharmabot.github.io (페�
   data/catalyst.json         tools/export_catalyst.py  ← D:\Hub\hub.sqlite catalyst (upcoming/imminent · 수시)
   data/companies.json        (export_catalyst.py가 같이 씀) Hub company krx·bloomberg + bots/daily/tickers.csv
   data/bloomberg.json        tools/export_bloomberg.py ← D:\Catalyst\raw\excel\Biopharma_catalyst_YYYYMMDD.xlsx 최신 (주 1회)
-  tools/sync_news_db.py      GCS feed(news·dart·trials 날짜 파일) → D:NEWS
+  tools/sync_news_db.py      GCS feed(news·dart·trials 날짜 파일) → D:\NEWS\news.sqlite (로컬 조회용 사본 · 원할 때 실행 · 새 날짜만 추가)
 ews.sqlite (로컬 조회용 사본 · 원할 때 실행 · 새 날짜만 추가)
   tools/backfill_telegram.py 텔레그램 채널 내보내기(HTML) → feed 날짜 파일 생성·GCS 업로드 (2026-10-09 1회 수행 · 4/24~10/8 뉴스·DART)
   db/                        (gitignore) backfill/ 임시 산출물
@@ -48,7 +48,7 @@ GCP 프로젝트 `project-56beef4a-f1e9-4e7b-b7a` · 리전 asia-northeast3. 모
 
 ## 뉴스 DB
 - 원본은 GCS `feed/<kind>/<날짜>.json` (삭제 없음 · 텔레그램에 전송된 건만 · 제목·요약·카테고리·중요도·출처·URL). 2026-04-24부터 텔레그램 백필분이 들어 있고(헤드라인·발행시각은 비어 있음), 2026-10-08부터는 봇이 직접 씀. 임상 변경(trials)은 백필 없이 10-09부터.
-- 로컬 조회는 `python tools/sync_news_db.py` → `D:NEWS
+- 로컬 조회는 `python tools/sync_news_db.py` → `D:\NEWS\news.sqlite` (feed 테이블 + feed_fts 전문검색).
 ews.sqlite` (feed 테이블 + feed_fts 전문검색).
 
 ## 알아둘 것
