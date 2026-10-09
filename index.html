@@ -134,6 +134,7 @@ details.all summary{cursor:pointer;font-size:12px;color:var(--mute)}
 .hdr b{font-size:15px;font-weight:600}
 .hdr .sub{font-size:12px;color:var(--mute)}
 h3.sec{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin:18px 0 6px;font-weight:600}
+h3.sec.big{font-size:15px;letter-spacing:.02em;text-transform:none;color:var(--fg);margin:40px 0 8px;padding-top:18px;border-top:1px solid var(--line)}
 .note{font-size:12px;color:var(--mute);margin:6px 0}
 .grp{display:grid;grid-template-columns:76px 1fr;gap:4px 10px;font-size:13px;padding:4px 0;border-bottom:1px solid var(--line)}
 .grp .k{font-family:var(--mono);font-size:11px;color:var(--mute);padding-top:2px}
@@ -591,8 +592,8 @@ svg.sp{width:66px;height:20px;display:block}
     v.innerHTML=`<div class="hdr"><b>13F ${esc(H.quarter)}</b><span class="sub">보유 기준일 ${qInfo(H.quarter).end}</span></div>
     <div class="kpi"><div><div class="k">8펀드 13F 시총</div><div class="v">${fmtM(totMV)}</div><div class="d">${H.funds.map(f=>f.name.split(" ")[0]).join(" · ")}</div></div>
       <div><div class="k">보유 종목</div><div class="v">${H.n_universe??H.matrix.length}</div><div class="d">2개 펀드 이상 ${H.n_multi??H.matrix.filter(m=>m.n>=2).length}종목</div></div>
-      <div><div class="k">확대 종목</div><div class="v">${H.accum.length}</div><div class="d">주식수 순매수 ≥2 · 비중 순확대 ≥3 · 신규 ≥3</div></div>
-      <div><div class="k">축소·청산 종목</div><div class="v">${H.distrib.length}</div><div class="d">순매도·순축소 ≥3 · 청산 ≥2</div></div>
+      <div><div class="k">확대 종목</div><div class="v">${H.accum.length}</div></div>
+      <div><div class="k">축소·청산 종목</div><div class="v">${H.distrib.length}</div></div>
 </div>
     <div class="filters" style="border-top:1px solid var(--line)"><button class="chip" data-b="shares" aria-pressed="${hBasis==="shares"}">주식 수 기준</button><button class="chip" data-b="weight" aria-pressed="${hBasis==="weight"}">비중 기준</button></div>
     ${grp(hBasis==="shares"?"신규 편입":"", g.new,"acc","up")}${grp(hBasis==="shares"?"순매수":"순확대", g.add,"acc","up")}${grp(hBasis==="shares"?"순매도":"순축소", g.trim,"dis","down")}${grp("혼조", g.mixed,"")}${grp("완전 청산", g.exit,"dis","down")}
@@ -614,7 +615,7 @@ svg.sp{width:66px;height:20px;display:block}
     const pts=sig.map(r=>{const st=stockOf(r.t);const y=st?st[scY]:null;return{t:r.t,issuer:r.issuer,x:r.wtd*100,y,net:r.net,held:r.held,hf:A.has(r.t)?1:D.has(r.t)?-1:0,st};}).filter(p=>p.y!=null&&isFinite(p.y)&&(Math.abs(p.x)>=0.02||p.hf));
     const hasY=pts.length>0;
     const kpi=`<div class="kpi"><div><div class="k">담고 · 오름</div><div class="v">${pts.filter(p=>p.x>0&&p.y>0).length}</div><div class="d">펀드가 담았고 주가도 올랐다</div></div><div><div class="k">담고 · 빠짐</div><div class="v">${pts.filter(p=>p.x>0&&p.y<=0).length}</div><div class="d">펀드가 담았는데 주가는 빠졌다 (엇갈림)</div></div><div><div class="k">비우고 · 빠짐</div><div class="v">${pts.filter(p=>p.x<=0&&p.y<=0).length}</div><div class="d">펀드가 비웠고 주가도 빠졌다</div></div><div><div class="k">비우고 · 오름</div><div class="v">${pts.filter(p=>p.x<=0&&p.y>0).length}</div><div class="d">펀드가 비웠는데 주가는 올랐다</div></div></div>`;
-    const head=`<h3 class="sec">수급 지도 · 헷지펀드 vs 주가 <span style="font-weight:400;text-transform:none;letter-spacing:0">· 가로 = 8펀드 합산 비중 변화 ${hedge.prev}→${hedge.quarter} (%p) · 세로 = ${yl[scY]} · 점을 누르면 회사 모아보기</span></h3>
+    const head=`<h3 class="sec big">수급 지도 · 헷지펀드 vs 주가 <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:12px">· 가로 = 8펀드 합산 비중 변화 ${hedge.prev}→${hedge.quarter} (%p) · 세로 = ${yl[scY]}</span></h3>
     <div class="filters" style="border:0;padding:4px 0">${Object.keys(yl).map(k=>`<button class="chip" data-y="${k}" aria-pressed="${scY===k}">${yl[k]}</button>`).join("")}</div>`;
     if(!hasY)return head+`<div class="note">마켓 데이터(종가·수익률)가 들어오면 그려집니다. 13F 비중 변화는 준비돼 있습니다.</div>`;
     const W=760,H=380,L=46,R=16,T=14,B=34;const xs=pts.map(p=>p.x),ys=pts.map(p=>p.y);
