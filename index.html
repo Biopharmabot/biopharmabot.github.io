@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Biopharmabot</title>
-<meta name="description" content="바이오파마 뉴스 · DART 공시 · ClinicalTrials.gov 변경 · 글로벌 헬스케어 · 헷지펀드 13F · 카탈리스트 캘린더 — 봇이 모은 것을 한 화면에">
+<meta name="description" content="바이오파마 뉴스 · DART 공시 · ClinicalTrials.gov 변경 · US 헬스케어 · 헷지펀드 13F · 카탈리스트 캘린더 — 봇이 모은 것을 한 화면에">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 /* Layout: header(title · 종목 바로가기 · 테마) → segmented page nav → page. 개요는 KPI 줄 + 카드 격자(박종현 coverage 방식).
@@ -257,14 +257,14 @@ svg.sp{width:66px;height:20px;display:block}
 <div class="top">
   <div class="l1">
     <h1>Biopharmabot</h1>
-    <span class="src">뉴스 · DART · 임상 · 글로벌 헬스케어 · 헷지펀드 13F · 카탈리스트</span>
+    <span class="src">뉴스 · DART · 임상 · US 헬스케어 · 헷지펀드 13F · 카탈리스트</span>
     <div class="jump"><span class="ic">⌕</span><input id="jump" type="search" placeholder="회사·티커 바로가기" autocomplete="off" spellcheck="false"><div class="list" id="jumpList" hidden></div></div>
     <button class="theme" id="theme" type="button" title="테마">☾</button>
   </div>
   <div class="nav" role="tablist" id="tabs">
     <button role="tab" data-k="home">개요</button>
     <button role="tab" data-k="macro">글로벌마켓</button>
-    <button role="tab" data-k="market">글로벌 헬스케어</button>
+    <button role="tab" data-k="market">US 헬스케어</button>
     <button role="tab" data-k="news">뉴스<span class="n" id="n_news"></span></button>
     <button role="tab" data-k="dart">DART<span class="n" id="n_dart"></span></button>
     <button role="tab" data-k="trials">임상<span class="n" id="n_trials"></span></button>
@@ -282,7 +282,7 @@ svg.sp{width:66px;height:20px;display:block}
 (function(){
   const BASE=/[?&]feed=local/.test(location.search)?"devfeed/":"https://storage.googleapis.com/biopharmabot-public/feed/";
   const $=id=>document.getElementById(id);
-  const KINDS={home:"개요",news:"뉴스",dart:"DART",trials:"임상",market:"글로벌 헬스케어",macro:"글로벌마켓",hedge:"헷지펀드",cal:"캘린더",trend:"트렌드"};
+  const KINDS={home:"개요",news:"뉴스",dart:"DART",trials:"임상",market:"US 헬스케어",macro:"글로벌마켓",hedge:"헷지펀드",cal:"캘린더",trend:"트렌드"};
   const CATS={news:["임상시험","딜","펀딩","규제","정책","실적","기타"],dart:[],trials:["KR","US","WATCH"]};
   const REL={high:["HIGH","hi"],medium:["MID","mid"],low:["LOW",""]};
   const TR_REGION={KR:"국내",US:"글로벌",WATCH:"워치"};
@@ -485,7 +485,7 @@ svg.sp{width:66px;height:20px;display:block}
   const mkRow=(x,i)=>`<tr><td>${i+1}</td><td>${coLink(x.name)}${x.ticker?` <span class="tag">${esc(x.ticker)}</span>`:""}${hfTagFor("",[x.ticker])}</td><td class="num ${cls(x.chg_pct)}">${bbar(x.chg_pct)}${fmtPct(x.chg_pct)}</td></tr>`;
   function renderMarket(){
     const m=data.market,v=$("view");
-    if(!m){v.innerHTML=`<div class="empty"><b>글로벌 헬스케어 데이터가 아직 없습니다.</b><br>미국 장 마감 다음날 아침에 들어옵니다.</div>`;return;}
+    if(!m){v.innerHTML=`<div class="empty"><b>US 헬스케어 데이터가 아직 없습니다.</b><br>미국 장 마감 다음날 아침에 들어옵니다.</div>`;return;}
     const byName=new Map((m.stocks||[]).map(s=>[s.name,s]));const withTk=x=>({...x,ticker:x.ticker||(byName.get(x.name)||{}).ticker});
     const rows=(m.stocks||[]).map(s=>({...s,hf:accumSet().has(s.ticker)?1:distSet().has(s.ticker)?-1:0,nsig:sigs(s).length,rsi_pct:s.rsi_pct??null}));
     const hasTech=rows.some(r=>r.rsi14!=null);
