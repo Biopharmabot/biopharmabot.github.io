@@ -91,9 +91,8 @@ details.all summary{cursor:pointer;font-size:12px;color:var(--mute)}
 /* US 헬스케어 전체 표: 가로 스크롤 없이 — 회사명·지표 열은 줄바꿈, 막대는 짧게 */
 [data-sort="mk"] td:nth-child(2),[data-sort="mk"] td:last-child{white-space:normal}
 [data-sort="mk"] td:last-child .sig{margin-bottom:2px}
-[data-sort="mk"] .bb{width:56px}
 [data-sort="mk"] table{min-width:0}
-@media (max-width:900px){[data-sort="mk"] th,[data-sort="mk"] td{padding:5px 4px}[data-sort="mk"] .bb{width:40px}}
+@media (max-width:900px){[data-sort="mk"] th,[data-sort="mk"] td{padding:5px 4px}}
 .bar{display:inline-block;height:6px;background:var(--panel2);vertical-align:middle;border-radius:2px;overflow:hidden;width:70px;margin-right:6px}
 .bar i{display:block;height:100%}
 .bar.w{width:44px;margin:0 4px 0 0}
@@ -395,6 +394,7 @@ svg.sp{width:66px;height:20px;display:block}
   const hfTagFor=()=>""; // 2026-10-10 사용자 결정: '13F 매집/축소' 태그는 화면에 안 보인다(데이터는 헷지펀드 탭·개요 카드에서만)
   const bbar=(v,scale=6,small)=>{const w=Math.min(50,Math.abs(v||0)*scale);return`<span class="bb${small?" s":""}"><i style="${v>=0?"left:50%":"right:50%"};width:${w}%;background:${v>=0?"var(--up)":"var(--down)"}"></i></span>`;};
   function sigs(s){const o=[];if(s.chg_pct>=5)o.push(["급등","up"]);if(s.chg_pct<=-5)o.push(["급락","dn"]);if(s.vol_ratio>=2)o.push(["거래량 "+s.vol_ratio.toFixed(1)+"×","warn"]);if(s.rsi14>=70)o.push(["RSI 과열","warn"]);if(s.rsi14<=30)o.push(["RSI 과매도","warn"]);if(s.from_hi52!=null&&s.from_hi52>=-3)o.push(["52주 고점권","up"]);if(s.lo52&&s.close&&s.close/s.lo52-1<=0.03)o.push(["52주 저점권","dn"]);return o;}
+  const fmtCap=v=>v==null?"—":v>=1e12?"$"+(v/1e12).toFixed(2)+"T":v>=1e9?"$"+(v/1e9).toFixed(1)+"B":"$"+(v/1e6).toFixed(0)+"M";
   const sigHTML=s=>sigs(s).map(([t,c])=>`<span class="sig ${c}">${t}</span>`).join("");
   const tip=$("tip");function showTip(e,html){tip.innerHTML=html;tip.style.display="block";moveTip(e);}function moveTip(e){const x=e.clientX+14,y=e.clientY+14;tip.style.left=Math.min(x,innerWidth-tip.offsetWidth-8)+"px";tip.style.top=Math.min(y,innerHeight-tip.offsetHeight-8)+"px";}function hideTip(){tip.style.display="none";}
   const dday=d=>{const n=Math.round((new Date(d+"T00:00:00+09:00")-new Date(kstToday()+"T00:00:00+09:00"))/864e5);return`<span class="dd ${n===0?"now":n>0&&n<=7?"soon":""}">${n===0?"오늘":n>0?"D-"+n:"D+"+(-n)}</span>`;};
@@ -490,7 +490,7 @@ svg.sp{width:66px;height:20px;display:block}
   }
 
   /* ───────── market ───────── */
-  const mkRow=(x,i)=>`<tr><td>${i+1}</td><td>${coLink(x.name)}${x.ticker?` <span class="tag">${esc(x.ticker)}</span>`:""}${hfTagFor("",[x.ticker])}</td><td class="num ${cls(x.chg_pct)}">${bbar(x.chg_pct)}${fmtPct(x.chg_pct)}</td></tr>`;
+  const mkRow=(x,i)=>`<tr><td>${i+1}</td><td>${coLink(x.name)}${x.ticker?` <span class="tag">${esc(x.ticker)}</span>`:""}</td><td class="num ${cls(x.chg_pct)}">${fmtPct(x.chg_pct)}</td></tr>`;
   function renderMarket(){
     const m=data.market,v=$("view");
     if(!m){v.innerHTML=`<div class="empty"><b>US 헬스케어 데이터가 아직 없습니다.</b><br>미국 장 마감 다음날 아침에 들어옵니다.</div>`;return;}
@@ -503,7 +503,7 @@ svg.sp{width:66px;height:20px;display:block}
       ${hasTech?`<div data-scr="rsi" title="해당 종목 보기"><div class="k">RSI 과열 ≥70 / 과매도 ≤30</div><div class="v">${rows.filter(r=>r.rsi14>=70).length} / ${rows.filter(r=>r.rsi14<=30).length}</div><div class="d">과열 / 과매도</div></div>
       <div data-scr="hi52" title="해당 종목 보기"><div class="k">52주 고점권 (−3% 이내)</div><div class="v">${rows.filter(r=>r.from_hi52!=null&&r.from_hi52>=-3).length}</div><div class="d">저점권 ${rows.filter(r=>r.lo52&&r.close/r.lo52-1<=0.03).length}</div></div>
       <div data-scr="vol" title="해당 종목 보기"><div class="k">거래량 20일 평균 2배↑</div><div class="v">${rows.filter(r=>r.vol_ratio>=2).length}</div><div class="d">1개월 수익률 중앙값 ${fmtPct([...rows].filter(r=>r.ret_1m!=null).sort((a,b)=>a.ret_1m-b.ret_1m).map(r=>r.ret_1m)[Math.floor(rows.filter(r=>r.ret_1m!=null).length/2)])}</div></div>`:`<div><div class="k">기술지표</div><div class="v">—</div><div class="d">RSI·1주/1개월·52주·거래량비는 다음 마켓 갱신부터 (daily v1.8)</div></div>`}</div>`;
-    const cols=[{k:"ticker",l:"티커",f:r=>tkChip(r.ticker,r.hf>0?"acc":r.hf<0?"dis":"")},{k:"name",l:"회사",f:r=>coLink(r.name)},{k:"close",l:"종가",n:1,f:r=>"$"+Number(r.close).toFixed(2)},{k:"chg_pct",l:"1D",n:1,f:r=>`${bbar(r.chg_pct)}<span class="${cls(r.chg_pct)}">${fmtPct(r.chg_pct)}</span>`}];
+    const cols=[{k:"ticker",l:"티커",f:r=>tkChip(r.ticker,r.hf>0?"acc":r.hf<0?"dis":"")},{k:"name",l:"회사",f:r=>coLink(r.name)},{k:"mcap",l:"시총",n:1,f:r=>fmtCap(r.mcap)},{k:"close",l:"종가",n:1,f:r=>"$"+Number(r.close).toFixed(2)},{k:"chg_pct",l:"1D",n:1,f:r=>`<span class="${cls(r.chg_pct)}">${fmtPct(r.chg_pct)}</span>`}];
     if(hasTech)cols.push({k:"ret_1w",l:"1W",n:1,f:r=>`<span class="${cls(r.ret_1w)}">${fmtPct(r.ret_1w)}</span>`},{k:"ret_1m",l:"1M",n:1,f:r=>`<span class="${cls(r.ret_1m)}">${fmtPct(r.ret_1m)}</span>`},{k:"ytd",l:"YTD",n:1,f:r=>`<span class="${cls(r.ytd)}">${fmtPct(r.ytd)}</span>`},{k:"nsig",l:"지표",n:1,f:r=>sigHTML(r)});
     v.innerHTML=`<div class="idx">${(m.index||[]).map(i=>`<span><span class="k">${esc(i.name)}</span><span class="num">${esc(i.value)}</span> <span class="num ${cls(i.chg_pct)}">${fmtPct(i.chg_pct)}</span></span>`).join("")}<span style="margin-left:auto;color:var(--mute);font-size:12px">거래일 ${esc(m.date)} · 종가 기준 · ${rows.length}종목</span></div>${kpi}
       <div class="mk"><div><h3>Top 10</h3><table><tbody>${(m.top||[]).map(withTk).map(mkRow).join("")}</tbody></table></div><div><h3>Bottom 10</h3><table><tbody>${(m.bottom||[]).map(withTk).map(mkRow).join("")}</tbody></table></div></div>
