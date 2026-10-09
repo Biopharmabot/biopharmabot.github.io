@@ -28,7 +28,7 @@ Biopharmabot/                ← git: Biopharmabot/biopharmabot.github.io (페�
 ews.sqlite (로컬 조회용 사본 · 원할 때 실행 · 새 날짜만 추가)
   tools/backfill_telegram.py 텔레그램 채널 내보내기(HTML) → feed 날짜 파일 생성·GCS 업로드 (2026-10-09 1회 수행 · 4/24~10/8 뉴스·DART)
   db/                        (gitignore) backfill/ 임시 산출물
-  tools/send_news.py         feed/news 항목을 텔레그램 메인 채널로 수동 전송(rss 봇과 같은 형식). --id <feed id> 미리보기, --send 전송. 토큰은 Secret Manager 에서 실행 때 읽음
+  tools/send_news.py         수동 뉴스 발송: --url + --headline/--summary-file/--category/--relevance 로 feed/news(페이지) 갱신 또는 신규 추가, --send 붙이면 텔레그램 메인 채널에도 같은 내용 전송(rss 봇 형식). 토큰은 Secret Manager 에서 실행 때 읽음
   tools/deploy_bots.sh       봇 재배포: bash tools/deploy_bots.sh rss dart ctgov daily (이미지 태그는 파일 안에서 올림)
   daily 수동 재실행(텔레그램 없이 feed만): gcloud run jobs execute biopharma-daily-job --region asia-northeast3 --project project-56beef4a-f1e9-4e7b-b7a --args="python,daily.py,--no-telegram" --wait (Dockerfile 이 CMD 만 쓰므로 --args 는 명령 전체를 줘야 한다)
   tools/patch_bots_feed.py   feed_publish 패치(1회성 · 적용 완료)
