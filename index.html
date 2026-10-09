@@ -593,7 +593,7 @@ svg.sp{width:66px;height:20px;display:block}
     const grp=(label,arr,extra,dir)=>(arr||[]).length?`<h3 class="sec">${label}</h3>`+arr.map(r=>`<div class="grp"><div class="k">${r.n!=null?r.n+"개 펀드":""}</div><div class="v">${r.items.map(it=>{const t=it.replace(/\(.*?\)|\*/g,"").trim();const m=/\((\d+)↑(\d+)↓\)/.exec(it);const ud=m?`${m[1]}↑ ${m[2]}↓`:r.n!=null?(dir==="down"?`0↑ ${r.n}↓`:`${r.n}↑ 0↓`):"";const nm=nameOf(t);return`<span class="hco">${nm?coLink(nm,titleCase(nm)):""}${tkChip(t,extra)}${ud?`<span class="tag">${ud}</span>`:""}</span>`;}).join("")}</div></div>`).join(""):"";
     const sig=H.signals.map(s=>({...s,chg:(data.market&&data.market.stocks||[]).find(x=>x.ticker===s.t)?.chg_pct??null,ncat:catCount(s.t)}));
     v.innerHTML=`<div class="hdr"><b>13F ${esc(H.quarter)}</b><span class="sub">보유 기준일 ${qInfo(H.quarter).end}</span></div>
-    <div class="kpi"><div><div class="k">8펀드 13F 시총</div><div class="v">${fmtM(totMV)}</div><div class="d">${H.funds.map(f=>f.name.split(" ")[0]).join(" · ")}</div></div>
+    <div class="kpi"><div><div class="k">8펀드 13F 시총</div><div class="v">${fmtM(totMV)}</div><div class="d">${H.funds.map(f=>esc(f.name)).join(" · ")}</div></div>
       <div><div class="k">보유 종목</div><div class="v">${H.n_universe??H.matrix.length}</div><div class="d">2개 펀드 이상 ${H.n_multi??H.matrix.filter(m=>m.n>=2).length}종목</div></div>
       <div><div class="k">확대 종목</div><div class="v">${H.accum.length}</div></div>
       <div><div class="k">축소·청산 종목</div><div class="v">${H.distrib.length}</div></div>
