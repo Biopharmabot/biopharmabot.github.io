@@ -281,8 +281,8 @@ svg.sp{width:66px;height:20px;display:block}
     <button role="tab" data-k="market">US Healthcare Equities</button>
     <button role="tab" data-k="news">Newsflow</button>
     <button role="tab" data-k="trials">Clinical Trials</button>
-    <button role="tab" data-k="hedge">13F Holdings</button>
     <button role="tab" data-k="cal">Catalysts</button>
+    <button role="tab" data-k="hedge">13F Holdings</button>
   </div>
 </div>
 <div class="filters" id="filters"></div>
@@ -454,7 +454,7 @@ svg.sp{width:66px;height:20px;display:block}
   function itemHTML(x,kind){
     kind=kind||(tab==="trials"?x.kind:null)||srcKind();
     if(kind==="news"){const r=REL[x.relevance]||REL.low;
-      return`<div class="item"><div class="t">${dayOf(x.ts)}</div><div><div class="h"><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.headline||x.title)}</a><span class="tag">${esc(x.category||"")}</span><span class="tag ${r[1]}">${r[0]}</span>${hfTagFor([x.title,x.headline,x.summary].join(" "))}</div>
+      return`<div class="item"><div class="t">${dayOf(x.ts)}</div><div><div class="h"><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.headline||x.title)}</a><span class="tag">${esc(x.category||"")}</span>${/\bIPO\b/i.test((x.headline||"")+" "+(x.title||""))?`<span class="tag">IPO</span>`:""}<span class="tag ${r[1]}">${r[0]}</span>${hfTagFor([x.title,x.headline,x.summary].join(" "))}</div>
         <div class="s">${esc(x.summary)}</div><div class="m">${esc(x.source||"")}${x.headline&&x.title&&x.headline!==x.title?" · "+esc(x.title):""}</div></div></div>`;}
     if(kind==="dart"){
       return`<div class="item"><div class="t">${hhmm(x.ts)}</div><div><div class="h"><a href="${esc(x.url)}" target="_blank" rel="noopener">${coLink(x.company)}</a><span>${esc(x.title)}</span>${x.market?`<span class="tag">${esc(x.market)}</span>`:""}</div>
@@ -587,7 +587,7 @@ svg.sp{width:66px;height:20px;display:block}
     const totMV=H.funds.reduce((a,f)=>a+f.mv,0);
     const catCount=t=>calAll().filter(c=>c.tk.includes(t)&&c.sort>=kstToday()&&c.imp!=="low").length;
     // 그룹 항목: 티커 + 「늘린↑줄인↓」 펀드 수. 데이터의 괄호(4↑1↓)가 있으면 그대로, 없으면 그룹의 순방향 n 을 방향에 맞춰 n↑0↓ / 0↑n↓ 로 쓴다. 전일 등락은 표시하지 않는다(2026-10-10).
-    const grp=(label,arr,extra,dir)=>(arr||[]).length?`<h3 class="sec">${label}</h3>`+arr.map(r=>`<div class="grp"><div class="k">${r.n!=null?r.n+"개 펀드":""}</div><div class="v">${r.items.map(it=>{const t=it.replace(/\(.*?\)|\*/g,"").trim();const m=/\((\d+)↑(\d+)↓\)/.exec(it);const ud=m?`${m[1]}↑${m[2]}↓`:r.n!=null?(dir==="down"?`0↑${r.n}↓`:`${r.n}↑0↓`):"";return tkChip(t,extra)+(ud?`<span class="tag">${ud}</span>`:"");}).join("")}</div></div>`).join(""):"";
+    const grp=(label,arr,extra,dir)=>(arr||[]).length?`<h3 class="sec">${label}</h3>`+arr.map(r=>`<div class="grp"><div class="k">${r.n!=null?r.n+"개 펀드":""}</div><div class="v">${r.items.map(it=>{const t=it.replace(/\(.*?\)|\*/g,"").trim();const m=/\((\d+)↑(\d+)↓\)/.exec(it);const ud=m?`${m[1]}↑ ${m[2]}↓`:r.n!=null?(dir==="down"?`0↑ ${r.n}↓`:`${r.n}↑ 0↓`):"";return tkChip(t,extra)+(ud?`<span class="tag">${ud}</span>`:"");}).join("")}</div></div>`).join(""):"";
     const sig=H.signals.map(s=>({...s,chg:(data.market&&data.market.stocks||[]).find(x=>x.ticker===s.t)?.chg_pct??null,ncat:catCount(s.t)}));
     v.innerHTML=`<div class="hdr"><b>13F ${esc(H.quarter)}</b><span class="sub">보유 기준일 ${qInfo(H.quarter).end}</span></div>
     <div class="kpi"><div><div class="k">8펀드 13F 시총</div><div class="v">${fmtM(totMV)}</div><div class="d">${H.funds.map(f=>f.name.split(" ")[0]).join(" · ")}</div></div>
@@ -615,7 +615,7 @@ svg.sp{width:66px;height:20px;display:block}
     const pts=sig.map((r,i)=>{const st=stockOf(r.t);const y=st?st[scY]:null;const xv=scX==="net"?r.net+(((i*7)%5)-2)*0.06:r.wtd*100;return{t:r.t,issuer:r.issuer,x:xv,xw:r.wtd*100,y,net:r.net,held:r.held,hf:A.has(r.t)?1:D.has(r.t)?-1:0,st};}).filter(p=>p.y!=null&&isFinite(p.y)&&(scX==="net"?p.net!==0||p.hf:(Math.abs(p.x)>=0.02||p.hf)));
     const hasY=pts.length>0;
     const kpi=`<div class="kpi"><div><div class="k">Added · Up</div><div class="v">${pts.filter(p=>p.x>0&&p.y>0).length}</div></div><div><div class="k">Added · Down</div><div class="v">${pts.filter(p=>p.x>0&&p.y<=0).length}</div></div><div><div class="k">Cut · Down</div><div class="v">${pts.filter(p=>p.x<=0&&p.y<=0).length}</div></div><div><div class="k">Cut · Up</div><div class="v">${pts.filter(p=>p.x<=0&&p.y>0).length}</div></div></div>`;
-    const head=`<h3 class="sec big">수급 지도 · 헷지펀드 vs 주가</h3>
+    const head=`<h3 class="sec big">헷지펀드 vs 주가</h3>
     <div class="filters" style="border:0;padding:4px 0">${Object.keys(xl).map(k=>`<button class="chip" data-x="${k}" aria-pressed="${scX===k}">${xl[k]}</button>`).join("")}<span class="sep"></span>${Object.keys(yl).map(k=>`<button class="chip" data-y="${k}" aria-pressed="${scY===k}">${yl[k]}</button>`).join("")}</div>`;
     if(!hasY)return head+`<div class="note">마켓 데이터(종가·수익률)가 들어오면 그려집니다. 13F 비중 변화는 준비돼 있습니다.</div>`;
     const W=760,H=380,L=46,R=16,T=14,B=34;const xs=pts.map(p=>p.x),ys=pts.map(p=>p.y);
