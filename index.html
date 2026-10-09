@@ -97,6 +97,7 @@ details.all summary{cursor:pointer;font-size:12px;color:var(--mute)}
 .kpi .k{font-size:11px;color:var(--mute)}
 .kpi .v{font-size:20px;font-weight:600;line-height:1.2;margin-top:2px}
 .kpi.bio div{border-left:3px solid var(--bar)}
+.kpi.bio .d{white-space:normal}
 .kpi .d{font-size:11px;color:var(--mute);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;margin-top:4px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px 12px;min-width:0}
@@ -506,9 +507,10 @@ svg.sp{width:66px;height:20px;display:block}
     if(!m){v.innerHTML=`<div class="empty"><b>글로벌마켓 데이터가 아직 없습니다.</b></div>`;return;}
     const fg=m.fear_greed;const allIdx=Object.values(m.indices).flat();const find=t=>allIdx.find(r=>r.t===t);
     const tile=(r,label,extra)=>r?`<div><div class="k">${esc(label||r.name)} <span class="tag">${esc(r.date)}</span></div><div class="v num ${cls(r.chg)}">${fmtPct(r.chg)}</div><div class="d">${fmtN(r.last)} · 1M ${fmtPct(r.chg_1m)} · YTD ${fmtPct(r.ytd)}${extra||""}</div></div>`:"";
-    const spx=find("^GSPC"),ndq=find("^IXIC"),kospi=find("^KS11"),kosdaq=find("^KQ11"),nbi=find("^NBI"),drg=find("^DRG"),xbi=find("XBI"),kbio=find("244580.KS"),khc=find("143860.KS");
+    const spx=find("^GSPC"),ndq=find("^IXIC"),kospi=find("^KS11"),kosdaq=find("^KQ11"),nbi=find("^NBI"),ibb=find("IBB"),xbi=find("XBI"),pph=find("PPH"),kmed=find("KRD020020156"),qmed=find("KRD020020610");
+    const vs=(r,b,label)=>r&&b&&r.chg!=null&&b.chg!=null?` · vs ${label} ${fmtPct(r.chg-b.chg)}`:"";
     const kpi=`<div class="kpi">${tile(spx,"S&P 500")}${tile(ndq,"NASDAQ")}${tile(kospi,"KOSPI")}${tile(kosdaq,"KOSDAQ")}</div>
-      <div class="kpi bio">${tile(nbi,"NASDAQ Biotech (NBI)")}${tile(xbi,"XBI 바이오 ETF",spx?` · vs S&P ${fmtPct(xbi.chg-spx.chg)}`:"")}${tile(drg,"NYSE Arca 제약 (DRG)")}${tile(kbio,"KODEX 바이오",kospi?` · vs KOSPI ${fmtPct(kbio.chg-kospi.chg)}`:"")}${tile(khc,"TIGER 헬스케어")}</div>`;
+      <div class="kpi bio">${tile(nbi,"NASDAQ Biotech (NBI)")}${tile(ibb,"IBB 바이오 ETF")}${tile(xbi,"XBI 바이오 ETF",vs(xbi,spx,"S&P"))}${tile(pph,"대형 제약 (PPH)",vs(pph,spx,"S&P"))}${tile(kmed,"KOSPI 의약품",vs(kmed,kospi,"KOSPI"))}${tile(qmed,"KOSDAQ 제약",vs(qmed,kosdaq,"KOSDAQ"))}</div>`;
     const lastD=rows=>rows&&rows.length?rows.map(r=>r.date).sort().slice(-1)[0]:"";
     const sec=(title,rows,full)=>rows&&rows.length?`<div><h4>${title} <span style="font-weight:400;letter-spacing:0;text-transform:none">· ${esc(lastD(rows))}</span></h4>${pxTable(rows,{full})}</div>`:"";
     const sbar=rows=>{const mx=Math.max(1,...rows.map(r=>Math.abs(r.chg)));return`<div class="hbar" style="grid-template-columns:minmax(90px,auto) 1fr 64px">${rows.map(r=>`<span title="${esc(r.t)}">${esc(r.name)}</span><span class="b" style="background:none;position:relative;height:10px"><span style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--line)"></span><i style="position:absolute;top:0;height:100%;${r.chg>=0?"left:50%":"right:50%"};width:${(Math.abs(r.chg)/mx*50).toFixed(1)}%;background:${r.chg>=0?"var(--up)":"var(--down)"};border-radius:2px"></i></span><span class="n num ${cls(r.chg)}" style="color:inherit">${fmtPct(r.chg)}</span>`).join("")}</div>`;};
