@@ -14,7 +14,8 @@ WANT = {("kospi_dd_trd", "제약"): "KRD020020156", ("kosdaq_dd_trd", "제약"):
         ("krx_dd_trd", "KRX 헬스케어"): "KRXHC", ("kosdaq_dd_trd", "코스닥 150"): "KQ150", ("kosdaq_dd_trd", "코스닥 150 헬스케어"): "KQ150_HC",
         ("krx_dd_trd", "KRX 300 정보기술"): "KRX300_IT", ("krx_dd_trd", "KRX 300 헬스케어"): "KRX300_HC", ("krx_dd_trd", "KRX 300 금융"): "KRX300_FIN",
         ("krx_dd_trd", "KRX 300 커뮤니케이션서비스"): "KRX300_COMM", ("krx_dd_trd", "KRX 300 자유소비재"): "KRX300_DISC", ("krx_dd_trd", "KRX 300 필수소비재"): "KRX300_STAPLE",
-        ("krx_dd_trd", "KRX 300 산업재"): "KRX300_IND", ("krx_dd_trd", "KRX 300 소재"): "KRX300_MAT"}
+        ("krx_dd_trd", "KRX 300 산업재"): "KRX300_IND", ("krx_dd_trd", "KRX 300 소재"): "KRX300_MAT",
+        ("krx_dd_trd", "KRX 자동차"): "KRXI_AUTO", ("krx_dd_trd", "KRX 반도체"): "KRXI_SEMI", ("krx_dd_trd", "KRX 헬스케어"): "KRXI_HC", ("krx_dd_trd", "KRX 은행"): "KRXI_BANK", ("krx_dd_trd", "KRX 에너지화학"): "KRXI_ENCH", ("krx_dd_trd", "KRX 철강"): "KRXI_STEEL", ("krx_dd_trd", "KRX 방송통신"): "KRXI_MEDIA", ("krx_dd_trd", "KRX 건설"): "KRXI_CONS", ("krx_dd_trd", "KRX 증권"): "KRXI_SEC", ("krx_dd_trd", "KRX 기계장비"): "KRXI_MACH", ("krx_dd_trd", "KRX 보험"): "KRXI_INS", ("krx_dd_trd", "KRX 운송"): "KRXI_TRANS", ("krx_dd_trd", "KRX 경기소비재"): "KRXI_DISC", ("krx_dd_trd", "KRX 필수소비재"): "KRXI_STAPLE", ("krx_dd_trd", "KRX K콘텐츠"): "KRXI_KCON", ("krx_dd_trd", "KRX 정보기술"): "KRXI_IT", ("krx_dd_trd", "KRX 유틸리티"): "KRXI_UTIL"}
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("start"); ap.add_argument("end"); ap.add_argument("--out", required=True); ap.add_argument("--merge"); ap.add_argument("--eps", help="호출할 엔드포인트만(쉼표)")

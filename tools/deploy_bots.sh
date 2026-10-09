@@ -9,5 +9,5 @@ for t in "$@"; do case $t in
   rss)   IMG=$REG/rss-monitor:v55;      gcloud builds submit --tag $IMG "$BOTS/rss"   --project $P --quiet; gcloud run services update rss-monitor-svc   --image $IMG --region $R --project $P --quiet ;;
   dart)  IMG=$REG/dart-monitor:v19.20;  gcloud builds submit --tag $IMG "$BOTS/dart"  --project $P --quiet; gcloud run services update dart-monitor-svc  --image $IMG --region $R --project $P --quiet ;;
   ctgov) IMG=$REG/ctgov-monitor:v1.6;   gcloud builds submit --tag $IMG "$BOTS/ctgov" --project $P --quiet; gcloud run services update ctgov-monitor-svc --image $IMG --region $R --project $P --quiet ;;
-  daily) IMG=$REG/biopharma-daily:v1.25; gcloud builds submit --tag $IMG "$BOTS/daily" --project $P --quiet; gcloud run jobs update biopharma-daily-job --image $IMG --region $R --project $P --quiet ;;
+  daily) IMG=$REG/biopharma-daily:v1.26; gcloud builds submit --tag $IMG "$BOTS/daily" --project $P --quiet; gcloud run jobs update biopharma-daily-job --image $IMG --region $R --project $P --quiet ;;
   *) echo "unknown $t"; exit 1;; esac; echo "== $t 배포 완료 → $IMG"; done

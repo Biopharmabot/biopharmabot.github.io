@@ -526,7 +526,7 @@ svg.sp{width:66px;height:20px;display:block}
     const lastD=rows=>rows&&rows.length?rows.map(r=>r.date).sort().slice(-1)[0]:"";
     const sec=(title,rows,full)=>rows&&rows.length?`<div><h4>${title} <span style="font-weight:400;letter-spacing:0;text-transform:none">· ${esc(lastD(rows))}</span></h4>${pxTable(rows,{full})}</div>`:"";
     const sbar=rows=>{const mx=Math.max(1,...rows.map(r=>Math.abs(r.chg)));return`<div class="hbar" style="grid-template-columns:minmax(90px,auto) 1fr 64px">${rows.map(r=>`<span title="${esc(r.t)}">${esc(r.name)}</span><span class="b" style="background:none;position:relative;height:10px"><span style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--line)"></span><i style="position:absolute;top:0;height:100%;${r.chg>=0?"left:50%":"right:50%"};width:${(Math.abs(r.chg)/mx*50).toFixed(1)}%;background:${r.chg>=0?"var(--up)":"var(--down)"};border-radius:2px"></i></span><span class="n num ${cls(r.chg)}" style="color:inherit">${fmtPct(r.chg)}</span>`).join("")}</div>`;};
-    const SEC_SRC=Object.assign({"미국":"GICS 11섹터 SPDR ETF","유럽":"STOXX 600 슈퍼섹터 (iShares ETF)","일본":"TOPIX-17 (NEXT FUNDS ETF)","중국·홍콩":"항셍 종합산업지수","한국":"KRX 300 섹터지수 (KRX)"},m.sector_src||{});
+    const SEC_SRC=Object.assign({"미국":"GICS 11섹터 SPDR ETF","유럽":"STOXX 600 슈퍼섹터 (iShares ETF)","일본":"TOPIX-17 (NEXT FUNDS ETF)","중국·홍콩":"항셍 종합산업지수","한국":"KRX 산업지수 17 (KRX)"},m.sector_src||{});
     const secs=m.sectors||{"미국":m.us_sectors,"한국":m.kr_sectors};
     const h4=(t,d)=>`<h4>${esc(t)} <span style="font-weight:400;letter-spacing:0;text-transform:none">· ${esc(d)}</span></h4>`;
     // 중국·홍콩 블록: 한 표 안에서 중국(본토) 지수 → 홍콩 지수 순으로 묶는다. 오른쪽 섹터는 홍콩(항셍 종합산업지수)뿐이므로 '홍콩 섹터'로 표기.
