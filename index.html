@@ -80,7 +80,7 @@ h1{font-size:17px;font-weight:600;margin:0;letter-spacing:-.01em}
 .day{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);padding:14px 0 4px;border-bottom:1px solid var(--line);font-family:var(--mono)}
 .foot{font-size:11px;color:var(--mute);margin-top:28px;line-height:1.7}
 .lines{margin:4px 0 0;padding-left:14px;font-size:12px;color:var(--mute)}
-.chgbox{margin-top:4px;font-size:14px;line-height:1.6}.chgbox div+div{margin-top:1px}
+.chgbox{margin-top:4px;font-size:14px;line-height:1.6;font-weight:600}.chgbox div+div{margin-top:1px}
 .tag.chg{color:var(--acc);border-color:var(--acc)}
 .tag.ph{color:var(--fg);border-color:var(--fg);font-weight:600}
 .cl{margin-top:2px}.cl .ck{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);font-weight:600;margin-top:10px}.cl .s{margin-top:2px}
@@ -301,7 +301,7 @@ svg.sp{width:66px;height:20px;display:block}
   const REL={high:["HIGH","hi"],medium:["MID","mid"],low:["LOW",""]};
   const TR_REGION={KR:"국내",US:"글로벌",WATCH:"워치"};
   // 임상 단계 라벨: ctgov 항목은 phases 배열, 심층분석 항목은 헤드라인·본문에서 "2b상"·"1/2상"·"Phase 3" 등을 찾는다
-  const PH_RE=/(?:phase\s*|제\s*)?([1-4](?:[ab])?(?:\s*\/\s*[1-4][ab]?)?)\s*상\b|phase\s*([1-4](?:[ab])?(?:\s*\/\s*[1-4][ab]?)?)\b|\b(pivotal|registrational)\b/i;
+  const PH_RE=/(?:phase\s*|제\s*)?([1-4](?:[ab])?(?:\s*\/\s*[1-4][ab]?)?)\s*상|phase\s*([1-4](?:[ab])?(?:\s*\/\s*[1-4][ab]?)?)\b|\b(pivotal|registrational)\b/i;
   const phaseLabel=x=>{if(x.phases&&x.phases.length)return x.phases.map(p=>p.replace("EARLY_PHASE1","P0").replace("PHASE","P").replace("NA","N/A")).join("/");
     const m=PH_RE.exec(x.headline||"")||PH_RE.exec((x.efficacy_result||"").slice(0,400))||PH_RE.exec(x.title||"");if(!m)return"";const v=(m[1]||m[2]||"").replace(/\s+/g,"");return v?"P"+v:"Pivotal";};
   const phTag=x=>{const l=phaseLabel(x);return l?`<span class="tag ph">${esc(l)}</span>`:"";};
