@@ -79,6 +79,8 @@ h1{font-size:17px;font-weight:600;margin:0;letter-spacing:-.01em}
 .day{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);padding:14px 0 4px;border-bottom:1px solid var(--line);font-family:var(--mono)}
 .foot{font-size:11px;color:var(--mute);margin-top:28px;line-height:1.7}
 .lines{margin:4px 0 0;padding-left:14px;font-size:12px;color:var(--mute)}
+details.cl{margin-top:4px}details.cl summary{cursor:pointer;font-size:13px;color:var(--fg);list-style:none;display:flex;gap:6px;align-items:baseline}details.cl summary::before{content:"▸";color:var(--mute);font-size:11px}details.cl[open] summary::before{content:"▾"}details.cl[open] summary{color:var(--mute)}
+details.cl .ck{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);font-weight:600;margin-top:10px}details.cl .s{margin-top:2px}
 .lines li{margin:1px 0}
 details.all{margin-top:14px}
 details.all summary{cursor:pointer;font-size:12px;color:var(--mute)}
@@ -289,7 +291,9 @@ svg.sp{width:66px;height:20px;display:block}
   const BASE=/[?&]feed=local/.test(location.search)?"devfeed/":"https://storage.googleapis.com/biopharmabot-public/feed/";
   const $=id=>document.getElementById(id);
   const KINDS={home:"개요",news:"뉴스",dart:"DART",trials:"임상",market:"US 헬스케어",macro:"글로벌마켓",hedge:"헷지펀드",cal:"캘린더"};   // trend 탭 제거(2026-10-10)
-  const CATS={news:["임상시험","딜","펀딩","규제","정책","실적","기타"],dart:[],trials:["KR","US","WATCH"]};
+  const CATS={news:["임상시험","딜","펀딩","규제","정책","실적","기타"],dart:[],trials:["change"]};
+  // Clinical Trials 탭: 데이터 소스 = 임상시험 결과(rss 봇 심층분석, feed clinical) 또는 임상시험 변동(ctgov 봇, feed trials). 2026-10-10
+  const srcKind=()=>tab==="trials"&&cat!=="change"?"clinical":tab;
   const REL={high:["HIGH","hi"],medium:["MID","mid"],low:["LOW",""]};
   const TR_REGION={KR:"국내",US:"글로벌",WATCH:"워치"};
   const TR_CHANGE={new:"신규 등록",first:"감시 편입",change:"변경"};
@@ -297,7 +301,7 @@ svg.sp{width:66px;height:20px;display:block}
   const PREC={day:"",range:"기간",month:"월 중",quarter:"분기 중",half:"반기 중",year:"연중",tbd:"미정"};
   const SRC={hub:"Hub",bb:"BB",both:"Hub+BB"};
   const FUNDS=["Baker Bros","RA Capital","Orbimed","RTW","Avoro","Deerfield","Perceptive","Deep Track"];
-  let tab="home", data={news:[],dart:[],trials:[],market:null,macro:null}, loadedDays={news:[],dart:[],trials:[]}, q="", cat="ALL", rel="ALL";
+  let tab="home", data={news:[],dart:[],trials:[],clinical:[],market:null,macro:null}, loadedDays={news:[],dart:[],trials:[],clinical:[]}, q="", cat="ALL", rel="ALL";
   let hedge=null, cal=null, bb=null, comps=[], view="time", scY="ret_1m", calMonth=null, calDay=null, calF={region:"ALL",imp:{high:true,medium:true,low:false},type:"ALL",q:"",src:{hub:true,bb:true}}, hBasis="shares", sortState={}, trendDays=null;
   const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
   const fmtPct=v=>v==null||!isFinite(v)?"—":(v>0?"+":"")+Number(v).toFixed(2)+"%";
@@ -316,8 +320,8 @@ svg.sp{width:66px;height:20px;display:block}
   async function getJSON(path,abs){try{const r=await fetch((abs?"":BASE)+path+"?t="+Math.floor(Date.now()/60000),{cache:"no-store"});if(!r.ok)return null;return await r.json();}catch(e){return null;}}
   function merge(kind,arr){if(!Array.isArray(arr))return;const have=new Set(data[kind].map(x=>x.id));arr.forEach(x=>{if(!x.id||!have.has(x.id)){data[kind].push(x);have.add(x.id);}});data[kind].sort((a,b)=>(b.ts||"")<(a.ts||"")?-1:1);}
   async function loadLatest(){
-    const [n,d,t,m,mc]=await Promise.all([getJSON("news/latest.json"),null,getJSON("trials/latest.json"),getJSON("market/latest.json"),getJSON("macro/latest.json")]);
-    merge("news",n);merge("trials",t);if(m&&m.date)data.market=m;if(mc&&mc.date)data.macro=mc;   /* DART 는 대시보드에서 수집 안 함(2026-10-10 사용자 결정, 봇·텔레그램은 그대로) */
+    const [n,d,t,m,mc]=await Promise.all([getJSON("news/latest.json"),getJSON("clinical/latest.json"),getJSON("trials/latest.json"),getJSON("market/latest.json"),getJSON("macro/latest.json")]);
+    merge("news",n);merge("clinical",d);merge("trials",t);if(m&&m.date)data.market=m;if(mc&&mc.date)data.macro=mc;   /* DART 는 대시보드에서 수집 안 함(2026-10-10 사용자 결정, 봇·텔레그램은 그대로) */
     render();
   }
   async function loadStatic(){
@@ -415,9 +419,10 @@ svg.sp{width:66px;height:20px;display:block}
     if(["home","market","macro","hedge"].includes(tab)){f.innerHTML="";return;}
     if(tab==="cal"){renderCalFilters();return;}
     const cats=CATS[tab];
-    let h=`<button class="chip" type="button" data-cat="ALL" aria-pressed="${cat==="ALL"}">전체</button>`+cats.map(c=>`<button class="chip" type="button" data-cat="${c}" aria-pressed="${cat===c}">${tab==="trials"?TR_REGION[c]:c}</button>`).join("");
+    let h=tab==="trials"?`<button class="chip" type="button" data-cat="ALL" aria-pressed="${cat!=="change"}">임상시험 결과</button><button class="chip" type="button" data-cat="change" aria-pressed="${cat==="change"}">임상시험 변동</button>`
+      :`<button class="chip" type="button" data-cat="ALL" aria-pressed="${cat==="ALL"}">전체</button>`+cats.map(c=>`<button class="chip" type="button" data-cat="${c}" aria-pressed="${cat===c}">${c}</button>`).join("");
     if(tab==="news")h+=`<span class="sep"></span>`+["high","medium","low"].map(r=>`<button class="chip" type="button" data-rel="${r}" aria-pressed="${rel===r}">${REL[r][0]}</button>`).join("");
-    h+=`<input id="q" type="search" placeholder="${tab==="dart"?"회사·공시명 검색":tab==="trials"?"회사·NCT·질환 검색":"제목·요약·회사 검색"}" value="${esc(q)}">${tab==="news"?"":`<span class="sep"></span><button class="chip" data-view="time" aria-pressed="${view==="time"}">시간순</button><button class="chip" data-view="co" aria-pressed="${view==="co"}">종목별</button><span class="r" id="cnt"></span>`}`;
+    h+=`<input id="q" type="search" placeholder="${tab==="trials"?"회사·약물·NCT·질환 검색":"제목·요약·회사 검색"}" value="${esc(q)}">${tab==="news"||tab==="trials"?"":`<span class="sep"></span><button class="chip" data-view="time" aria-pressed="${view==="time"}">시간순</button><button class="chip" data-view="co" aria-pressed="${view==="co"}">종목별</button><span class="r" id="cnt"></span>`}`;
     f.innerHTML=h;
     f.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{cat=b.dataset.cat;render();});
     f.querySelectorAll("[data-rel]").forEach(b=>b.onclick=()=>{rel=rel===b.dataset.rel?"ALL":b.dataset.rel;render();});
@@ -426,22 +431,25 @@ svg.sp{width:66px;height:20px;display:block}
   }
   function filtered(){
     const needle=q.trim().toLowerCase();
-    return data[tab].filter(x=>{
+    return data[srcKind()].filter(x=>{
       if(tab==="news"){if(cat!=="ALL"&&x.category!==cat)return false;if(rel!=="ALL"&&x.relevance!==rel)return false;}
-      if(tab==="trials"&&cat!=="ALL"&&x.region!==cat)return false;
       if(!needle)return true;
       const hay=[x.title,x.headline,x.summary,x.company,x.nct,x.sponsor,(x.cond||[]).join(" "),(x.interv||[]).join(" "),x.source].join(" ").toLowerCase();
       return hay.includes(needle);
     });
   }
   function itemHTML(x,kind){
-    kind=kind||tab;
+    kind=kind||srcKind();
     if(kind==="news"){const r=REL[x.relevance]||REL.low;
       return`<div class="item"><div class="t">${dayOf(x.ts)}</div><div><div class="h"><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.headline||x.title)}</a><span class="tag">${esc(x.category||"")}</span><span class="tag ${r[1]}">${r[0]}</span>${hfTagFor([x.title,x.headline,x.summary].join(" "))}</div>
         <div class="s">${esc(x.summary)}</div><div class="m">${esc(x.source||"")}${x.headline&&x.title&&x.headline!==x.title?" · "+esc(x.title):""}</div></div></div>`;}
     if(kind==="dart"){
       return`<div class="item"><div class="t">${hhmm(x.ts)}</div><div><div class="h"><a href="${esc(x.url)}" target="_blank" rel="noopener">${coLink(x.company)}</a><span>${esc(x.title)}</span>${x.market?`<span class="tag">${esc(x.market)}</span>`:""}</div>
         ${x.summary?`<div class="s">${esc(x.summary)}</div>`:""}<div class="m">${esc(x.stock_code||"")}${x.rcept_dt?" · 접수 "+esc(x.rcept_dt):""}</div></div></div>`;}
+    if(kind==="clinical"){
+      const secs=[["유효성 결과",x.efficacy_result],["안전성·부작용",x.safety],["기타 효력",x.other_efficacy],["표준치료요법",x.soc],["경쟁 약물",x.competitors],["개발 계획",x.dev_plan]].filter(([,v])=>v);
+      return`<div class="item"><div class="t">${dayOf(x.ts)}</div><div><div class="h"><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.headline||x.title)}</a>${(x.nct||[]).map(n=>`<a class="tag" href="https://clinicaltrials.gov/study/${esc(n)}" target="_blank" rel="noopener">${esc(n)}</a>`).join("")}</div>
+        ${x.moa?`<div class="m" style="font-family:inherit;font-size:12px">${esc(x.moa)}</div>`:""}<details class="cl"><summary>${esc((x.efficacy_result||"").split(String.fromCharCode(10))[0]).slice(0,160)}</summary>${secs.map(([k,v])=>`<div class="ck">${k}</div><div class="s">${esc(v)}</div>`).join("")}</details></div></div>`;}
     if(kind==="trials"){
       return`<div class="item"><div class="t">${hhmm(x.ts)}</div><div><div class="h">${coLink(x.company)}<span class="tag">${TR_REGION[x.region]||esc(x.region)}</span><span class="tag ${x.change==="new"?"new":""}">${TR_CHANGE[x.change]||esc(x.change)}</span>${(x.phases||[]).length?`<span class="tag">${esc(x.phases.join("/"))}</span>`:""}${x.status?`<span class="tag">${esc(x.status)}</span>`:""}${hfTagFor(x.company+" "+x.sponsor)}</div>
         <div class="s"><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.title)}</a></div>${(x.lines||[]).length?`<ul class="lines">${x.lines.map(l=>`<li>${esc(l)}</li>`).join("")}</ul>`:""}<div class="m">${esc(x.nct)}${(x.interv||[]).length?" · "+esc(x.interv.join(", ")):""}${(x.cond||[]).length?" · "+esc(x.cond.join(", ")):""}</div></div></div>`;}
@@ -470,9 +478,9 @@ svg.sp{width:66px;height:20px;display:block}
     const v=$("view");
     const list=filtered();if($("cnt"))$("cnt").textContent=list.length?list.length+"건":"";
     let main="";
-    if(!data[tab].length){main=`<div class="empty"><b>아직 쌓인 항목이 없습니다.</b><br>봇이 다음에 보낼 때부터 여기에 쌓입니다.</div><button class="more" id="more" type="button">이전 날짜 더 보기</button>`;}
+    if(!data[srcKind()].length){main=`<div class="empty"><b>아직 쌓인 항목이 없습니다.</b><br>봇이 다음에 보낼 때부터 여기에 쌓입니다.</div><button class="more" id="more" type="button">이전 날짜 더 보기</button>`;}
     else if(!list.length){main=`<div class="empty">조건에 맞는 항목이 없습니다.</div>`;}
-    else if(view==="co"&&tab!=="news"){
+    else if(view==="co"&&tab!=="news"&&tab!=="trials"){
       const mt=mentions();const groups=new Map();const keyOf=x=>{if(tab==="news"){const h=mt.newsCo.get(x.id)||[];return h.length?h[0]:null;}return findCompany(tab==="dart"?(x.stock_code||x.company):x.company)||{name:x.company,key:"_"+x.company,tk:[]};};
       list.forEach(x=>{const e=keyOf(x);const k=e?e.key:"_etc";if(!groups.has(k))groups.set(k,{e,items:[]});groups.get(k).items.push(x);});
       const arr=[...groups.values()].sort((a,b)=>b.items.length-a.items.length||(b.items[0].ts||"").localeCompare(a.items[0].ts||""));
@@ -483,7 +491,7 @@ svg.sp{width:66px;height:20px;display:block}
       main=h+`</div><button class="more" id="more" type="button">이전 날짜 더 보기</button>`;
     }
     v.innerHTML=main;   // 사이드바(공시 스트림·회사별 언급·임상 변경) 없음 — 2026-10-10 사용자 결정
-    const b=$("more");if(b)b.onclick=()=>loadMore(tab);
+    const b=$("more");if(b)b.onclick=()=>loadMore(srcKind());
     v.querySelectorAll("[data-go]").forEach(a=>a.onclick=e=>{e.preventDefault();setTab(a.dataset.go);});
   }
 
