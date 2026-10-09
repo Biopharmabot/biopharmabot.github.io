@@ -41,8 +41,8 @@ h1{font-size:17px;font-weight:600;margin:0;letter-spacing:-.01em}
 .jump .list div{padding:6px 10px;cursor:pointer;font-size:13px;display:flex;gap:8px;align-items:baseline}
 .jump .list div:hover,.jump .list div.on{background:var(--panel2)}
 .jump .list .k{font-family:var(--mono);font-size:11px;color:var(--mute);margin-left:auto}
-.nav{display:inline-flex;gap:2px;margin-top:8px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:3px;flex-wrap:wrap}
-.nav button{font:inherit;font-size:13px;background:none;border:0;border-radius:6px;color:var(--mute);padding:5px 10px;cursor:pointer;white-space:nowrap}
+.nav{display:flex;gap:2px;margin-top:8px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:3px;flex-wrap:wrap}
+.nav button{font:inherit;font-size:13px;background:none;border:0;border-radius:6px;color:var(--mute);padding:6px 10px;cursor:pointer;white-space:nowrap;flex:1 1 auto;text-align:center}
 .nav button[aria-selected="true"]{background:var(--panel);color:var(--fg);box-shadow:0 1px 2px rgba(0,0,0,.08)}
 .nav .n{font-family:var(--mono);font-size:11px;margin-left:4px;color:var(--mute)}
 /* common */
@@ -264,19 +264,19 @@ svg.sp{width:66px;height:20px;display:block}
 <div class="top">
   <div class="l1">
     <h1>Biopharmabot</h1>
-    <span class="src">뉴스 · DART · 임상 · US 헬스케어 · 헷지펀드 13F · 카탈리스트</span>
+    <span class="src">글로벌 마켓 · US 헬스케어 · 뉴스 · 임상 · 13F · 카탈리스트</span>
     <div class="jump"><span class="ic">⌕</span><input id="jump" type="search" placeholder="회사·티커 바로가기" autocomplete="off" spellcheck="false"><div class="list" id="jumpList" hidden></div></div>
     <button class="theme" id="theme" type="button" title="테마">☾</button>
   </div>
   <div class="nav" role="tablist" id="tabs">
     <button role="tab" data-k="home">개요</button>
-    <button role="tab" data-k="macro">글로벌마켓</button>
-    <button role="tab" data-k="market">US 헬스케어</button>
-    <button role="tab" data-k="news">뉴스</button>
-    <button role="tab" data-k="trials">임상<span class="n" id="n_trials"></span></button>
-    <button role="tab" data-k="hedge">헷지펀드</button>
-    <button role="tab" data-k="cal">캘린더<span class="n" id="n_cal"></span></button>
-    <button role="tab" data-k="trend">트렌드</button>
+    <button role="tab" data-k="macro">글로벌 마켓</button>
+    <button role="tab" data-k="market">US 헬스케어 종목</button>
+    <button role="tab" data-k="news">헬스케어 뉴스</button>
+    <button role="tab" data-k="trials">임상시험 변경<span class="n" id="n_trials"></span></button>
+    <button role="tab" data-k="hedge">헷지펀드 13F</button>
+    <button role="tab" data-k="cal">카탈리스트 캘린더<span class="n" id="n_cal"></span></button>
+    <button role="tab" data-k="trend">14일 트렌드</button>
   </div>
 </div>
 <div class="filters" id="filters"></div>
