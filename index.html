@@ -492,7 +492,7 @@ svg.sp{width:66px;height:20px;display:block}
     const up=rows.filter(r=>r.chg_pct>0).length,dn=rows.filter(r=>r.chg_pct<0).length,avg=rows.length?rows.reduce((a,r)=>a+r.chg_pct,0)/rows.length:0;
     const kpi=`<div class="kpi"><div><div class="k">${rows.length}개 종목 등락 중앙값 (${esc(m.date)})</div><div class="v num ${cls(avg)}">${fmtPct(rows.length?[...rows].sort((a,b)=>a.chg_pct-b.chg_pct)[Math.floor(rows.length/2)].chg_pct:null)}</div><div class="d"><span class="up">▲${up}</span> · <span class="down">▼${dn}</span> · 평균 ${fmtPct(avg)}</div></div>
       <div data-scr="move" title="해당 종목 보기"><div class="k">급등락 ±5%</div><div class="v">${rows.filter(r=>Math.abs(r.chg_pct)>=5).length}</div><div class="d">▲${rows.filter(r=>r.chg_pct>=5).length} · ▼${rows.filter(r=>r.chg_pct<=-5).length}</div></div>
-      ${hasTech?`<div data-scr="rsi" title="해당 종목 보기"><div class="k">RSI 과열 ≥70 / 과매도 ≤30</div><div class="v">${rows.filter(r=>r.rsi14>=70).length} / ${rows.filter(r=>r.rsi14<=30).length}</div><div class="d">RSI14 · 1년 백분위 함께 표시</div></div>
+      ${hasTech?`<div data-scr="rsi" title="해당 종목 보기"><div class="k">RSI 과열 ≥70 / 과매도 ≤30</div><div class="v">${rows.filter(r=>r.rsi14>=70).length} / ${rows.filter(r=>r.rsi14<=30).length}</div><div class="d">과열 / 과매도</div></div>
       <div data-scr="hi52" title="해당 종목 보기"><div class="k">52주 고점권 (−3% 이내)</div><div class="v">${rows.filter(r=>r.from_hi52!=null&&r.from_hi52>=-3).length}</div><div class="d">저점권 ${rows.filter(r=>r.lo52&&r.close/r.lo52-1<=0.03).length}</div></div>
       <div data-scr="vol" title="해당 종목 보기"><div class="k">거래량 20일 평균 2배↑</div><div class="v">${rows.filter(r=>r.vol_ratio>=2).length}</div><div class="d">1개월 수익률 중앙값 ${fmtPct([...rows].filter(r=>r.ret_1m!=null).sort((a,b)=>a.ret_1m-b.ret_1m).map(r=>r.ret_1m)[Math.floor(rows.filter(r=>r.ret_1m!=null).length/2)])}</div></div>`:`<div><div class="k">기술지표</div><div class="v">—</div><div class="d">RSI·1주/1개월·52주·거래량비는 다음 마켓 갱신부터 (daily v1.8)</div></div>`}</div>`;
     const cols=[{k:"ticker",l:"티커",f:r=>tkChip(r.ticker,r.hf>0?"acc":r.hf<0?"dis":"")},{k:"name",l:"회사",f:r=>coLink(r.name)},{k:"close",l:"종가",n:1,f:r=>"$"+Number(r.close).toFixed(2)},{k:"chg_pct",l:"1D",n:1,f:r=>`${bbar(r.chg_pct)}<span class="${cls(r.chg_pct)}">${fmtPct(r.chg_pct)}</span>`}];
@@ -770,9 +770,9 @@ svg.sp{width:66px;height:20px;display:block}
   /* KPI 타일 → 조건에 맞는 종목 목록을 같은 서랍에 띄운다. 종목을 누르면 회사 서랍으로 넘어간다. */
   const SCREENS={
     move:{title:"급등락 ±5%",groups:[["급등 ≥ +5%",r=>r.chg_pct>=5,r=>-r.chg_pct],["급락 ≤ −5%",r=>r.chg_pct<=-5,r=>r.chg_pct]]},
-    rsi:{title:"RSI14 과열 · 과매도",groups:[["과열 ≥ 70",r=>r.rsi14>=70,r=>-r.rsi14],["과매도 ≤ 30",r=>r.rsi14<=30,r=>r.rsi14]],extra:r=>`RSI ${r.rsi14==null?"—":r.rsi14.toFixed(1)}${r.rsi_pct!=null?` <small style="color:var(--mute)">${r.rsi_pct}%</small>`:""}`},
-    hi52:{title:"52주 고점권 · 저점권",groups:[["고점권 (고점 −3% 이내)",r=>r.from_hi52!=null&&r.from_hi52>=-3,r=>-r.from_hi52],["저점권 (저점 +3% 이내)",r=>r.lo52&&r.close&&r.close/r.lo52-1<=0.03,r=>r.close/r.lo52]],extra:r=>`고점比 ${fmtPct(r.from_hi52)}`},
-    vol:{title:"거래량 20일 평균 2배↑",groups:[["거래량比",r=>r.vol_ratio>=2,r=>-r.vol_ratio]],extra:r=>`${r.vol_ratio==null?"—":r.vol_ratio.toFixed(1)+"×"}`}};
+    rsi:{title:"RSI14 과열 · 과매도",groups:[["과열 ≥ 70",r=>r.rsi14>=70,r=>-r.rsi14],["과매도 ≤ 30",r=>r.rsi14<=30,r=>r.rsi14]]},
+    hi52:{title:"52주 고점권 · 저점권",groups:[["고점권 (고점 −3% 이내)",r=>r.from_hi52!=null&&r.from_hi52>=-3,r=>-r.from_hi52],["저점권 (저점 +3% 이내)",r=>r.lo52&&r.close&&r.close/r.lo52-1<=0.03,r=>r.close/r.lo52]]},
+    vol:{title:"거래량 20일 평균 2배↑",groups:[["거래량比",r=>r.vol_ratio>=2,r=>-r.vol_ratio]]}};
   function openScreen(key){const sc=SCREENS[key],m=data.market;if(!sc||!m)return;
     const rows=(m.stocks||[]).map(s=>({...s,hf:accumSet().has(s.ticker)?1:distSet().has(s.ticker)?-1:0}));
     const tr=r=>`<tr><td>${tkChip(r.ticker,r.hf>0?"acc":r.hf<0?"dis":"")}</td><td>${coLink(r.name)}</td><td class="num">$${Number(r.close).toFixed(2)}</td><td class="num ${cls(r.chg_pct)}">${fmtPct(r.chg_pct)}</td><td class="num ${cls(r.ret_1m)}">${fmtPct(r.ret_1m)}</td>${sc.extra?`<td class="num">${sc.extra(r)}</td>`:""}</tr>`;
