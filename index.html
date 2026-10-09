@@ -97,7 +97,7 @@ details.all summary{cursor:pointer;font-size:12px;color:var(--mute)}
 .kpi>a.tl:hover,a.card.tl:hover{border-color:var(--accent)}
 .kpi .k{font-size:11px;color:var(--mute)}
 .kpi .v{font-size:20px;font-weight:600;line-height:1.2;margin-top:2px}
-.kpi.bio .d{white-space:normal}
+.kpi .d{white-space:normal}
 .kpi .d{font-size:11px;color:var(--mute);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;margin-top:4px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px 12px;min-width:0}
@@ -517,8 +517,9 @@ svg.sp{width:66px;height:20px;display:block}
     const tile=(r,label,extra)=>{if(!r)return"";const body=`<div class="k">${esc(label||r.name)}</div><div class="v num ${cls(r.chg)}">${fmtPct(r.chg)}</div><div class="d">${fmtN(r.last)} · 1M ${fmtPct(r.chg_1m)} · YTD ${fmtPct(r.ytd)}${extra||""}</div>`;
       const h=HOLD[r.t];return h?`<a class="tl" href="${h}" target="_blank" rel="noopener" title="구성종목 보기 (${esc(r.date)})">${body}</a>`:`<div title="${esc(r.date)}">${body}</div>`;};
     const spx=find("^GSPC"),ndq=find("^IXIC"),kospi=find("^KS11"),kosdaq=find("^KQ11"),nbi=find("^NBI"),ibb=find("IBB"),xbi=find("XBI"),pph=find("PPH"),kmed=find("KRD020020156"),qmed=find("KRD020020610");
+    const stoxx=find("^STOXX"),n225=find("^N225"),csi=find("000300.SS"),hsi=find("^HSI");
     const vs=(r,b,label)=>r&&b&&r.chg!=null&&b.chg!=null?` · vs ${label} ${fmtPct(r.chg-b.chg)}`:"";
-    const kpi=`<div class="kpi">${tile(spx,"S&P 500")}${tile(ndq,"NASDAQ")}${tile(kospi,"KOSPI")}${tile(kosdaq,"KOSDAQ")}</div>
+    const kpi=`<div class="kpi">${tile(spx,"S&P 500")}${tile(ndq,"NASDAQ")}${tile(stoxx,"STOXX 600")}${tile(n225,"Nikkei 225")}${tile(csi,"CSI 300")}${tile(hsi,"항셍")}${tile(kospi,"KOSPI")}${tile(kosdaq,"KOSDAQ")}</div>
       <div class="kpi bio">${tile(nbi,"NASDAQ Biotech (NBI)")}${tile(ibb,"IBB 바이오 ETF")}${tile(xbi,"XBI 바이오 ETF",vs(xbi,spx,"S&P"))}${tile(pph,"대형 제약 (PPH)",vs(pph,spx,"S&P"))}${tile(kmed,"KOSPI 의약품",vs(kmed,kospi,"KOSPI"))}${tile(qmed,"KOSDAQ 제약",vs(qmed,kosdaq,"KOSDAQ"))}</div>`;
     const lastD=rows=>rows&&rows.length?rows.map(r=>r.date).sort().slice(-1)[0]:"";
     const sec=(title,rows,full)=>rows&&rows.length?`<div><h4>${title} <span style="font-weight:400;letter-spacing:0;text-transform:none">· ${esc(lastD(rows))}</span></h4>${pxTable(rows,{full})}</div>`:"";
@@ -526,7 +527,7 @@ svg.sp{width:66px;height:20px;display:block}
     const SEC_SRC=Object.assign({"미국":"GICS 11섹터 SPDR ETF","유럽":"STOXX 600 슈퍼섹터 (iShares ETF)","일본":"TOPIX-17 (NEXT FUNDS ETF)","중국·홍콩":"CSI 300 섹터지수 + 항셍 ETF","한국":"KOSPI 200 섹터지수 (TIGER ETF) + KRX 헬스케어"},m.sector_src||{});
     const secs=m.sectors||{"미국":m.us_sectors,"한국":m.kr_sectors};
     const region=(g,rows)=>{const sr=secs[g]||[];return`<div class="mx${sr.length?"":" one"}"><div><h4>${esc(g)} 지수 <span style="font-weight:400;letter-spacing:0;text-transform:none">· ${esc(lastD(rows))}</span></h4>${pxTable(rows)}</div>${sr.length?`<div><h4>${esc(g)} 섹터 <span style="font-weight:400;letter-spacing:0;text-transform:none">· ${esc(lastD(sr))} · ${esc(SEC_SRC[g]||"")}</span></h4>${sbar(sr)}<details class="all"><summary>1W · 1M · 3M · YTD 표</summary>${pxTable(sr,{tk:1,full:1})}</details></div>`:""}</div>`;};
-    const idx=`<h3 class="sec">글로벌 지수 · 전일 섹터 퍼포먼스</h3>${Object.entries(m.indices).filter(([g,rows])=>rows&&rows.length).map(([g,rows])=>region(g,rows)).join("")}`;
+    const idx=`<h3 class="sec">글로벌 지수 · 전일 섹터 퍼포먼스</h3>${["미국","중국·홍콩","한국"].filter(g=>m.indices[g]&&m.indices[g].length).map(g=>region(g,m.indices[g])).join("")}`;
     const rates=`<h3 class="sec">금리 · 크레딧</h3><div class="ix"><div><h4>미국 국채 · ${esc(lastD(m.rates))}</h4><table><thead><tr><th class="l"></th><th>수준</th><th>1D</th><th>1W</th><th>1M</th><th>30일</th></tr></thead><tbody>${(m.rates||[]).map(r=>`<tr><td>${esc(r.name)}</td><td class="num">${r.last.toFixed(2)}%</td><td class="num ${r.chg_bp>0?"down":r.chg_bp<0?"up":""}">${fmtBp(r.chg_bp)}</td><td class="num">${fmtBp(r.chg_1w_bp)}</td><td class="num">${fmtBp(r.chg_1m_bp)}</td><td class="sp">${spl(r.spark,r.chg_1m_bp==null?null:r.chg_1m_bp<=0)}</td></tr>`).join("")}</tbody></table></div>
       <div><h4>FRED</h4><table><thead><tr><th class="l"></th><th>수준</th><th>1D</th><th>1M</th><th>30일</th></tr></thead><tbody>${(m.fred||[]).map(r=>`<tr><td>${esc(r.name)} <span class="tag">${esc(r.date.slice(5))}</span></td><td class="num">${r.last.toFixed(2)}${r.id==="T10Y2Y"?"%p":"%"}</td><td class="num ${r.chg_bp>0?"down":r.chg_bp<0?"up":""}">${fmtBp(r.chg_bp)}</td><td class="num">${fmtBp(r.chg_1m_bp)}</td><td class="sp">${spl(r.spark,r.chg_1m_bp==null?null:r.chg_1m_bp<=0)}</td></tr>`).join("")}</tbody></table></div></div>`;
     const fxc=`<h3 class="sec">환율 · 원자재 · 변동성</h3><div class="ix">${sec("환율",m.fx)}${sec("원자재",m.commodities)}${sec("변동성",m.vol)}</div>`;
