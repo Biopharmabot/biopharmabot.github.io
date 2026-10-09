@@ -98,7 +98,7 @@ details.all summary{cursor:pointer;font-size:12px;color:var(--mute)}
 .kpi .k{font-size:11px;color:var(--mute)}
 .kpi .v{font-size:20px;font-weight:600;line-height:1.2;margin-top:2px}
 .kpi .d{font-size:11px;color:var(--mute);margin-top:2px;line-height:1.35}
-.kpi.top{grid-template-columns:repeat(8,minmax(0,1fr))}.kpi.bio{grid-template-columns:repeat(6,minmax(0,1fr))}
+.kpi.top{grid-template-columns:repeat(6,minmax(0,1fr))}.kpi.bio{grid-template-columns:repeat(6,minmax(0,1fr))}
 @media(max-width:1100px){.kpi.top{grid-template-columns:repeat(4,minmax(0,1fr))}.kpi.bio{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:600px){.kpi.top,.kpi.bio{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;margin-top:4px}
@@ -515,13 +515,13 @@ svg.sp{width:66px;height:20px;display:block}
     if(!m){v.innerHTML=`<div class="empty"><b>글로벌마켓 데이터가 아직 없습니다.</b></div>`;return;}
     const fg=m.fear_greed;const allIdx=Object.values(m.indices).flat();const find=t=>allIdx.find(r=>r.t===t);
     // 구성종목 공식 페이지(새 창). 지수·ETF 타일을 누르면 열린다.
-    const HOLD={"^NBI":"https://indexes.nasdaqomx.com/Index/Weighting/NBI","IBB":"https://www.ishares.com/us/products/239699/ishares-nasdaq-biotechnology-etf","XBI":"https://www.ssga.com/us/en/intermediary/etfs/spdr-sp-biotech-etf-xbi","PPH":"https://www.vaneck.com/us/en/investments/pharmaceutical-etf-pph/holdings/","KRD020020156":"https://stock.mk.co.kr/domestic/index/type/detail?type=kospi&code=KGS05P","KRD020020610":"https://stock.mk.co.kr/domestic/index/type/detail?type=kosdaq&code=QGS33P","^GSPC":"https://www.slickcharts.com/sp500","^IXIC":"https://www.slickcharts.com/nasdaq100","^KS11":"https://finance.naver.com/sise/sise_market_sum.naver","^KQ11":"https://finance.naver.com/sise/sise_market_sum.naver?sosok=1"};
+    const HOLD={"^NBI":"https://indexes.nasdaqomx.com/Index/Weighting/NBI","IBB":"https://www.ishares.com/us/products/239699/ishares-nasdaq-biotechnology-etf","XBI":"https://www.ssga.com/us/en/intermediary/etfs/spdr-sp-biotech-etf-xbi","PPH":"https://www.vaneck.com/us/en/investments/pharmaceutical-etf-pph/holdings/","KRD020020156":"https://stock.mk.co.kr/domestic/index/type/detail?type=kospi&code=KGS05P","KRD020020610":"https://stock.mk.co.kr/domestic/index/type/detail?type=kosdaq&code=QGS33P","^GSPC":"https://www.slickcharts.com/sp500","^IXIC":"https://www.slickcharts.com/nasdaq100","^DJI":"https://www.slickcharts.com/dowjones","^KS11":"https://finance.naver.com/sise/sise_market_sum.naver","^KQ11":"https://finance.naver.com/sise/sise_market_sum.naver?sosok=1"};
     const tile=(r,label,extra)=>{if(!r)return"";const body=`<div class="k">${esc(label||r.name)}</div><div class="v num ${cls(r.chg)}">${fmtPct(r.chg)}</div><div class="d">${fmtN(r.last)} · 1M ${fmtPct(r.chg_1m)} · YTD ${fmtPct(r.ytd)}${extra||""}</div>`;
       const h=HOLD[r.t];return h?`<a class="tl" href="${h}" target="_blank" rel="noopener" title="구성종목 보기 (${esc(r.date)})">${body}</a>`:`<div title="${esc(r.date)}">${body}</div>`;};
     const spx=find("^GSPC"),ndq=find("^IXIC"),kospi=find("^KS11"),kosdaq=find("^KQ11"),nbi=find("^NBI"),ibb=find("IBB"),xbi=find("XBI"),pph=find("PPH"),kmed=find("KRD020020156"),qmed=find("KRD020020610");
-    const stoxx=find("^STOXX"),n225=find("^N225"),csi=find("000300.SS"),hsi=find("^HSI");
+    const stoxx=find("^STOXX"),n225=find("^N225"),csi=find("000300.SS"),hsi=find("^HSI"),dji=find("^DJI"),dax=find("^GDAXI"),topix=find("1306.T"),shc=find("000001.SS");
     const vs=(r,b,label)=>r&&b&&r.chg!=null&&b.chg!=null?` · vs ${label} ${fmtPct(r.chg-b.chg)}`:"";
-    const kpi=`<div class="kpi top">${tile(spx,"S&P 500")}${tile(ndq,"NASDAQ")}${tile(stoxx,"STOXX 600")}${tile(n225,"Nikkei 225")}${tile(csi,"CSI 300")}${tile(hsi,"항셍")}${tile(kospi,"KOSPI")}${tile(kosdaq,"KOSDAQ")}</div>
+    const kpi=`<div class="kpi top">${tile(spx,"S&P 500")}${tile(ndq,"NASDAQ")}${tile(dji,"Dow")}${tile(stoxx,"STOXX 600")}${tile(dax,"DAX")}${tile(n225,"Nikkei 225")}${tile(topix,"TOPIX")}${tile(csi,"CSI 300")}${tile(shc,"상해종합")}${tile(hsi,"항셍")}${tile(kospi,"KOSPI")}${tile(kosdaq,"KOSDAQ")}</div>
       <div class="kpi bio">${tile(nbi,"NASDAQ Biotech (NBI)")}${tile(ibb,"IBB 바이오 ETF")}${tile(xbi,"XBI 바이오 ETF",vs(xbi,spx,"S&P"))}${tile(pph,"대형 제약 (PPH)",vs(pph,spx,"S&P"))}${tile(kmed,"KOSPI 의약품",vs(kmed,kospi,"KOSPI"))}${tile(qmed,"KOSDAQ 제약",vs(qmed,kosdaq,"KOSDAQ"))}</div>`;
     const lastD=rows=>rows&&rows.length?rows.map(r=>r.date).sort().slice(-1)[0]:"";
     const sec=(title,rows,full)=>rows&&rows.length?`<div><h4>${title} <span style="font-weight:400;letter-spacing:0;text-transform:none">· ${esc(lastD(rows))}</span></h4>${pxTable(rows,{full})}</div>`:"";
