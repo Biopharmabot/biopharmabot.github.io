@@ -94,7 +94,8 @@ details.all summary{cursor:pointer;font-size:12px;color:var(--mute)}
 /* KPI tiles & cards */
 .kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:12px 0}
 .kpi>div,.kpi>a.tl{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px 10px;min-width:0;color:inherit;text-decoration:none;display:block}
-.kpi>a.tl:hover,a.card.tl:hover{border-color:var(--accent)}
+.kpi>a.tl:hover,a.card.tl:hover,.kpi>div[data-scr]:hover{border-color:var(--accent)}.kpi>div[data-scr]{cursor:pointer}
+.scr table{width:100%;border-collapse:collapse}.scr td{padding:5px 6px;border-bottom:1px solid var(--line);font-size:12px;white-space:nowrap}.scr td.num,.scr th.num{text-align:right}.scr th{font-size:10px;color:var(--mute);font-weight:500;text-align:left;padding:2px 6px;border-bottom:1px solid var(--line)}
 .kpi .k{font-size:11px;color:var(--mute)}
 .kpi .v{font-size:20px;font-weight:600;line-height:1.2;margin-top:2px}
 .kpi .d{font-size:11px;color:var(--mute);margin-top:2px;line-height:1.35}
@@ -489,10 +490,10 @@ svg.sp{width:66px;height:20px;display:block}
     const hasTech=rows.some(r=>r.rsi14!=null);
     const up=rows.filter(r=>r.chg_pct>0).length,dn=rows.filter(r=>r.chg_pct<0).length,avg=rows.length?rows.reduce((a,r)=>a+r.chg_pct,0)/rows.length:0;
     const kpi=`<div class="kpi"><div><div class="k">${rows.length}개 종목 등락 중앙값 (${esc(m.date)})</div><div class="v num ${cls(avg)}">${fmtPct(rows.length?[...rows].sort((a,b)=>a.chg_pct-b.chg_pct)[Math.floor(rows.length/2)].chg_pct:null)}</div><div class="d"><span class="up">▲${up}</span> · <span class="down">▼${dn}</span> · 평균 ${fmtPct(avg)}</div></div>
-      <div><div class="k">급등락 ±5%</div><div class="v">${rows.filter(r=>Math.abs(r.chg_pct)>=5).length}</div><div class="d">▲${rows.filter(r=>r.chg_pct>=5).length} · ▼${rows.filter(r=>r.chg_pct<=-5).length}</div></div>
-      ${hasTech?`<div><div class="k">RSI 과열 ≥70 / 과매도 ≤30</div><div class="v">${rows.filter(r=>r.rsi14>=70).length} / ${rows.filter(r=>r.rsi14<=30).length}</div><div class="d">RSI14 · 1년 백분위 함께 표시</div></div>
-      <div><div class="k">52주 고점권 (−3% 이내)</div><div class="v">${rows.filter(r=>r.from_hi52!=null&&r.from_hi52>=-3).length}</div><div class="d">저점권 ${rows.filter(r=>r.lo52&&r.close/r.lo52-1<=0.03).length}</div></div>
-      <div><div class="k">거래량 20일 평균 2배↑</div><div class="v">${rows.filter(r=>r.vol_ratio>=2).length}</div><div class="d">1개월 수익률 중앙값 ${fmtPct([...rows].filter(r=>r.ret_1m!=null).sort((a,b)=>a.ret_1m-b.ret_1m).map(r=>r.ret_1m)[Math.floor(rows.filter(r=>r.ret_1m!=null).length/2)])}</div></div>`:`<div><div class="k">기술지표</div><div class="v">—</div><div class="d">RSI·1주/1개월·52주·거래량비는 다음 마켓 갱신부터 (daily v1.8)</div></div>`}</div>`;
+      <div data-scr="move" title="해당 종목 보기"><div class="k">급등락 ±5%</div><div class="v">${rows.filter(r=>Math.abs(r.chg_pct)>=5).length}</div><div class="d">▲${rows.filter(r=>r.chg_pct>=5).length} · ▼${rows.filter(r=>r.chg_pct<=-5).length}</div></div>
+      ${hasTech?`<div data-scr="rsi" title="해당 종목 보기"><div class="k">RSI 과열 ≥70 / 과매도 ≤30</div><div class="v">${rows.filter(r=>r.rsi14>=70).length} / ${rows.filter(r=>r.rsi14<=30).length}</div><div class="d">RSI14 · 1년 백분위 함께 표시</div></div>
+      <div data-scr="hi52" title="해당 종목 보기"><div class="k">52주 고점권 (−3% 이내)</div><div class="v">${rows.filter(r=>r.from_hi52!=null&&r.from_hi52>=-3).length}</div><div class="d">저점권 ${rows.filter(r=>r.lo52&&r.close/r.lo52-1<=0.03).length}</div></div>
+      <div data-scr="vol" title="해당 종목 보기"><div class="k">거래량 20일 평균 2배↑</div><div class="v">${rows.filter(r=>r.vol_ratio>=2).length}</div><div class="d">1개월 수익률 중앙값 ${fmtPct([...rows].filter(r=>r.ret_1m!=null).sort((a,b)=>a.ret_1m-b.ret_1m).map(r=>r.ret_1m)[Math.floor(rows.filter(r=>r.ret_1m!=null).length/2)])}</div></div>`:`<div><div class="k">기술지표</div><div class="v">—</div><div class="d">RSI·1주/1개월·52주·거래량비는 다음 마켓 갱신부터 (daily v1.8)</div></div>`}</div>`;
     const cols=[{k:"ticker",l:"티커",f:r=>tkChip(r.ticker,r.hf>0?"acc":r.hf<0?"dis":"")},{k:"name",l:"회사",f:r=>coLink(r.name)},{k:"close",l:"종가",n:1,f:r=>"$"+Number(r.close).toFixed(2)},{k:"chg_pct",l:"1D",n:1,f:r=>`${bbar(r.chg_pct)}<span class="${cls(r.chg_pct)}">${fmtPct(r.chg_pct)}</span>`}];
     if(hasTech)cols.push({k:"ret_1w",l:"1W",n:1,f:r=>`<span class="${cls(r.ret_1w)}">${fmtPct(r.ret_1w)}</span>`},{k:"ret_1m",l:"1M",n:1,f:r=>`<span class="${cls(r.ret_1m)}">${fmtPct(r.ret_1m)}</span>`},{k:"rsi14",l:"RSI14 · 1년",n:1,f:r=>r.rsi14==null?"—":`<span class="${r.rsi14>=70?"down":r.rsi14<=30?"up":""}">${r.rsi14.toFixed(1)}</span>${r.rsi_pct!=null?` <small style="color:var(--mute)">${r.rsi_pct}%</small>`:""}`},{k:"from_hi52",l:"52주 고점比",n:1,f:r=>r.from_hi52==null?"—":`<span class="${r.from_hi52>=-3?"up":""}">${fmtPct(r.from_hi52)}</span>`},{k:"vol_ratio",l:"거래량比",n:1,f:r=>r.vol_ratio==null?"—":`<span class="${r.vol_ratio>=2?"up":""}">${r.vol_ratio.toFixed(2)}×</span>`},{k:"nsig",l:"신호",n:1,f:r=>sigHTML(r)});
     cols.push({k:"hf",l:"13F",n:1,f:r=>r.hf>0?"매집":r.hf<0?"축소":""});
@@ -750,6 +751,19 @@ svg.sp{width:66px;height:20px;display:block}
       <div class="note">뉴스·임상은 회사명·티커 문자열 매칭이라 누락·오탐이 있을 수 있습니다. 지금 읽어 둔 범위(최근 300건 + 열어 본 날짜)만 봅니다.</div>`;
     $("ov").classList.add("on");dr.classList.add("on");$("drClose").onclick=closeCompany;
   }
+  /* KPI 타일 → 조건에 맞는 종목 목록을 같은 서랍에 띄운다. 종목을 누르면 회사 서랍으로 넘어간다. */
+  const SCREENS={
+    move:{title:"급등락 ±5%",groups:[["급등 ≥ +5%",r=>r.chg_pct>=5,r=>-r.chg_pct],["급락 ≤ −5%",r=>r.chg_pct<=-5,r=>r.chg_pct]]},
+    rsi:{title:"RSI14 과열 · 과매도",groups:[["과열 ≥ 70",r=>r.rsi14>=70,r=>-r.rsi14],["과매도 ≤ 30",r=>r.rsi14<=30,r=>r.rsi14]],extra:r=>`RSI ${r.rsi14==null?"—":r.rsi14.toFixed(1)}${r.rsi_pct!=null?` <small style="color:var(--mute)">${r.rsi_pct}%</small>`:""}`},
+    hi52:{title:"52주 고점권 · 저점권",groups:[["고점권 (고점 −3% 이내)",r=>r.from_hi52!=null&&r.from_hi52>=-3,r=>-r.from_hi52],["저점권 (저점 +3% 이내)",r=>r.lo52&&r.close&&r.close/r.lo52-1<=0.03,r=>r.close/r.lo52]],extra:r=>`고점比 ${fmtPct(r.from_hi52)}`},
+    vol:{title:"거래량 20일 평균 2배↑",groups:[["거래량比",r=>r.vol_ratio>=2,r=>-r.vol_ratio]],extra:r=>`${r.vol_ratio==null?"—":r.vol_ratio.toFixed(1)+"×"}`}};
+  function openScreen(key){const sc=SCREENS[key],m=data.market;if(!sc||!m)return;
+    const rows=(m.stocks||[]).map(s=>({...s,hf:accumSet().has(s.ticker)?1:distSet().has(s.ticker)?-1:0}));
+    const tr=r=>`<tr><td>${tkChip(r.ticker,r.hf>0?"acc":r.hf<0?"dis":"")}</td><td>${coLink(r.name)}</td><td class="num">$${Number(r.close).toFixed(2)}</td><td class="num ${cls(r.chg_pct)}">${fmtPct(r.chg_pct)}</td><td class="num ${cls(r.ret_1m)}">${fmtPct(r.ret_1m)}</td>${sc.extra?`<td class="num">${sc.extra(r)}</td>`:""}</tr>`;
+    const body=sc.groups.map(([t,f,k])=>{const l=rows.filter(f).sort((a,b)=>k(a)-k(b));return`<h3 class="sec">${t} <span style="font-weight:400">${l.length}</span></h3>${l.length?`<div class="scr"><table><thead><tr><th></th><th></th><th class="num">종가</th><th class="num">1D</th><th class="num">1M</th>${sc.extra?`<th></th>`:""}</tr></thead><tbody>${l.map(tr).join("")}</tbody></table></div>`:`<div class="note">없음</div>`}`;}).join("");
+    const dr=$("dr");dr.innerHTML=`<div class="hd"><b>${sc.title}</b><span class="tag">${esc(m.date)} 종가</span><button type="button" id="drClose">닫기 ✕</button></div>${body}`;
+    $("ov").classList.add("on");dr.classList.add("on");$("drClose").onclick=closeCompany;}
+  document.addEventListener("click",e=>{const t=e.target.closest("[data-scr]");if(t&&!e.target.closest("[data-co]"))openScreen(t.dataset.scr);});
   function closeCompany(){$("ov").classList.remove("on");$("dr").classList.remove("on");try{history.replaceState(null,"","#"+tab);}catch(e){}}
   $("ov").onclick=closeCompany;document.addEventListener("keydown",e=>{if(e.key==="Escape")closeCompany();});
   document.addEventListener("click",e=>{const t=e.target.closest("[data-co]");if(t&&!e.target.closest("a")){e.preventDefault();openCompany(t.dataset.co);}});
