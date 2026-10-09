@@ -29,7 +29,7 @@ ews.sqlite (로컬 조회용 사본 · 원할 때 실행 · 새 날짜만 추가
   tools/backfill_telegram.py 텔레그램 채널 내보내기(HTML) → feed 날짜 파일 생성·GCS 업로드 (2026-10-09 1회 수행 · 4/24~10/8 뉴스·DART)
   db/                        (gitignore) backfill/ 임시 산출물
   tools/deploy_bots.sh       봇 재배포: bash tools/deploy_bots.sh rss dart ctgov daily (이미지 태그는 파일 안에서 올림)
-  daily 수동 재실행(텔레그램 없이 feed만): gcloud run jobs execute biopharma-daily-job --region asia-northeast3 --project project-56beef4a-f1e9-4e7b-b7a --args=--no-telegram --wait
+  daily 수동 재실행(텔레그램 없이 feed만): gcloud run jobs execute biopharma-daily-job --region asia-northeast3 --project project-56beef4a-f1e9-4e7b-b7a --args="python,daily.py,--no-telegram" --wait (Dockerfile 이 CMD 만 쓰므로 --args 는 명령 전체를 줘야 한다)
   tools/patch_bots_feed.py   feed_publish 패치(1회성 · 적용 완료)
   bots/                      (gitignore · 각각 별도 로컬 git 저장소 · 원격 없음)
     rss/    rss-monitor-svc    Cloud Run 서비스 · 뉴스 (10분)
