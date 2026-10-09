@@ -272,7 +272,7 @@ svg.sp{width:66px;height:20px;display:block}
     <button role="tab" data-k="home">개요</button>
     <button role="tab" data-k="macro">글로벌마켓</button>
     <button role="tab" data-k="market">US 헬스케어</button>
-    <button role="tab" data-k="news">뉴스<span class="n" id="n_news"></span></button>
+    <button role="tab" data-k="news">뉴스</button>
     <button role="tab" data-k="dart">DART<span class="n" id="n_dart"></span></button>
     <button role="tab" data-k="trials">임상<span class="n" id="n_trials"></span></button>
     <button role="tab" data-k="hedge">헷지펀드</button>
@@ -407,7 +407,7 @@ svg.sp{width:66px;height:20px;display:block}
   /* ───────── nav / common render ───────── */
   function setTab(k){tab=k;cat="ALL";rel="ALL";q="";try{history.replaceState(null,"","#"+k);}catch(e){}if(k==="trend")loadTrendDays();render();window.scrollTo(0,0);}
   function renderTabs(){document.querySelectorAll("#tabs button").forEach(b=>{b.setAttribute("aria-selected",String(b.dataset.k===tab));b.onclick=()=>setTab(b.dataset.k);});
-    ["news","dart","trials"].forEach(k=>{const today=kstToday();const n=data[k].filter(x=>dayOf(x.ts)===today).length;$("n_"+k).textContent=n?n:"";});
+    ["dart","trials"].forEach(k=>{const today=kstToday();const n=data[k].filter(x=>dayOf(x.ts)===today).length;$("n_"+k).textContent=n?n:"";});   // 뉴스 탭 배지는 없음(2026-10-10)
     if(cal||bb){const n=calAll().filter(c=>isDated(c)&&c.imp!=="low"&&c.sort>=kstToday()&&c.sort<=kstToday(-7)).length;$("n_cal").textContent=n?n:"";}}
   function renderStrip(){
     $("status").innerHTML=`<i></i>feed 뉴스 ${data.news.length} · 글로벌마켓 ${data.macro?data.macro.date:"—"} · 공시 ${data.dart.length} · 임상 ${data.trials.length} · 마켓 ${data.market?data.market.date+" "+(data.market.stocks||[]).length+"종목":"—"} · 13F ${hedge?hedge.quarter:"—"} · Hub ${cal?cal.n:"—"} · BB ${bb?bb.asof:"—"}`;
