@@ -6,17 +6,21 @@
 import sys, os, io, json, time, argparse, datetime as dt, requests
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 KEY = os.environ.get("KRX_AUTH_KEY") or io.open(os.path.join(ROOT, "bots", "daily", ".krx_key.txt"), encoding="utf-8").read().strip().strip('"')
-WANT = {("kospi_dd_trd", "제약"): "KRD020020156", ("kosdaq_dd_trd", "제약"): "KRD020020610"}
+WANT = {("kospi_dd_trd", "제약"): "KRD020020156", ("kosdaq_dd_trd", "제약"): "KRD020020610", ("krx_dd_trd", "KRX 반도체"): "KRXSEMI",
+        ("kospi_dd_trd", "코스피 200 정보기술"): "KS200_IT", ("kospi_dd_trd", "코스피 200 헬스케어"): "KS200_HC", ("kospi_dd_trd", "코스피 200 금융"): "KS200_FIN",
+        ("kospi_dd_trd", "코스피 200 커뮤니케이션서비스"): "KS200_COMM", ("kospi_dd_trd", "코스피 200 경기소비재"): "KS200_DISC", ("kospi_dd_trd", "코스피 200 생활소비재"): "KS200_STAPLE",
+        ("kospi_dd_trd", "코스피 200 산업재"): "KS200_IND", ("kospi_dd_trd", "코스피 200 에너지/화학"): "KS200_ENCH", ("kospi_dd_trd", "코스피 200 철강/소재"): "KS200_STEEL",
+        ("kospi_dd_trd", "코스피 200 중공업"): "KS200_HEAVY", ("kospi_dd_trd", "코스피 200 건설"): "KS200_CONS"}
 
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("start"); ap.add_argument("end"); ap.add_argument("--out", required=True); ap.add_argument("--merge")
+    ap = argparse.ArgumentParser(); ap.add_argument("start"); ap.add_argument("end"); ap.add_argument("--out", required=True); ap.add_argument("--merge"); ap.add_argument("--eps", help="호출할 엔드포인트만(쉼표)")
     a = ap.parse_args()
     hist = json.load(io.open(a.merge, encoding="utf-8")) if a.merge and os.path.exists(a.merge) else {}
     d, end = dt.date.fromisoformat(a.start), dt.date.fromisoformat(a.end)
     calls = 0
     while d <= end:
         if d.weekday() < 5:
-            for ep in ("kospi_dd_trd", "kosdaq_dd_trd"):
+            for ep in (a.eps.split(",") if a.eps else ("kospi_dd_trd", "kosdaq_dd_trd", "krx_dd_trd")):
                 r = requests.get(f"https://data-dbg.krx.co.kr/svc/apis/idx/{ep}", params={"basDd": d.strftime("%Y%m%d")}, headers={"AUTH_KEY": KEY}, timeout=30)
                 calls += 1
                 if not r.ok:
