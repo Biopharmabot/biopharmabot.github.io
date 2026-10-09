@@ -302,8 +302,9 @@ svg.sp{width:66px;height:20px;display:block}
   const TR_REGION={KR:"국내",US:"글로벌",WATCH:"워치"};
   // 임상 단계 라벨: ctgov 항목은 phases 배열, 심층분석 항목은 헤드라인·본문에서 "2b상"·"1/2상"·"Phase 3" 등을 찾는다
   const PH_RE=/(?:phase\s*|제\s*)?([1-4](?:[ab])?(?:\s*\/\s*[1-4][ab]?)?)\s*상|phase\s*([1-4](?:[ab])?(?:\s*\/\s*[1-4][ab]?)?)\b|\b(pivotal|registrational)\b/i;
-  const phaseLabel=x=>{if(x.phases&&x.phases.length)return x.phases.map(p=>p.replace("EARLY_PHASE1","P0").replace("PHASE","P").replace("NA","N/A")).join("/");
-    const m=PH_RE.exec(x.headline||"")||PH_RE.exec((x.efficacy_result||"").slice(0,400))||PH_RE.exec(x.title||"");if(!m)return"";const v=(m[1]||m[2]||"").replace(/\s+/g,"");return v?"P"+v:"Pivotal";};
+  const phaseLabel=x=>{if(x.phases&&x.phases.length){const v=x.phases.map(p=>p.replace("EARLY_PHASE1","0").replace("PHASE","")).filter(p=>p!=="NA");return v.length?"Phase "+v.join("/"):"";}
+    const m=PH_RE.exec(x.headline||"")||PH_RE.exec((x.efficacy_result||"").slice(0,400))||PH_RE.exec(x.title||"");if(!m)return"";const v=(m[1]||m[2]||"").replace(/\s+/g,"");return v?"Phase "+v:"Pivotal";};
+  const isPhase4=x=>/^Phase 4/.test(phaseLabel(x));   // 4상 결과는 수집 대상 아님(2026-10-10) — feed 에 남아 있어도 숨긴다
   const phTag=x=>{const l=phaseLabel(x);return l?`<span class="tag ph">${esc(l)}</span>`:"";};
   const TR_CHANGE={new:"신규 등록",first:"감시 편입",change:"변경"};
   const CT_TYPE={"phase-readout":"탑라인/결과","trial-milestone":"임상 마일스톤","regulatory-decision":"허가 결정","regulatory-filing":"허가 신청",pdufa:"PDUFA","data-presentation":"학회 발표","licensing-deal":"딜",corporate:"기업","drug-launch":"출시",preclinical:"전임상",commercial:"상업화",other:"기타"};
@@ -441,6 +442,7 @@ svg.sp{width:66px;height:20px;display:block}
   function filtered(){
     const needle=q.trim().toLowerCase();
     return srcList().filter(x=>{
+      if(x.kind==="clinical"&&isPhase4(x))return false;
       if(tab==="news"){if(cat!=="ALL"&&x.category!==cat)return false;if(rel!=="ALL"&&x.relevance!==rel)return false;}
       if(!needle)return true;
       const hay=[x.title,x.headline,x.summary,x.company,x.nct,x.sponsor,(x.cond||[]).join(" "),(x.interv||[]).join(" "),x.source].join(" ").toLowerCase();
