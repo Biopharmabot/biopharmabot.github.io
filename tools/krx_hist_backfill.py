@@ -10,7 +10,11 @@ WANT = {("kospi_dd_trd", "제약"): "KRD020020156", ("kosdaq_dd_trd", "제약"):
         ("kospi_dd_trd", "코스피 200 정보기술"): "KS200_IT", ("kospi_dd_trd", "코스피 200 헬스케어"): "KS200_HC", ("kospi_dd_trd", "코스피 200 금융"): "KS200_FIN",
         ("kospi_dd_trd", "코스피 200 커뮤니케이션서비스"): "KS200_COMM", ("kospi_dd_trd", "코스피 200 경기소비재"): "KS200_DISC", ("kospi_dd_trd", "코스피 200 생활소비재"): "KS200_STAPLE",
         ("kospi_dd_trd", "코스피 200 산업재"): "KS200_IND", ("kospi_dd_trd", "코스피 200 에너지/화학"): "KS200_ENCH", ("kospi_dd_trd", "코스피 200 철강/소재"): "KS200_STEEL",
-        ("kospi_dd_trd", "코스피 200 중공업"): "KS200_HEAVY", ("kospi_dd_trd", "코스피 200 건설"): "KS200_CONS"}
+        ("kospi_dd_trd", "코스피 200 중공업"): "KS200_HEAVY", ("kospi_dd_trd", "코스피 200 건설"): "KS200_CONS",
+        ("krx_dd_trd", "KRX 헬스케어"): "KRXHC", ("kosdaq_dd_trd", "코스닥 150"): "KQ150", ("kosdaq_dd_trd", "코스닥 150 헬스케어"): "KQ150_HC",
+        ("krx_dd_trd", "KRX 300 정보기술"): "KRX300_IT", ("krx_dd_trd", "KRX 300 헬스케어"): "KRX300_HC", ("krx_dd_trd", "KRX 300 금융"): "KRX300_FIN",
+        ("krx_dd_trd", "KRX 300 커뮤니케이션서비스"): "KRX300_COMM", ("krx_dd_trd", "KRX 300 자유소비재"): "KRX300_DISC", ("krx_dd_trd", "KRX 300 필수소비재"): "KRX300_STAPLE",
+        ("krx_dd_trd", "KRX 300 산업재"): "KRX300_IND", ("krx_dd_trd", "KRX 300 소재"): "KRX300_MAT"}
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("start"); ap.add_argument("end"); ap.add_argument("--out", required=True); ap.add_argument("--merge"); ap.add_argument("--eps", help="호출할 엔드포인트만(쉼표)")
