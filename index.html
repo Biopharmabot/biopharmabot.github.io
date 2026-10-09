@@ -317,7 +317,7 @@ svg.sp{width:66px;height:20px;display:block}
   function merge(kind,arr){if(!Array.isArray(arr))return;const have=new Set(data[kind].map(x=>x.id));arr.forEach(x=>{if(!x.id||!have.has(x.id)){data[kind].push(x);have.add(x.id);}});data[kind].sort((a,b)=>(b.ts||"")<(a.ts||"")?-1:1);}
   async function loadLatest(){
     const [n,d,t,m,mc]=await Promise.all([getJSON("news/latest.json"),null,getJSON("trials/latest.json"),getJSON("market/latest.json"),getJSON("macro/latest.json")]);
-    merge("news",n);merge("trials",t);   // DART 는 대시보드에서 수집 안 함(2026-10-10 사용자 결정, 봇·텔레그램은 그대로)if(m&&m.date)data.market=m;if(mc&&mc.date)data.macro=mc;
+    merge("news",n);merge("trials",t);if(m&&m.date)data.market=m;if(mc&&mc.date)data.macro=mc;   /* DART 는 대시보드에서 수집 안 함(2026-10-10 사용자 결정, 봇·텔레그램은 그대로) */
     render();
   }
   async function loadStatic(){
