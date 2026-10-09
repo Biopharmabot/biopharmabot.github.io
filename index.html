@@ -748,7 +748,7 @@ svg.sp{width:66px;height:20px;display:block}
       <div id="drTrials"></div>
       ${sec("카탈리스트",d.cat.length?`<div class="cal">${d.cat.filter(c=>c.sort>=kstToday()||c.prec==="tbd").slice(0,25).map(evHTML).join("")}</div>`:"",d.cat.length)}
       ${sec("뉴스",d.news.length?`<div class="feed">${d.news.slice(0,15).map(x=>itemHTML(x,"news")).join("")}</div>`:"",d.news.length)}
-      ${!e.tk.length||e.krx||d.dart.length?sec("DART 공시",d.dart.length?`<div class="feed">${d.dart.slice(0,15).map(x=>itemHTML(x,"dart")).join("")}</div>`:"",d.dart.length):""}`;
+      ${e.krx||!e.tk.length?sec("DART 공시",d.dart.length?`<div class="feed">${d.dart.slice(0,15).map(x=>itemHTML(x,"dart")).join("")}</div>`:"",d.dart.length):""}`;
     $("ov").classList.add("on");dr.classList.add("on");$("drClose").onclick=closeCompany;
     loadCompanyTrials(e);
   }
