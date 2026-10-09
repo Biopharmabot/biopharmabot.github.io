@@ -82,8 +82,7 @@ h1{font-size:17px;font-weight:600;margin:0;letter-spacing:-.01em}
 .lines{margin:4px 0 0;padding-left:14px;font-size:12px;color:var(--mute)}
 .chgbox{margin-top:4px;font-size:14px;line-height:1.6}.chgbox div+div{margin-top:1px}
 .tag.chg{color:var(--acc);border-color:var(--acc)}
-details.cl{margin-top:4px}details.cl summary{cursor:pointer;font-size:14px;color:var(--fg);list-style:none;display:flex;gap:6px;align-items:baseline}details.cl summary::before{content:"▸";color:var(--mute);font-size:11px}details.cl[open] summary::before{content:"▾"}details.cl[open] summary{color:var(--mute)}
-details.cl .ck{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);font-weight:600;margin-top:10px}details.cl .s{margin-top:2px}
+.cl{margin-top:2px}.cl .ck{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);font-weight:600;margin-top:10px}.cl .s{margin-top:2px}
 .lines li{margin:1px 0}
 details.all{margin-top:14px}
 details.all summary{cursor:pointer;font-size:12px;color:var(--mute)}
@@ -453,7 +452,7 @@ svg.sp{width:66px;height:20px;display:block}
     if(kind==="clinical"){
       const secs=[["유효성 결과",x.efficacy_result],["안전성·부작용",x.safety],["기타 효력",x.other_efficacy],["표준치료요법",x.soc],["경쟁 약물",x.competitors],["개발 계획",x.dev_plan]].filter(([,v])=>v);
       return`<div class="item"><div class="t">${dayOf(x.ts)}</div><div><div class="h"><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.headline||x.title)}</a>${(x.nct||[]).map(n=>`<a class="tag" href="https://clinicaltrials.gov/study/${esc(n)}" target="_blank" rel="noopener">${esc(n)}</a>`).join("")}</div>
-        ${x.moa?`<div class="m" style="font-family:inherit;font-size:13px">${esc(x.moa)}</div>`:""}<details class="cl"><summary>${esc((x.efficacy_result||"").split(String.fromCharCode(10))[0]).slice(0,160)}</summary>${secs.map(([k,v])=>`<div class="ck">${k}</div><div class="s">${esc(v)}</div>`).join("")}</details></div></div>`;}
+        ${x.moa?`<div class="m" style="font-family:inherit;font-size:13px">${esc(x.moa)}</div>`:""}<div class="cl">${secs.map(([k,v])=>`<div class="ck">${k}</div><div class="s">${esc(v)}</div>`).join("")}</div></div></div>`;}
     if(kind==="trials"){ // 임상시험 변동 — '임상시험 결과' 항목과 같은 톤: 제목 굵게 · 한 줄 메타 · 변동 내용은 강조 박스
       const meta=[x.company,(x.phases||[]).map(p=>p.replace("PHASE","P").replace("EARLY_P1","P0")).join("/"),TR_ST[x.status]||x.status,(x.interv||[]).slice(0,3).join(", "),(x.cond||[]).slice(0,2).join(", ")].filter(Boolean).join(" · ");
       return`<div class="item"><div class="t">${dayOf(x.ts)}</div><div><div class="h"><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.title)}</a><span class="tag ${x.change==="new"?"new":"chg"}">${TR_CHANGE[x.change]||esc(x.change)}</span><a class="tag" href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.nct)}</a></div>
