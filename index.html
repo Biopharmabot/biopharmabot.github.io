@@ -82,6 +82,7 @@ h1{font-size:17px;font-weight:600;margin:0;letter-spacing:-.01em}
 .lines{margin:4px 0 0;padding-left:14px;font-size:12px;color:var(--mute)}
 .chgbox{margin-top:4px;font-size:14px;line-height:1.6}.chgbox div+div{margin-top:1px}
 .tag.chg{color:var(--acc);border-color:var(--acc)}
+.tag.ph{color:var(--fg);border-color:var(--fg);font-weight:600}
 .cl{margin-top:2px}.cl .ck{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);font-weight:600;margin-top:10px}.cl .s{margin-top:2px}
 .lines li{margin:1px 0}
 details.all{margin-top:14px}
@@ -299,6 +300,11 @@ svg.sp{width:66px;height:20px;display:block}
   const srcList=()=>{const k=srcKind();if(k!=="both")return data[k];return [...data.clinical,...data.trials].sort((a,b)=>(b.ts||"")<(a.ts||"")?-1:1);};
   const REL={high:["HIGH","hi"],medium:["MID","mid"],low:["LOW",""]};
   const TR_REGION={KR:"국내",US:"글로벌",WATCH:"워치"};
+  // 임상 단계 라벨: ctgov 항목은 phases 배열, 심층분석 항목은 헤드라인·본문에서 "2b상"·"1/2상"·"Phase 3" 등을 찾는다
+  const PH_RE=/(?:phase\s*|제\s*)?([1-4](?:[ab])?(?:\s*\/\s*[1-4][ab]?)?)\s*상\b|phase\s*([1-4](?:[ab])?(?:\s*\/\s*[1-4][ab]?)?)\b|\b(pivotal|registrational)\b/i;
+  const phaseLabel=x=>{if(x.phases&&x.phases.length)return x.phases.map(p=>p.replace("EARLY_PHASE1","P0").replace("PHASE","P").replace("NA","N/A")).join("/");
+    const m=PH_RE.exec(x.headline||"")||PH_RE.exec((x.efficacy_result||"").slice(0,400))||PH_RE.exec(x.title||"");if(!m)return"";const v=(m[1]||m[2]||"").replace(/\s+/g,"");return v?"P"+v:"Pivotal";};
+  const phTag=x=>{const l=phaseLabel(x);return l?`<span class="tag ph">${esc(l)}</span>`:"";};
   const TR_CHANGE={new:"신규 등록",first:"감시 편입",change:"변경"};
   const CT_TYPE={"phase-readout":"탑라인/결과","trial-milestone":"임상 마일스톤","regulatory-decision":"허가 결정","regulatory-filing":"허가 신청",pdufa:"PDUFA","data-presentation":"학회 발표","licensing-deal":"딜",corporate:"기업","drug-launch":"출시",preclinical:"전임상",commercial:"상업화",other:"기타"};
   const PREC={day:"",range:"기간",month:"월 중",quarter:"분기 중",half:"반기 중",year:"연중",tbd:"미정"};
@@ -451,11 +457,11 @@ svg.sp{width:66px;height:20px;display:block}
         ${x.summary?`<div class="s">${esc(x.summary)}</div>`:""}<div class="m">${esc(x.stock_code||"")}${x.rcept_dt?" · 접수 "+esc(x.rcept_dt):""}</div></div></div>`;}
     if(kind==="clinical"){
       const secs=[["유효성 결과",x.efficacy_result],["안전성·부작용",x.safety],["기타 효력",x.other_efficacy],["표준치료요법",x.soc],["경쟁 약물",x.competitors],["개발 계획",x.dev_plan]].filter(([,v])=>v);
-      return`<div class="item"><div class="t">${dayOf(x.ts)}</div><div><div class="h"><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.headline||x.title)}</a>${(x.nct||[]).map(n=>`<a class="tag" href="https://clinicaltrials.gov/study/${esc(n)}" target="_blank" rel="noopener">${esc(n)}</a>`).join("")}</div>
+      return`<div class="item"><div class="t">${dayOf(x.ts)}</div><div><div class="h"><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.headline||x.title)}</a>${phTag(x)}${(x.nct||[]).map(n=>`<a class="tag" href="https://clinicaltrials.gov/study/${esc(n)}" target="_blank" rel="noopener">${esc(n)}</a>`).join("")}</div>
         ${x.moa?`<div class="m" style="font-family:inherit;font-size:13px">${esc(x.moa)}</div>`:""}<div class="cl">${secs.map(([k,v])=>`<div class="ck">${k}</div><div class="s">${esc(v)}</div>`).join("")}</div></div></div>`;}
     if(kind==="trials"){ // 임상시험 변동 — '임상시험 결과' 항목과 같은 톤: 제목 굵게 · 한 줄 메타 · 변동 내용은 강조 박스
-      const meta=[x.company,(x.phases||[]).map(p=>p.replace("PHASE","P").replace("EARLY_P1","P0")).join("/"),TR_ST[x.status]||x.status,(x.interv||[]).slice(0,3).join(", "),(x.cond||[]).slice(0,2).join(", ")].filter(Boolean).join(" · ");
-      return`<div class="item"><div class="t">${dayOf(x.ts)}</div><div><div class="h"><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.title)}</a><span class="tag ${x.change==="new"?"new":"chg"}">${TR_CHANGE[x.change]||esc(x.change)}</span><a class="tag" href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.nct)}</a></div>
+      const meta=[x.company,TR_ST[x.status]||x.status,(x.interv||[]).slice(0,3).join(", "),(x.cond||[]).slice(0,2).join(", ")].filter(Boolean).join(" · ");
+      return`<div class="item"><div class="t">${dayOf(x.ts)}</div><div><div class="h"><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.title)}</a>${phTag(x)}<span class="tag ${x.change==="new"?"new":"chg"}">${TR_CHANGE[x.change]||esc(x.change)}</span><a class="tag" href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.nct)}</a></div>
         <div class="m" style="font-family:inherit;font-size:13px">${coLink(x.company)}${meta.slice((x.company||"").length)?esc(meta.slice((x.company||"").length)):""}</div>${(x.lines||[]).length?`<div class="chgbox">${x.lines.map(l=>`<div>${esc(l)}</div>`).join("")}</div>`:""}</div></div>`;}
     return "";
   }
