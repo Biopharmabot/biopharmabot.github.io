@@ -9,7 +9,7 @@
 |---|---|---|
 | 개요 | 지난번 본 뒤로 요약 · KPI 줄 · 카드(HIGH 뉴스·공시·임상·이번 주 카탈리스트·마켓 무버·13F 매집×등락·매집 종목 소식·14일 트렌드) | 전부 |
 | 뉴스 · DART · 임상 | 봇 feed (필터·검색·이전 날짜 더 보기 · 시간순/종목별 보기). 오른쪽 사이드바: 공시 스트림·회사별 언급·임상 변경. 13F 매집/축소 종목엔 태그 | feed |
-| 마켓 | 지수 띠 · KPI(등락 중앙값·급등락·RSI 과열/과매도·52주 고점권·거래량 2배) · Top/Bottom 10 · 전체 307종목 표(1D 양방향 막대·1W·1M·RSI14+1년 백분위·52주 고점比·거래량比·신호 배지·13F) | feed market (daily v1.8부터 기술지표 포함) |
+| 글로벌 바이오 (글로벌마켓 다음, 2026-10-10 개명·이동, 구 마켓 탭) | 지수 띠 · KPI(등락 중앙값·급등락·RSI 과열/과매도·52주 고점권·거래량 2배) · Top/Bottom 10 · 전체 307종목 표(1D 양방향 막대·1W·1M·RSI14+1년 백분위·52주 고점比·거래량比·신호 배지·13F) | feed market (daily v1.8부터 기술지표 포함) |
 | 글로벌마켓 (개요 바로 다음) | 전체 시장 스냅샷(미국 장 마감 기준 아침). 상단 KPI 12개(S&P·NASDAQ·Dow·STOXX600·DAX·FTSE100 / Nikkei·CSI300·상해·항셍·KOSPI·KOSDAQ) · 바이오 KPI 6개(NBI·XBI·SOX·KOSPI의약품·KOSDAQ제약·KRX반도체) · CNN Fear & Greed · 국가별 블록(미국·중국홍콩·한국): 왼쪽 지수(1D/1M/YTD/스파크) 오른쪽 그 국가 전일 섹터 등락 — 국가별 단일 소스 원칙: 미국 GICS SPDR ETF 11, 홍콩 항셍 종합산업지수 12(Hang Seng Indexes 공식 API), 한국 KRX 산업지수 17(KRX Open API krx_dd_trd, 코스피+코스닥 통합; 2026-10-10 결정). 한국 지수 = KOSPI·KOSDAQ·KOSPI200·코스닥150·KRX반도체·KRX헬스케어·코스닥150헬스케어·KOSPI의약품·KOSDAQ제약(KRX API 시리즈는 `feed/macro/kr_sector_hist.json` 에 2025-12-01부터 종가 누적, 백필은 `tools/krx_hist_backfill.py`) · 금리(야후 국채 + FRED) · 환율·원자재·VIX/MOVE | feed macro (daily v1.27 `macro.py`, `sectors{국가}`·`sector_src` 필드) |
 | 헷지펀드 | 13F 분기 동향(신규·순매수·순매도·혼조·청산·M&A소멸, 주식수/비중 기준, 티커 옆 전일 등락) · **수급 지도 산점도**(가로 13F 합산 비중 변화 · 세로 1M/1W/1D/3M 수익률, 사분면 담고·오름 등) · 종목별 시그널 표 · 교차 보유 매트릭스 · 펀드별 상위 보유 | `data/hedge.json` + feed market |
 | 캘린더 | Hub 저술 + Bloomberg 캘린더 합본. **월간 달력 격자**(날짜 클릭 → 그 날만) · 이번 주/다음 주(D-n)/월별 · 진행 중(이달·분기·반기) · 이후 · 미정 · 지난 예정일. 소스·지역·중요도·유형 필터. 같은 날짜·유형·티커면 한 건(Hub+BB) | `data/catalyst.json` · `data/bloomberg.json` |
