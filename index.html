@@ -80,7 +80,7 @@ h1{font-size:17px;font-weight:600;margin:0;letter-spacing:-.01em}
 .day{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);padding:14px 0 4px;border-bottom:1px solid var(--line);font-family:var(--mono)}
 .foot{font-size:11px;color:var(--mute);margin-top:28px;line-height:1.7}
 .lines{margin:4px 0 0;padding-left:14px;font-size:12px;color:var(--mute)}
-.chgbox{margin-top:4px;font-size:14px;line-height:1.6;font-weight:600}.chgbox div+div{margin-top:1px}
+.chgbox{margin-top:4px;font-size:14px;line-height:1.6}.chgbox .hot{font-weight:700}.chgbox div+div{margin-top:1px}
 .tag.chg{color:var(--acc);border-color:var(--acc)}
 .tag.ph{color:var(--fg);border-color:var(--fg);font-weight:600}
 .cl{margin-top:2px}.cl .ck{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);font-weight:600;margin-top:10px}.cl .s{margin-top:2px}
@@ -462,9 +462,9 @@ svg.sp{width:66px;height:20px;display:block}
       return`<div class="item"><div class="t">${dayOf(x.ts)}</div><div><div class="h"><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.headline||x.title)}</a>${phTag(x)}${(x.nct||[]).map(n=>`<a class="tag" href="https://clinicaltrials.gov/study/${esc(n)}" target="_blank" rel="noopener">${esc(n)}</a>`).join("")}</div>
         ${x.moa?`<div class="m" style="font-family:inherit;font-size:13px">${esc(x.moa)}</div>`:""}<div class="cl">${secs.map(([k,v])=>`<div class="ck">${k}</div><div class="s">${esc(v)}</div>`).join("")}</div></div></div>`;}
     if(kind==="trials"){ // 임상시험 변동 — '임상시험 결과' 항목과 같은 톤: 제목 굵게 · 한 줄 메타 · 변동 내용은 강조 박스
-      const meta=[x.company,TR_ST[x.status]||x.status,(x.interv||[]).slice(0,3).join(", "),(x.cond||[]).slice(0,2).join(", ")].filter(Boolean).join(" · ");
+      const meta=[x.company,x.sponsor&&!(x.company||"").toLowerCase().startsWith(x.sponsor.toLowerCase().slice(0,6))?"스폰서 "+x.sponsor:"",TR_ST[x.status]||x.status,(x.interv||[]).slice(0,3).join(", "),(x.cond||[]).slice(0,2).join(", ")].filter(Boolean).join(" · ");
       return`<div class="item"><div class="t">${dayOf(x.ts)}</div><div><div class="h"><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.title)}</a>${phTag(x)}<span class="tag ${x.change==="new"?"new":"chg"}">${TR_CHANGE[x.change]||esc(x.change)}</span><a class="tag" href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.nct)}</a></div>
-        <div class="m" style="font-family:inherit;font-size:13px">${coLink(x.company)}${meta.slice((x.company||"").length)?esc(meta.slice((x.company||"").length)):""}</div>${(x.lines||[]).length?`<div class="chgbox">${x.lines.map(l=>`<div>${esc(l)}</div>`).join("")}</div>`:""}</div></div>`;}
+        <div class="m" style="font-family:inherit;font-size:13px">${coLink(x.company)}${meta.slice((x.company||"").length)?esc(meta.slice((x.company||"").length)):""}</div>${(x.lines||[]).length?`<div class="chgbox">${x.lines.map(l=>{const hot=x.change!=="new"&&/→|지연|앞당김|Results posted|Why stopped|Primary Outcome/.test(l);return`<div class="${hot?"hot":""}">${esc(l)}</div>`;}).join("")}</div>`:""}</div></div>`;}
     return "";
   }
   let _mentions=null,_mentKey="";
