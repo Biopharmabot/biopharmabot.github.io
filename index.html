@@ -378,12 +378,13 @@ svg.sp{width:66px;height:20px;display:block}
     (cal?cal.items:[]).forEach(c=>{out.push(c);keys(c).forEach(kk=>idx.set(kk,c));});
     (bb?bb.items:[]).forEach(b=>{const h=keys(b).map(kk=>idx.get(kk)).find(x=>x&&x.src!=="both");if(h){const m={...b,src:"both",imp:IMPO[h.imp]<IMPO[b.imp]?h.imp:b.imp,nct:h.nct||b.nct,ta:b.ta||h.ta,region:h.region,tk:[...new Set([...b.tk,...h.tk])]};out[out.indexOf(h)]=m;keys(m).forEach(kk=>idx.set(kk,m));}else out.push(b);});
     _calAll=out.sort((a,b)=>a.sort<b.sort?-1:a.sort>b.sort?1:(IMPO[a.imp]??3)-(IMPO[b.imp]??3));return _calAll;}
-  function hfTagFor(text,tickers){ // 헷지펀드 매집/축소 태그: 티커 집합 또는 본문 매칭
-    if(!hedge)return "";const A=accumSet(),D=distSet();const tks=tickers||[];
+  function hfHit(text,tickers){ // 헷지펀드 매집/축소 매칭(티커 집합 또는 본문) → {a,d} 또는 null. 개요 '13F 소식' 카드 필터용
+    if(!hedge)return null;const A=accumSet(),D=distSet();const tks=tickers||[];
     let a=tks.find(t=>A.has(t)),d=tks.find(t=>D.has(t));
     if(!a&&!d&&text){for(const t of A){if(tkRe(t).test(text)){a=t;break;}}if(!a)for(const t of D){if(tkRe(t).test(text)){d=t;break;}}}
-    return a?`<span class="tag hf" title="13F ${hedge.quarter} 매집">13F 매집 ${esc(a)}</span>`:d?`<span class="tag dn" title="13F ${hedge.quarter} 축소/청산">13F 축소 ${esc(d)}</span>`:"";
+    return a||d?{a,d}:null;
   }
+  const hfTagFor=()=>""; // 2026-10-10 사용자 결정: '13F 매집/축소' 태그는 화면에 안 보인다(데이터는 헷지펀드 탭·개요 카드에서만)
   const bbar=(v,scale=6,small)=>{const w=Math.min(50,Math.abs(v||0)*scale);return`<span class="bb${small?" s":""}"><i style="${v>=0?"left:50%":"right:50%"};width:${w}%;background:${v>=0?"var(--up)":"var(--down)"}"></i></span>`;};
   function sigs(s){const o=[];if(s.chg_pct>=5)o.push(["급등","up"]);if(s.chg_pct<=-5)o.push(["급락","dn"]);if(s.vol_ratio>=2)o.push(["거래량 "+s.vol_ratio.toFixed(1)+"×","warn"]);if(s.rsi14>=70)o.push(["RSI 과열","warn"]);if(s.rsi14<=30)o.push(["RSI 과매도","warn"]);if(s.from_hi52!=null&&s.from_hi52>=-3)o.push(["52주 고점권","up"]);if(s.lo52&&s.close&&s.close/s.lo52-1<=0.03)o.push(["52주 저점권","dn"]);return o;}
   const sigHTML=s=>sigs(s).map(([t,c])=>`<span class="sig ${c}">${t}</span>`).join("");
@@ -625,7 +626,7 @@ svg.sp{width:66px;height:20px;display:block}
     return calAll().filter(c=>(c.src==="both"?(calF.src.hub||calF.src.bb):calF.src[c.src||"hub"])&&(calF.region==="ALL"||c.region===calF.region)&&calF.imp[c.imp]&&(calF.type==="ALL"||c.type===calF.type)&&(!needle||[c.sponsor,c.asset,c.ind,c.ta,c.event,c.tk.join(" "),c.stage].join(" ").toLowerCase().includes(needle)));
   }
   const evHTML=c=>{const past=isDated(c)&&c.sort<kstToday();const A=accumSet();const dateTxt=c.src!=="hub"&&isDated(c)?c.sort+(c.prec==="range"?"~":""):c.date;
-    return`<div class="ev"><div class="d ${past?"past":""}" title="${esc(c.date)}">${esc(dateTxt)}${!isDated(c)?`<br><span style="color:var(--mute)">${PREC[c.prec]}</span>`:past?"<br>지남":c.prec==="range"?`<br><span style="color:var(--mute)">${esc(c.date)}</span>`:""}</div><div><div class="h">${coLink(c.sponsor)}<b>${esc(c.asset)}</b><span class="tag ${c.imp==="high"?"hi":c.imp==="medium"?"mid":""}">${esc(CT_TYPE[c.type]||c.type)}</span>${c.stage?`<span class="tag">${esc(c.stage)}</span>`:""}${c.region==="KR"?`<span class="tag">국내</span>`:""}<span class="tag" title="${c.src==="bb"?"Bloomberg Intelligence":c.src==="both"?"Hub 저술 + Bloomberg 동일 이벤트":"Hub 직접 저술"}">${SRC[c.src||"hub"]}</span>${c.tk.map(t=>tkChip(t,A.has(t)?"acc":"")).join("")}${c.tk.some(t=>A.has(t))?`<span class="tag hf">13F 매집</span>`:""}</div>${c.event?`<div class="m" style="color:var(--fg)">${esc(c.event)}</div>`:""}<div class="m">${esc(c.ind)}${c.ta?" · "+esc(c.ta):""}${c.mod?" · "+esc(c.mod):""}${c.nct?" · "+esc(c.nct):""}${c.end&&c.end!==c.date&&c.prec==="day"?" · 창 ~"+esc(c.end):""}${c.src!=="hub"&&c.upd?" · BB 갱신 "+esc(c.upd):""}</div></div></div>`;};
+    return`<div class="ev"><div class="d ${past?"past":""}" title="${esc(c.date)}">${esc(dateTxt)}${!isDated(c)?`<br><span style="color:var(--mute)">${PREC[c.prec]}</span>`:past?"<br>지남":c.prec==="range"?`<br><span style="color:var(--mute)">${esc(c.date)}</span>`:""}</div><div><div class="h">${coLink(c.sponsor)}<b>${esc(c.asset)}</b><span class="tag ${c.imp==="high"?"hi":c.imp==="medium"?"mid":""}">${esc(CT_TYPE[c.type]||c.type)}</span>${c.stage?`<span class="tag">${esc(c.stage)}</span>`:""}${c.region==="KR"?`<span class="tag">국내</span>`:""}<span class="tag" title="${c.src==="bb"?"Bloomberg Intelligence":c.src==="both"?"Hub 저술 + Bloomberg 동일 이벤트":"Hub 직접 저술"}">${SRC[c.src||"hub"]}</span>${c.tk.map(t=>tkChip(t,A.has(t)?"acc":"")).join("")}</div>${c.event?`<div class="m" style="color:var(--fg)">${esc(c.event)}</div>`:""}<div class="m">${esc(c.ind)}${c.ta?" · "+esc(c.ta):""}${c.mod?" · "+esc(c.mod):""}${c.nct?" · "+esc(c.nct):""}${c.end&&c.end!==c.date&&c.prec==="day"?" · 창 ~"+esc(c.end):""}${c.src!=="hub"&&c.upd?" · BB 갱신 "+esc(c.upd):""}</div></div></div>`;};
   function monthGrid(list){
     const today=kstToday();if(!calMonth)calMonth=today.slice(0,7);
     const [yy,mm]=calMonth.split("-").map(Number);const first=new Date(Date.UTC(yy,mm-1,1));const start=new Date(first);start.setUTCDate(1-first.getUTCDay());
@@ -697,7 +698,7 @@ svg.sp{width:66px;height:20px;display:block}
     const newN=["news","dart","trials"].reduce((a,k)=>a+data[k].filter(isNew).length,0);
     const hiNews=data.news.filter(x=>x.relevance==="high");const hiNew=hiNews.filter(isNew);
     const m=data.market;const byName=m?new Map((m.stocks||[]).map(s=>[s.name,s])):new Map();
-    const accumHits=[...data.news.filter(x=>hfTagFor([x.title,x.headline,x.summary].join(" "))).map(x=>({k:"news",x})),...data.trials.filter(x=>hfTagFor(x.company+" "+x.sponsor)).map(x=>({k:"trials",x}))].sort((a,b)=>(b.x.ts||"")<(a.x.ts||"")?-1:1);
+    const accumHits=[...data.news.filter(x=>hfHit([x.title,x.headline,x.summary].join(" "))).map(x=>({k:"news",x})),...data.trials.filter(x=>hfHit(x.company+" "+x.sponsor)).map(x=>({k:"trials",x}))].sort((a,b)=>(b.x.ts||"")<(a.x.ts||"")?-1:1);
     const accumMk=m?(m.stocks||[]).filter(s=>A.has(s.ticker)).sort((a,b)=>Math.abs(b.chg_pct)-Math.abs(a.chg_pct)):[];
     const week=calAll().filter(c=>isDated(c)&&c.imp!=="low"&&c.sort>=today&&c.sort<=kstToday(-7));
     const month=calAll().filter(c=>c.sort>=today&&c.sort<=kstToday(-30)&&c.imp!=="low");
