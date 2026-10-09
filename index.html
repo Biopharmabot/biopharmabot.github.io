@@ -439,13 +439,13 @@ svg.sp{width:66px;height:20px;display:block}
   function itemHTML(x,kind){
     kind=kind||tab;const isNew=lastSeen&&(x.ts||"")>lastSeen;
     if(kind==="news"){const r=REL[x.relevance]||REL.low;
-      return`<div class="item"><div class="t">${dayOf(x.ts)}</div><div><div class="h"><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.headline||x.title)}</a><span class="tag">${esc(x.category||"")}</span><span class="tag ${r[1]}">${r[0]}</span>${hfTagFor([x.title,x.headline,x.summary].join(" "))}${isNew?`<span class="tag new">NEW</span>`:""}</div>
+      return`<div class="item"><div class="t">${dayOf(x.ts)}</div><div><div class="h"><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.headline||x.title)}</a><span class="tag">${esc(x.category||"")}</span><span class="tag ${r[1]}">${r[0]}</span>${hfTagFor([x.title,x.headline,x.summary].join(" "))}</div>
         <div class="s">${esc(x.summary)}</div><div class="m">${esc(x.source||"")}${x.headline&&x.title&&x.headline!==x.title?" · "+esc(x.title):""}</div></div></div>`;}
     if(kind==="dart"){
-      return`<div class="item"><div class="t">${hhmm(x.ts)}</div><div><div class="h"><a href="${esc(x.url)}" target="_blank" rel="noopener">${coLink(x.company)}</a><span>${esc(x.title)}</span>${x.market?`<span class="tag">${esc(x.market)}</span>`:""}${isNew?`<span class="tag new">NEW</span>`:""}</div>
+      return`<div class="item"><div class="t">${hhmm(x.ts)}</div><div><div class="h"><a href="${esc(x.url)}" target="_blank" rel="noopener">${coLink(x.company)}</a><span>${esc(x.title)}</span>${x.market?`<span class="tag">${esc(x.market)}</span>`:""}</div>
         ${x.summary?`<div class="s">${esc(x.summary)}</div>`:""}<div class="m">${esc(x.stock_code||"")}${x.rcept_dt?" · 접수 "+esc(x.rcept_dt):""}</div></div></div>`;}
     if(kind==="trials"){
-      return`<div class="item"><div class="t">${hhmm(x.ts)}</div><div><div class="h">${coLink(x.company)}<span class="tag">${TR_REGION[x.region]||esc(x.region)}</span><span class="tag ${x.change==="new"?"new":""}">${TR_CHANGE[x.change]||esc(x.change)}</span>${(x.phases||[]).length?`<span class="tag">${esc(x.phases.join("/"))}</span>`:""}${x.status?`<span class="tag">${esc(x.status)}</span>`:""}${hfTagFor(x.company+" "+x.sponsor)}${isNew?`<span class="tag new">NEW</span>`:""}</div>
+      return`<div class="item"><div class="t">${hhmm(x.ts)}</div><div><div class="h">${coLink(x.company)}<span class="tag">${TR_REGION[x.region]||esc(x.region)}</span><span class="tag ${x.change==="new"?"new":""}">${TR_CHANGE[x.change]||esc(x.change)}</span>${(x.phases||[]).length?`<span class="tag">${esc(x.phases.join("/"))}</span>`:""}${x.status?`<span class="tag">${esc(x.status)}</span>`:""}${hfTagFor(x.company+" "+x.sponsor)}</div>
         <div class="s"><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.title)}</a></div>${(x.lines||[]).length?`<ul class="lines">${x.lines.map(l=>`<li>${esc(l)}</li>`).join("")}</ul>`:""}<div class="m">${esc(x.nct)}${(x.interv||[]).length?" · "+esc(x.interv.join(", ")):""}${(x.cond||[]).length?" · "+esc(x.cond.join(", ")):""}</div></div></div>`;}
     return "";
   }
@@ -711,8 +711,8 @@ svg.sp{width:66px;height:20px;display:block}
     const month=calAll().filter(c=>c.sort>=today&&c.sort<=kstToday(-30)&&c.imp!=="low");
     const row=(t,x,n)=>`<div class="row"><span class="t">${t}</span><span class="x">${x}</span>${n?`<span class="n">${n}</span>`:""}</div>`;
     const card=(title,sub,go,body,wide)=>`<section class="card ${wide?"wide":""}"><div class="hd"><b>${title}</b><span class="sub">${sub||""}</span>${go?`<a href="#${go}" data-go="${go}">${KINDS[go]} →</a>`:""}</div>${body||`<div class="none">아직 없음</div>`}</section>`;
-    const newsRow=x=>row(hhmm(x.ts),`<a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.headline||x.title)}</a>`,`<span class="tag">${esc(x.category||"")}</span>${isNew(x)?`<span class="tag new">NEW</span>`:""}`);
-    const dartRow=x=>row(hhmm(x.ts),`${coLink(x.company)} <a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.title)}</a>`,isNew(x)?`<span class="tag new">NEW</span>`:"");
+    const newsRow=x=>row(hhmm(x.ts),`<a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.headline||x.title)}</a>`,`<span class="tag">${esc(x.category||"")}</span>`);
+    const dartRow=x=>row(hhmm(x.ts),`${coLink(x.company)} <a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.title)}</a>`,"");
     const trRow=x=>row(hhmm(x.ts),`${coLink(x.company)} · ${esc(x.title)}`,`<span class="tag ${x.change==="new"?"new":""}">${TR_CHANGE[x.change]||esc(x.change)}</span>`);
     const evRow=c=>row(dday(c.sort),`${coLink(c.sponsor)} · ${esc(c.asset)} <span style="color:var(--mute)">${esc(c.event||c.ind)}</span>`,`<span class="tag ${c.imp==="high"?"hi":c.imp==="medium"?"mid":""}">${esc(CT_TYPE[c.type]||c.type)}</span><span class="tag">${SRC[c.src||"hub"]}</span>`);
     const mkRowS=x=>{const s=byName.get(x.name)||x;return row("",`${coLink(x.name)}`,`<span class="num ${cls(x.chg_pct)}">${bbar(x.chg_pct,6,1)}${fmtPct(x.chg_pct)}</span>`);};
