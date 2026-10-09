@@ -590,11 +590,11 @@ svg.sp{width:66px;height:20px;display:block}
     v.innerHTML=`<div class="hdr"><b>13F ${esc(H.quarter)}</b><span class="sub">보유 기준일 ${qInfo(H.quarter).end}</span></div>
     <div class="kpi"><div><div class="k">8펀드 13F 시총</div><div class="v">${fmtM(totMV)}</div><div class="d">${H.funds.map(f=>f.name.split(" ")[0]).join(" · ")}</div></div>
       <div><div class="k">보유 종목(합집합)</div><div class="v">${H.n_universe??H.matrix.length}</div><div class="d">2개 펀드 이상 ${H.n_multi??H.matrix.filter(m=>m.n>=2).length}종목</div></div>
-      <div><div class="k">매집 종목</div><div class="v">${H.accum.length}</div><div class="d">주식수 순매수 ≥2 · 비중 순확대 ≥3 · 신규 ≥3</div></div>
+      <div><div class="k">확대 종목</div><div class="v">${H.accum.length}</div><div class="d">주식수 순매수 ≥2 · 비중 순확대 ≥3 · 신규 ≥3</div></div>
       <div><div class="k">축소·청산 종목</div><div class="v">${H.distrib.length}</div><div class="d">순매도·순축소 ≥3 · 청산 ≥2</div></div>
-      <div><div class="k">M&A 소멸</div><div class="v">${(H.groups.shares.ma||[]).length}</div><div class="d">인수 종결로 사라짐 · 청산 아님</div></div></div>
+</div>
     <div class="filters" style="border-top:1px solid var(--line)"><button class="chip" data-b="shares" aria-pressed="${hBasis==="shares"}">주식 수 기준</button><button class="chip" data-b="weight" aria-pressed="${hBasis==="weight"}">비중 기준</button><span class="r">「N개 펀드」= 같은 방향으로 움직인 펀드 수 · 순방향(늘린 − 줄인) · 엇갈림은 (4↑1↓) · 티커를 누르면 회사 모아보기 · 옆 숫자는 전일 등락</span></div>
-    ${grp(hBasis==="shares"?"신규 편입":"", g.new,"acc")}${grp(hBasis==="shares"?"순매수 (기존 보유)":"순확대", g.add,"acc")}${grp(hBasis==="shares"?"순매도":"순축소", g.trim,"dis")}${grp("혼조 (늘린 펀드 = 줄인 펀드)", g.mixed,"")}${grp("완전 청산", g.exit,"dis")}${(g.note||[]).map(n=>`<div class="note">${esc(n)}</div>`).join("")}${grp("M&A 소멸 (인수 종결 · 청산 아님)", g.ma,"")}
+    ${grp(hBasis==="shares"?"신규 편입":"", g.new,"acc")}${grp(hBasis==="shares"?"순매수 (기존 보유)":"순확대", g.add,"acc")}${grp(hBasis==="shares"?"순매도":"순축소", g.trim,"dis")}${grp("혼조 (늘린 펀드 = 줄인 펀드)", g.mixed,"")}${grp("완전 청산", g.exit,"dis")}${(g.note||[]).map(n=>`<div class="note">${esc(n)}</div>`).join("")}
     ${scatterHTML(sig)}
     <h3 class="sec">종목별 시그널 <span style="font-weight:400;text-transform:none;letter-spacing:0">· Net = (늘린+신규) − (줄인+청산) · 열 이름을 눌러 정렬</span></h3>
     ${sortTable("sig",sig,[{k:"t",l:"티커",f:r=>tkChip(r.t,accumSet().has(r.t)?"acc":distSet().has(r.t)?"dis":"")},{k:"issuer",l:"회사",f:r=>coLink(r.issuer)},{k:"held",l:"보유 펀드",n:1},{k:"add",l:"늘림",n:1},{k:"new",l:"신규",n:1},{k:"trim",l:"줄임",n:1},{k:"exit",l:"청산",n:1},{k:"net",l:"Net",n:1,f:r=>`<b class="${cls(r.net)}">${r.net>0?"+":""}${r.net}</b>`},{k:"wtd",l:"Σ비중Δ",n:1,f:r=>`<span class="${cls(r.wtd)}">${fmtD(r.wtd)}</span>`},{k:"chg",l:"전일",n:1,f:r=>`<span class="${cls(r.chg)}">${fmtPct(r.chg)}</span>`},{k:"ncat",l:"카탈리스트",n:1,f:r=>r.ncat||""}],"net",-1)}
