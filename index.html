@@ -314,7 +314,7 @@ svg.sp{width:66px;height:20px;display:block}
   const SRC={hub:"Hub",bb:"BB",both:"Hub+BB"};
   const FUNDS=["Baker Bros","RA Capital","Orbimed","RTW","Avoro","Deerfield","Perceptive","Deep Track"];
   let tab="home", data={news:[],dart:[],trials:[],clinical:[],market:null,macro:null}, loadedDays={news:[],dart:[],trials:[],clinical:[]}, q="", cat="ALL", rel="ALL";
-  let hedge=null, cal=null, bb=null, comps=[], view="time", scY="ret_1m", calMonth=null, calDay=null, calF={region:"ALL",imp:{high:true,medium:true,low:false},type:"ALL",q:"",src:{hub:true,bb:true}}, hBasis="shares", sortState={}, trendDays=null;
+  let hedge=null, cal=null, bb=null, comps=[], view="time", scY="ret_1m", scX="wtd", calMonth=null, calDay=null, calF={region:"ALL",imp:{high:true,medium:true,low:false},type:"ALL",q:"",src:{hub:true,bb:true}}, hBasis="shares", sortState={}, trendDays=null;
   const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
   const fmtPct=v=>v==null||!isFinite(v)?"—":(v>0?"+":"")+Number(v).toFixed(2)+"%";
   const fmtW=v=>v==null?"—":(v*100).toFixed(1)+"%";
@@ -607,20 +607,23 @@ svg.sp{width:66px;height:20px;display:block}
     <div class="note">출처 ${esc(H.source)} · 생성 ${esc(H.generated)}</div>`;
     v.querySelectorAll("[data-b]").forEach(b=>b.onclick=()=>{hBasis=b.dataset.b;render();});
     v.querySelectorAll("[data-y]").forEach(b=>b.onclick=()=>{scY=b.dataset.y;render();});
+    v.querySelectorAll("[data-x]").forEach(b=>b.onclick=()=>{scX=b.dataset.x;render();});
     bindScatter();bindSort();
   }
   /* 수급 지도: 가로 = 13F 분기 합산 비중 변화(헷지펀드가 얼마나 담았나) · 세로 = 주가 변화(시장이 어떻게 반응했나) */
   function scatterHTML(sig){
     const A=accumSet(),D=distSet();const yl={ret_qe:`${qInfo(hedge.quarter).end.slice(5).replace("-","/")} 이후 수익률`,ret_1m:"1개월 수익률",ret_3m:"3개월 수익률"};if(!yl[scY])scY="ret_1m";
-    const pts=sig.map(r=>{const st=stockOf(r.t);const y=st?st[scY]:null;return{t:r.t,issuer:r.issuer,x:r.wtd*100,y,net:r.net,held:r.held,hf:A.has(r.t)?1:D.has(r.t)?-1:0,st};}).filter(p=>p.y!=null&&isFinite(p.y)&&(Math.abs(p.x)>=0.02||p.hf));
+    // 가로축 기준: wtd = 8펀드 합산 비중 변화(%p) · net = 주식 수 기준 Net 펀드 수(늘린+신규 − 줄인+청산). Net 은 정수라 같은 칸에 겹치는 점을 조금 흩뜨린다.
+    const xl={wtd:"비중 변화 (%p)",net:"주식 수 Net (펀드 수)"};if(!xl[scX])scX="wtd";
+    const pts=sig.map((r,i)=>{const st=stockOf(r.t);const y=st?st[scY]:null;const xv=scX==="net"?r.net+(((i*7)%5)-2)*0.06:r.wtd*100;return{t:r.t,issuer:r.issuer,x:xv,xw:r.wtd*100,y,net:r.net,held:r.held,hf:A.has(r.t)?1:D.has(r.t)?-1:0,st};}).filter(p=>p.y!=null&&isFinite(p.y)&&(scX==="net"?p.net!==0||p.hf:(Math.abs(p.x)>=0.02||p.hf)));
     const hasY=pts.length>0;
     const kpi=`<div class="kpi"><div><div class="k">Added · Up</div><div class="v">${pts.filter(p=>p.x>0&&p.y>0).length}</div></div><div><div class="k">Added · Down</div><div class="v">${pts.filter(p=>p.x>0&&p.y<=0).length}</div></div><div><div class="k">Cut · Down</div><div class="v">${pts.filter(p=>p.x<=0&&p.y<=0).length}</div></div><div><div class="k">Cut · Up</div><div class="v">${pts.filter(p=>p.x<=0&&p.y>0).length}</div></div></div>`;
     const head=`<h3 class="sec big">수급 지도 · 헷지펀드 vs 주가</h3>
-    <div class="filters" style="border:0;padding:4px 0">${Object.keys(yl).map(k=>`<button class="chip" data-y="${k}" aria-pressed="${scY===k}">${yl[k]}</button>`).join("")}</div>`;
+    <div class="filters" style="border:0;padding:4px 0">${Object.keys(xl).map(k=>`<button class="chip" data-x="${k}" aria-pressed="${scX===k}">${xl[k]}</button>`).join("")}<span class="sep"></span>${Object.keys(yl).map(k=>`<button class="chip" data-y="${k}" aria-pressed="${scY===k}">${yl[k]}</button>`).join("")}</div>`;
     if(!hasY)return head+`<div class="note">마켓 데이터(종가·수익률)가 들어오면 그려집니다. 13F 비중 변화는 준비돼 있습니다.</div>`;
     const W=760,H=380,L=46,R=16,T=14,B=34;const xs=pts.map(p=>p.x),ys=pts.map(p=>p.y);
     const q=(a,lo,hi)=>{const s=[...a].sort((m,n)=>m-n);return[s[Math.floor(s.length*lo)],s[Math.ceil(s.length*hi)-1]];};
-    let [x0,x1]=q(xs,0.02,0.98),[y0,y1]=q(ys,0.02,0.98);const padx=(x1-x0||1)*0.08,pady=(y1-y0||1)*0.08;x0=Math.min(x0-padx,-0.1);x1=Math.max(x1+padx,0.1);y0=Math.min(y0-pady,-1);y1=Math.max(y1+pady,1);
+    let [x0,x1]=q(xs,0.02,0.98),[y0,y1]=q(ys,0.02,0.98);const padx=(x1-x0||1)*0.08,pady=(y1-y0||1)*0.08;x0=Math.min(x0-padx,-0.1);x1=Math.max(x1+padx,0.1);if(scX==="net"){const m=Math.max(1,...pts.map(p=>Math.abs(p.net)))+0.6;x0=-m;x1=m;}y0=Math.min(y0-pady,-1);y1=Math.max(y1+pady,1);
     const X=x=>L+(Math.min(Math.max(x,x0),x1)-x0)/(x1-x0)*(W-L-R),Y=y=>T+(y1-Math.min(Math.max(y,y0),y1))/(y1-y0)*(H-T-B);
     const ticks=(a,b,n)=>{const st=niceStep((b-a)/n);const o=[];for(let v=Math.ceil(a/st)*st;v<=b+1e-9;v+=st)o.push(+v.toFixed(6));return o;};
     function niceStep(r){const p=Math.pow(10,Math.floor(Math.log10(r)));const m=r/p;return (m<1.5?1:m<3.5?2:m<7.5?5:10)*p;}
@@ -630,8 +633,8 @@ svg.sp{width:66px;height:20px;display:block}
       ${ticks(x0,x1,6).map(v=>`<line class="${Math.abs(v)<1e-9?"zero":"grid"}" x1="${X(v)}" x2="${X(v)}" y1="${T}" y2="${H-B}"/><text class="ax" x="${X(v)}" y="${H-B+14}" text-anchor="middle">${v>0?"+":""}${v}</text>`).join("")}
       ${ticks(y0,y1,6).map(v=>`<line class="${Math.abs(v)<1e-9?"zero":"grid"}" y1="${Y(v)}" y2="${Y(v)}" x1="${L}" x2="${W-R}"/><text class="ax" x="${L-6}" y="${Y(v)+3}" text-anchor="end">${v>0?"+":""}${v}%</text>`).join("")}
       <text class="q" x="${W-R-4}" y="${T+12}" text-anchor="end">Added · Up</text><text class="q" x="${W-R-4}" y="${H-B-6}" text-anchor="end">Added · Down</text><text class="q" x="${L+4}" y="${T+12}">Cut · Up</text><text class="q" x="${L+4}" y="${H-B-6}">Cut · Down</text>
-      <text class="ax" x="${(L+W-R)/2}" y="${H-4}" text-anchor="middle">13F 합산 비중 변화 (%p) →</text>
-      ${pts.map(p=>`<circle cx="${X(p.x).toFixed(1)}" cy="${Y(p.y).toFixed(1)}" r="${Math.min(9,4+p.held)}" fill="${col(p)}" fill-opacity=".85" data-co="${esc(p.t)}" data-tip="${esc(`<b>${p.t}</b> ${p.issuer}<br>비중 변화 ${p.x>0?"+":""}${p.x.toFixed(2)}%p · 보유 ${p.held}펀드 · Net ${p.net>0?"+":""}${p.net}<br>${yl[scY]} ${fmtPct(p.y)}`)}"/>`).join("")}
+      <text class="ax" x="${(L+W-R)/2}" y="${H-4}" text-anchor="middle">${scX==="net"?"주식 수 Net (늘린 − 줄인 펀드 수) →":"13F 합산 비중 변화 (%p) →"}</text>
+      ${pts.map(p=>`<circle cx="${X(p.x).toFixed(1)}" cy="${Y(p.y).toFixed(1)}" r="${Math.min(9,4+p.held)}" fill="${col(p)}" fill-opacity=".85" data-co="${esc(p.t)}" data-tip="${esc(`<b>${p.t}</b> ${p.issuer}<br>비중 변화 ${p.xw>0?"+":""}${p.xw.toFixed(2)}%p · 보유 ${p.held}펀드 · Net ${p.net>0?"+":""}${p.net}<br>${yl[scY]} ${fmtPct(p.y)}`)}"/>`).join("")}
       ${pts.filter(p=>lab.includes(p.t)).map(p=>{const rx=X(p.x)>W-R-60;return`<text class="lb" x="${(X(p.x)+(rx?-7:7)).toFixed(1)}" y="${(Math.min(Math.max(Y(p.y),T+10),H-B-2)+3).toFixed(1)}" text-anchor="${rx?"end":"start"}">${esc(p.t)}</text>`;}).join("")}
     </svg><div class="lg"><span><i style="background:var(--acc)"></i>Accumulated</span><span><i style="background:var(--down)"></i>Reduced · Exited</span><span><i style="background:var(--bar)"></i>Other holdings</span></div>`;
     return head+kpi+`<div class="sc">${svg}</div>`;
