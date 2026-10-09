@@ -587,7 +587,7 @@ svg.sp{width:66px;height:20px;display:block}
     const catCount=t=>calAll().filter(c=>c.tk.includes(t)&&c.sort>=kstToday()&&c.imp!=="low").length;
     const grp=(label,arr,extra)=>(arr||[]).length?`<h3 class="sec">${label}</h3>`+arr.map(r=>`<div class="grp"><div class="k">${r.n!=null?r.n+"개 펀드":""}</div><div class="v">${r.items.map(it=>{const t=it.replace(/\(.*?\)|\*/g,"").trim();return label.startsWith("M&A")?`<span>${esc(it)}</span>`:tkChip(t,extra)+(it!==t?`<span class="tag">${esc(it.slice(t.length).replace(/^\(|\)$/g,""))}</span>`:"")+mkChg(t);}).join("")}</div></div>`).join(""):"";
     const sig=H.signals.map(s=>({...s,chg:(data.market&&data.market.stocks||[]).find(x=>x.ticker===s.t)?.chg_pct??null,ncat:catCount(s.t)}));
-    v.innerHTML=`<div class="hdr"><b>13F ${esc(H.quarter)}</b><span class="sub"><b>보유 기준일 ${qInfo(H.quarter).end}</b> (분기말 · 공시 기한 ${qInfo(H.quarter).due}) · 비교 ${esc(H.prev)}(${qInfo(H.prev).end}) → ${esc(H.quarter)} · 8개 바이오 헷지펀드 · 미국 상장 롱만(숏·해외·사모 미포함) · 데이터 생성 ${esc(H.generated)}</span></div>
+    v.innerHTML=`<div class="hdr"><b>13F ${esc(H.quarter)}</b><span class="sub">보유 기준일 ${qInfo(H.quarter).end}</span></div>
     <div class="kpi"><div><div class="k">8펀드 13F 시총</div><div class="v">${fmtM(totMV)}</div><div class="d">${H.funds.map(f=>f.name.split(" ")[0]).join(" · ")}</div></div>
       <div><div class="k">보유 종목(합집합)</div><div class="v">${H.n_universe??H.matrix.length}</div><div class="d">2개 펀드 이상 ${H.n_multi??H.matrix.filter(m=>m.n>=2).length}종목</div></div>
       <div><div class="k">매집 종목</div><div class="v">${H.accum.length}</div><div class="d">주식수 순매수 ≥2 · 비중 순확대 ≥3 · 신규 ≥3</div></div>
