@@ -37,7 +37,7 @@ ews.sqlite (로컬 조회용 사본 · 원할 때 실행 · 새 날짜만 추가
   bots/                      (gitignore · 각각 별도 로컬 git 저장소 · 원격 없음)
     rss/    rss-monitor-svc    Cloud Run 서비스 · 뉴스 (10분)
     dart/   dart-monitor-svc   Cloud Run 서비스 · DART 공시 (평일 07~19시 매분)
-    ctgov/  ctgov-monitor-svc  Cloud Run 서비스 · ClinicalTrials.gov 변경 (매일 08:00 KST) · v1.11 upcoming.py = 국내 스폰서 1차 완료 예정 → feed/ctgov/upcoming.json(로컬 초기 생성: python upcoming.py --snapshot … --sponsors … --out …) · 미국 스폰서 = us_universe.py(tickers.csv − 의료기기·도구·진단·CRO) → us_sponsors.json, 유니버스 바뀌면 재생성 후 재배포(새 스폰서는 첫 실행 때 알림 없이 전체 수집)
+    ctgov/  ctgov-monitor-svc  Cloud Run 서비스 · ClinicalTrials.gov 변경 (매일 08:00 KST) · v1.12 국내 시드 117개(2026-10-10 DART 목록 대조로 10개 추가) · v1.11 upcoming.py = 국내 스폰서 1차 완료 예정 → feed/ctgov/upcoming.json(로컬 초기 생성: python upcoming.py --snapshot … --sponsors … --out …) · 미국 스폰서 = us_universe.py(tickers.csv − 의료기기·도구·진단·CRO) → us_sponsors.json, 유니버스 바뀌면 재생성 후 재배포(새 스폰서는 첫 실행 때 알림 없이 전체 수집)
     daily/  biopharma-daily-job Cloud Run 잡 · 미국 바이오 마켓 데일리 (화~토 07:30 KST) · macro.py = 글로벌마켓 스냅샷(무료 소스: 야후·FRED CSV·CNN F&G, 크립토 제외)
   archive/biopharmabot-v1/   1세대 GitHub Actions 봇 (중지 · ARCHIVED.md 참고)
 ```
