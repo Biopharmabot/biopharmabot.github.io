@@ -160,6 +160,10 @@ details.fund summary b{font-weight:600} details.fund summary .num{color:var(--mu
 .cal .ev .d{font-family:var(--mono);font-size:11px;color:var(--mute);padding-top:2px}
 .cal .ev .d.past{color:var(--down)}
 .cal.conf .ev{grid-template-columns:112px 1fr}
+.cal details.fold{margin-top:2px}
+.cal details.fold summary{display:flex;gap:10px;cursor:pointer;list-style:none;font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--mute);padding:14px 0 4px;border-bottom:1px solid var(--line)}
+.cal details.fold summary::-webkit-details-marker{display:none}
+.cal details.fold summary span:first-child::before{content:"▸ "} .cal details.fold[open] summary span:first-child::before{content:"▾ "}
 .cal .ev .h{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline}
 .cal .ev .h b{font-weight:500}
 .cal .ev .m{font-size:12px;color:var(--mute);margin-top:2px}
@@ -716,7 +720,7 @@ svg.sp{width:66px;height:20px;display:block}
   function openDay(iso){
     const {all,cf}=dayEvents(iso);const dr=$("dr");
     dr.innerHTML=`<div class="hd"><b>${esc(iso)}</b>${dday(iso)}<span class="tag">${all.length+cf.length}건</span><button type="button" id="drClose">닫기 ✕</button></div>
-      ${cf.length?`<h3 class="sec">학회 일정</h3><div class="cal">${cf.map(confHTML).join("")}</div>`:""}
+      ${cf.length?`<h3 class="sec">학회 및 컨퍼런스 일정</h3><div class="cal">${cf.map(confHTML).join("")}</div>`:""}
       ${all.length?`<h3 class="sec">이벤트</h3><div class="cal">${all.map(c=>evHTML(c)).join("")}</div>`:(cf.length?"":`<div class="note">이 날 이벤트가 없습니다.</div>`)}`;
     $("ov").classList.add("on");dr.classList.add("on");$("drClose").onclick=closeCompany;
   }
@@ -729,11 +733,12 @@ svg.sp{width:66px;height:20px;display:block}
     const wkEnd=kstToday(-6);const thisM=W.t.slice(0,7),nextM=new Date(Date.UTC(+W.t.slice(0,4),+W.t.slice(5,7),1)).toISOString().slice(0,7);
     const week=dated.filter(c=>c.sort<=wkEnd),month=dated.filter(c=>c.sort>wkEnd&&c.sort.slice(0,7)===thisM),next=dated.filter(c=>c.sort>wkEnd&&c.sort.slice(0,7)===nextM);
     const confs=(conf?conf.items:[]).filter(c=>c.end>=W.t&&+c.start.slice(0,4)<=+W.t.slice(0,4)+1);   /* 학회 일정은 올해·내년 예정분 전부(2026-10-10 사용자) */
-    let h=`<div class="hdr"><b>Catalysts</b><span class="sub">업데이트 ${esc([cal&&cal.generated,bb&&bb.asof,kw&&kw.asof].filter(Boolean).sort().pop()||"")}</span></div>`;
+    let h=`<div class="hdr"><b>Catalysts</b><span class="sub">향후 3개월 · 업데이트 ${esc([cal&&cal.generated,bb&&bb.asof,kw&&kw.asof].filter(Boolean).sort().pop()||"")}</span></div>`;
     h+=monthGrid(all)+`<div class="cal">`;
     const sect=(title,arr)=>arr.length?`<div class="mo" style="margin-top:16px"><span>${title}</span><span>${arr.length}건</span></div>`+arr.map(c=>evHTML(c).replace('<div class="h">','<div class="h">'+dday(c.sort))).join(""):"";
-    h+=sect("이번 주",week)+sect("이번 달",month)+sect("다음 달",next);
-    if(confs.length){h+=`<div class="mo" style="margin-top:16px"><span>학회 일정</span><span>${confs.length}건</span></div>`;let cy="";confs.forEach(c=>{const y=c.start.slice(0,4);if(y!==cy){cy=y;h+=`<div class="mo"><span>${y}</span></div>`;}h+=confHTML(c);});}
+    const fold=(title,arr)=>arr.length?`<details class="all fold"><summary><span>${title}</span><span>${arr.length}건</span></summary>${arr.map(c=>evHTML(c).replace('<div class="h">','<div class="h">'+dday(c.sort))).join("")}</details>`:"";
+    h+=sect("이번 주",week)+fold("이번 달",month)+fold("다음 달",next);
+    if(confs.length){h+=`<div class="mo" style="margin-top:16px"><span>학회 및 컨퍼런스 일정</span><span>${confs.length}건</span></div>`;let cy="";confs.forEach(c=>{const y=c.start.slice(0,4);if(y!==cy){cy=y;h+=`<div class="mo"><span>${y}</span></div>`;}h+=confHTML(c);});}
     if(!dated.length&&!confs.length)h+=`<div class="note">조건에 맞는 이벤트가 없습니다.</div>`;
     h+=`</div>`;
     v.innerHTML=h;
