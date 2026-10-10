@@ -70,7 +70,7 @@ def main():
     for r in con.execute("select display,krx,bloomberg,n_catalyst from company "
                          "where (krx is not null and krx!='') or (bloomberg is not null and bloomberg!='')"):
         comp[r["display"]] = {"name": r["display"], "krx": (r["krx"] or "").strip() or None,
-                              "tk": tickers(r["bloomberg"]), "nc": r["n_catalyst"]}
+                              "tk": [] if "/" in r["display"] else tickers(r["bloomberg"]), "nc": r["n_catalyst"]}   # 'Hengrui/ Kailera' 같은 공동 스폰서 이름에는 티커를 붙이지 않음(2026-10-10)
     have = {t for c in comp.values() for t in c["tk"]}
     with open(os.path.join(ROOT, "bots", "daily", "tickers.csv"), encoding="utf-8") as f:
         for row in csv.reader(f):
