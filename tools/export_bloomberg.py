@@ -22,6 +22,24 @@ PHASE = {"PHASE_III": "Phase 3", "PHASE_II": "Phase 2", "PHASE_I": "Phase 1", "P
          "PHASE_II_III": "Phase 2/3", "PRECLINICAL": "Preclinical", "PHASE_I_III": "Phase 1/3"}
 
 
+MON = {m: i for i, m in enumerate(["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"], 1)}
+
+
+def range_end(s, sort):
+    """'Oct 23-27 2026' / 'Oct 30 - Nov 2 2026' → 끝 날짜 ISO. 못 읽으면 None."""
+    s = (s or "").strip()
+    m = re.match(r"^([A-Za-z]{3})[A-Za-z]*\.?,? \d{1,2} ?- ?(?:([A-Za-z]{3})[A-Za-z]*\.? )?(\d{1,2}),? (\d{4})$", s)
+    if not m:
+        return None
+    mon = MON.get((m.group(2) or m.group(1)).lower())
+    if not mon:
+        return None
+    try:
+        return dt.date(int(m.group(4)), mon, int(m.group(3))).isoformat()
+    except ValueError:
+        return None
+
+
 def prec_of(s):
     s = (s or "").strip()
     if re.match(r"^[A-Za-z]{3,5}\.?,? \d{1,2} \d{4}$", s): return "day"
@@ -72,7 +90,7 @@ def main(argv):
                       "src": "bb", "region": "GLOBAL", "sponsor": (co or "").strip() or "(학회)", "asset": (asset or "").strip(),
                       "event": re.sub(r"\s+", " ", str(event)).strip(), "ind": (ind or "").strip(), "ta": (moa or "").strip(),
                       "mod": (mod or "").strip(), "type": TYPE.get(etype, "other"), "cat": cat, "status": "upcoming",
-                      "date": exp, "sort": sort, "prec": prec_of(exp), "end": None,
+                      "date": exp, "sort": sort, "prec": prec_of(exp), "end": range_end(exp, sort) if prec_of(exp) == "range" else None,
                       "imp": "high" if str(key) == "True" else "low", "key": str(key) == "True",
                       "stage": PHASE.get(phase, phase), "nct": None, "tk": tickers(tk),
                       "notes": re.sub(r"\s+", " ", str(notes or "")).strip()[:240], "src_type": (srct or "").strip(),
