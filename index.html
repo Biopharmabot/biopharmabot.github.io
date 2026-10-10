@@ -5,32 +5,33 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Biopharmabot</title>
 <meta name="description" content="From Pulse to Insight — 글로벌 마켓 · US 헬스케어 종목 · 뉴스 · 임상 · 카탈리스트 · 13F">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
 <style>
 /* Layout: header(title · 종목 바로가기 · 테마) → segmented page nav → page. 개요는 KPI 줄 + 카드 격자(박종현 coverage 방식).
    Monochrome; semantic color only for up/down, relevance, new. 차트는 단일 색 막대(accent)만 쓴다. */
 :root{
-  --bg:#f7f7f5; --fg:#181817; --mute:#6b6b66; --line:#d9d9d4; --panel:#ffffff; --panel2:#efefeb; --panel3:#e4e4de;
-  --up:#1f6f3f; --down:#b3261e; --hi:#b3261e; --mid:#8a6d00; --accent:#181817; --bar:#8f8f89; --acc:#2f5fa8;
+  --bg:#f6f7f9; --fg:#111318; --mute:#555b66; --line:#dfe2e8; --panel:#ffffff; --panel2:#eef0f4; --panel3:#e3e6ec;
+  --up:#0f7b4a; --down:#c42b1c; --hi:#c42b1c; --mid:#8a6d00; --accent:#111318; --bar:#8b919c; --acc:#2456c9;
   --g-approval:#b3261e; --g-earnings:#2f5fa8; --g-meeting:#6a4fb3; --g-readout:#1f6f3f; --g-trial:#c27a1a; --g-etc:#8f8f89;
   --cbar:#dfe7f5; --cbar-fg:#2b3a55; --cbar-past:#ececea; --cbar-past-fg:#7a7a75;
-  --sans:"IBM Plex Sans KR",system-ui,-apple-system,"Segoe UI","Malgun Gothic",sans-serif;
-  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  --sans:"Pretendard Variable",Pretendard,system-ui,-apple-system,"Segoe UI","Malgun Gothic",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
   color-scheme:light;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#111110; --fg:#ececea; --mute:#8f8f89; --line:#2c2c2a; --panel:#181817; --panel2:#1f1f1d; --panel3:#2a2a27;
-  --up:#4cc27a; --down:#ff6b5e; --hi:#ff6b5e; --mid:#e2b93b; --accent:#ececea; --bar:#6e6e69; --acc:#7da2e6;
+  --bg:#0f1115; --fg:#e8eaee; --mute:#9aa1ad; --line:#2a2e36; --panel:#161920; --panel2:#1d2129; --panel3:#262b34;
+  --up:#3ccf86; --down:#ff6b5e; --hi:#ff6b5e; --mid:#e2b93b; --accent:#e8eaee; --bar:#6b7280; --acc:#7aa2f7;
   --g-approval:#ff6b5e; --g-earnings:#7da2e6; --g-meeting:#b39ddb; --g-readout:#4cc27a; --g-trial:#e8a04a; --g-etc:#8c8c86;
   --cbar:#2a3a55; --cbar-fg:#c9d6ee; --cbar-past:#262624; --cbar-past-fg:#8c8c86; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#111110; --fg:#ececea; --mute:#8f8f89; --line:#2c2c2a; --panel:#181817; --panel2:#1f1f1d; --panel3:#2a2a27;
-  --up:#4cc27a; --down:#ff6b5e; --hi:#ff6b5e; --mid:#e2b93b; --accent:#ececea; --bar:#6e6e69; --acc:#7da2e6;
+  --bg:#0f1115; --fg:#e8eaee; --mute:#9aa1ad; --line:#2a2e36; --panel:#161920; --panel2:#1d2129; --panel3:#262b34;
+  --up:#3ccf86; --down:#ff6b5e; --hi:#ff6b5e; --mid:#e2b93b; --accent:#e8eaee; --bar:#6b7280; --acc:#7aa2f7;
   --g-approval:#ff6b5e; --g-earnings:#7da2e6; --g-meeting:#b39ddb; --g-readout:#4cc27a; --g-trial:#e8a04a; --g-etc:#8c8c86;
   --cbar:#2a3a55; --cbar-fg:#c9d6ee; --cbar-past:#262624; --cbar-past-fg:#8c8c86; color-scheme:dark}
 *{box-sizing:border-box}
 html,body{margin:0}
-body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:14px;line-height:1.45;padding-inline:16px;padding-block:0 60px;max-width:1120px;margin:0 auto}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:14.5px;font-variant-numeric:tabular-nums;line-height:1.45;padding-inline:16px;padding-block:0 60px;max-width:1120px;margin:0 auto}
 .num{font-family:var(--mono);font-variant-numeric:tabular-nums}
 a{color:inherit}
 :is(button,input,select,a,[tabindex]):focus-visible{outline:2px solid var(--accent);outline-offset:2px}
