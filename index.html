@@ -125,6 +125,7 @@ details.all summary{cursor:pointer;font-size:12px;color:var(--mute)}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px 12px;min-width:0}
 .card.wide{grid-column:1/-1}
 .grid.one{grid-template-columns:minmax(0,1fr)}
+.tbl.wl{overflow-x:auto} .tbl.wl td.l:last-child{white-space:normal;min-width:150px} .tbl.wl .tag{margin-right:3px}
 .card .hd{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}
 .card .hd b{font-weight:600;font-size:13px}
 .card .hd .sub{font-size:11px;color:var(--mute)}
@@ -799,22 +800,27 @@ svg.sp{width:66px;height:20px;display:block}
     const byMove=arr=>[...arr].sort((a,b)=>Math.abs((stockOf(b)||{}).chg_pct||0)-Math.abs((stockOf(a)||{}).chg_pct||0));
     const top=(arr,n)=>arr.slice(0,n);
     const trialsPick=[...data.trials.filter(x=>x.change==="new"||/중단|terminat|withdraw|suspend/i.test((x.lines||[]).join(" ")+x.status)),...data.trials].filter((x,i,a)=>a.indexOf(x)===i);
-    /* Watch List v1 (2026-10-10): 최근 2일 안에 서로 다른 신호가 2가지 이상 겹친 기업. 13F 는 Home 에서 쓰지 않음.
-       신호 = HIGH·MID 뉴스 · 임상 결과(rss 심층분석) · 임상 변동(신규·중단 등) · 7일 내 HIGH·MID 카탈리스트 · 급등락 ±5% 또는 거래량 2배 */
-    const wl=(()=>{const d2=kstToday(1),wk7=kstToday(-7);const M=new Map();const mt=mentions();
-      const add=(e,t)=>{if(!e)return;const o=M.get(e.key)||{e,sig:new Set()};o.sig.add(t);M.set(e.key,o);};
-      data.news.filter(x=>dayOf(x.ts)>=d2&&(x.relevance==="high"||x.relevance==="medium")).forEach(x=>(mt.newsCo.get(x.id)||[]).forEach(e=>add(e,"뉴스")));
-      (data.clinical||[]).filter(x=>dayOf(x.ts)>=d2).forEach(x=>cindex.filter(e=>matchNews(e,{title:x.headline,headline:x.headline,summary:""})).forEach(e=>add(e,"임상 결과")));
-      data.trials.filter(x=>dayOf(x.ts)>=d2).forEach(x=>add(findCompany(x.company),"임상 변동"));
-      calAll().filter(c=>isDated(c)&&c.imp!=="low"&&c.sort>=today&&c.sort<=wk7).forEach(c=>{const e=(c.tk||[]).map(t=>findCompany(t.split(" ")[0])).find(Boolean)||(c.sponsor?findCompany(c.sponsor.split(" / ")[0]):null);{const n=Math.round((new Date(c.sort)-new Date(today))/864e5);add(e,n?"D-"+n:"D-day");}});
-      (m&&m.stocks||[]).filter(s=>Math.abs(s.chg_pct)>=5||(s.vol_ratio||0)>=2).forEach(s=>add(findCompany(s.ticker),Math.abs(s.chg_pct)>=5?(s.chg_pct>0?"급등":"급락"):"거래량"));
-      const kind=t=>/^D/.test(t)?"cat":t;
-      return[...M.values()].map(o=>{const sig=[...o.sig];const st=o.e.tk.map(t=>stockOf(t)).find(Boolean);return{e:o.e,sig,n:new Set(sig.map(kind)).size,st};}).filter(o=>o.n>=2).sort((a,b)=>b.n-a.n||Math.abs((b.st||{}).chg_pct||0)-Math.abs((a.st||{}).chg_pct||0));})();
+    /* Watch List v2 (2026-10-10 사용자 기준). 대상 = 미국 유니버스 종목.
+       주 신호 3: ① 30일 내 HIGH 카탈리스트(실적 제외) ② 평균 목표가 업사이드 30~300%(애널리스트 2명 이상, 300% 초과는 이상치) ③ 매수 시그널(+5% 이상 급등, 또는 거래량 2배 이상 + 상승)
+       보조 신호: 13F 비중 확대(2Q26 weight 순확대·신규). 유사기업 인수·파이프라인 관심도는 회사-파이프라인 매핑이 필요해 보류.
+       정렬 = 주 신호 수 → 카탈리스트 보유 → 보조 신호 수 → 업사이드. 주 신호 1개 이상인 종목 중 상위 10개 */
+    const wl=(()=>{if(!m||!m.stocks)return[];const d30=kstToday(-30);
+      const cats=calAll().filter(c=>isDated(c)&&c.imp==="high"&&c.type!=="earnings"&&c.sort>=today&&c.sort<=d30);
+      const wg=(hedge&&hedge.groups&&hedge.groups.weight)||{};const hfUp=new Set([...(wg.new||[]),...(wg.add||[])].flatMap(r=>r.items||[]));
+      return m.stocks.map(st=>{const tags=[];let main=0,sub=0;
+        const c=cats.filter(c=>(c.tk||[]).some(t=>t.split(" ")[0].toUpperCase()===st.ticker)).sort((a,b)=>a.sort<b.sort?-1:1)[0];
+        if(c){main++;const n=Math.round((new Date(c.sort)-new Date(today))/864e5);tags.push(`${CT_TYPE[c.type]||c.type} ${n?"D-"+n:"D-day"}`);}
+        const up=st.tgt&&st.n_an>=2&&st.close?(st.tgt/st.close-1)*100:null;
+        if(up!=null&&up>=30&&up<=300){main++;tags.push("업사이드");}   /* 300% 초과는 액면병합·오래된 목표가 등 이상치로 보고 제외 */
+        if(st.chg_pct>=5){main++;tags.push("급등");}else if((st.vol_ratio||0)>=2&&st.chg_pct>0){main++;tags.push(`거래량 ${st.vol_ratio.toFixed(1)}×`);}
+        if(hfUp.has(st.ticker)){sub++;tags.push("13F 확대");}
+        return{st,e:findCompany(st.ticker)||{name:st.name,tk:[st.ticker]},tags,main,sub,cat:c?1:0,up:up!=null&&up<=300?up:-1};
+      }).filter(o=>o.main>=1).sort((a,b)=>b.main-a.main||b.cat-a.cat||b.sub-a.sub||b.up-a.up).slice(0,10);})();
     const wd=["일","월","화","수","목","금","토"][new Date(today+"T00:00:00Z").getUTCDay()];const dateKo=`${+today.slice(0,4)}년 ${+today.slice(5,7)}월 ${+today.slice(8,10)}일 ${wd}요일`;
     v.innerHTML=`<div class="greet"><div class="g">${dateKo}</div></div>
     
     <div class="grid one">
-      ${card("Watch List",wl.length?"최근 2일 신호가 2가지 이상 겹친 기업":"신호가 겹친 기업 없음","",wl.length?wl.slice(0,10).map(o=>row("",`${coLink(o.e.name,o.e.name===o.e.tk[0]&&o.st?o.st.name:o.e.name)}${o.e.tk[0]&&!/ /.test(o.e.tk[0])?` <span class="tag">${esc(o.e.tk[0])}</span>`:""}`,`${o.sig.map(t=>`<span class="tag">${esc(t)}</span>`).join("")}${o.st?` <span class="num ${cls(o.st.chg_pct)}">${fmtPct(o.st.chg_pct)}</span>`:""}`)).join(""):"")}
+      ${card("Watch List","","",wl.length?`<div class="tbl wl"><table><thead><tr><th class="l">티커</th><th class="l">회사</th><th>시총</th><th>종가</th><th>평균 목표가</th><th>괴리율</th><th>1D</th><th>1W</th><th>1M</th><th>YTD</th><th class="l">신호</th></tr></thead><tbody>${wl.map(o=>{const st=o.st,up=st.tgt&&st.n_an>=2&&st.close?(st.tgt/st.close-1)*100:null,pc=v=>v==null?"—":`<span class="${cls(v)}">${fmtPct(v)}</span>`;return`<tr><td class="l">${tkChip(st.ticker,"")}</td><td class="l">${coLink(o.e.name,o.e.name===st.ticker?st.name:o.e.name)}</td><td class="num">${fmtCap(st.mcap)}</td><td class="num">$${Number(st.close).toFixed(2)}</td><td class="num">${st.tgt&&st.n_an>=2?"$"+Number(st.tgt).toFixed(2):"—"}</td><td class="num">${pc(up)}</td><td class="num">${pc(st.chg_pct)}</td><td class="num">${pc(st.ret_1w)}</td><td class="num">${pc(st.ret_1m)}</td><td class="num">${pc(st.ytd)}</td><td class="l">${o.tags.map(t=>`<span class="tag">${esc(t)}</span>`).join(" ")}</td></tr>`;}).join("")}</tbody></table></div>`:"")}
       ${data.macro?card("Global Markets",`${esc(data.macro.date)}`,`macro`,(()=>{const mc=data.macro;const all=Object.values(mc.indices).flat();const pick=["^GSPC","^IXIC","^NBI","^STOXX","^N225","000300.SS","^KS11","^KQ11"].map(t=>all.find(r=>r.t===t)).filter(Boolean);const t10=(mc.rates||[]).find(r=>r.t==="^TNX"),hy=(mc.fred||[]).find(r=>r.id==="BAMLH0A0HYM2"),vix=(mc.vol||[]).find(r=>r.t==="^VIX"),fg=mc.fear_greed;return`<div class="two2"><div>${pick.map(r=>row("",esc(r.name),`<span class="num ${cls(r.chg)}">${bbar(r.chg,8,1)}${fmtPct(r.chg)}</span>`)).join("")}</div><div>${fg?row("",`Fear &amp; Greed`,`<span class="num"><b>${fg.score.toFixed(0)}</b> ${FG_KO[fg.rating]||esc(fg.rating)}</span>`):""}${t10?row("",`미 10년`,`<span class="num">${t10.last.toFixed(2)}% <span class="${t10.chg_bp>0?"down":"up"}">${fmtBp(t10.chg_bp)}</span></span>`):""}${hy?row("",`HY 스프레드`,`<span class="num">${hy.last.toFixed(2)}% <span class="${hy.chg_bp>0?"down":"up"}">${fmtBp(hy.chg_bp)}</span></span>`):""}${vix?row("",`VIX`,`<span class="num">${vix.last.toFixed(2)} <span class="${vix.chg>0?"down":"up"}">${fmtPct(vix.chg)}</span></span>`):""}${(mc.us_sectors||[]).length?row("",`섹터 1위 / 꼴찌`,`<span class="num"><span class="up">${esc(mc.us_sectors[0].name)} ${fmtPct(mc.us_sectors[0].chg)}</span> · <span class="down">${esc(mc.us_sectors[mc.us_sectors.length-1].name)} ${fmtPct(mc.us_sectors[mc.us_sectors.length-1].chg)}</span></span>`):""}</div></div>`;})()):""}
       ${card("US Healthcare Equities",m?`${esc(m.date)} 종가 · ▲${(m.stocks||[]).filter(s=>s.chg_pct>0).length} ▼${(m.stocks||[]).filter(s=>s.chg_pct<0).length}`:"",`market`,m?`<div class="two2"><div><h4>상승</h4>${(m.top||[]).slice(0,6).map(mkRowS).join("")}</div><div><h4>하락</h4>${(m.bottom||[]).slice(0,6).map(mkRowS).join("")}</div></div>`:"")}
       ${card("Newsflow",hiNews[0]?"HIGH · 최근 "+fmtTs(hiNews[0].ts):"HIGH",`news`,hiNews.length?top(hiNews,7).map(newsRow).join(""):"")}
