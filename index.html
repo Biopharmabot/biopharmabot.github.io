@@ -315,7 +315,7 @@ svg.sp{width:66px;height:20px;display:block}
   const isPhase4=x=>/^Phase 4/.test(phaseLabel(x));   // 4상 결과는 수집 대상 아님(2026-10-10) — feed 에 남아 있어도 숨긴다
   const phTag=x=>{const l=phaseLabel(x);return l?`<span class="tag ph">${esc(l)}</span>`:"";};
   const TR_CHANGE={new:"신규 등록",first:"감시 편입",change:"변경"};
-  const CT_GROUP=[["readout","임상 결과",["phase-readout"]],["trial","임상 진행",["trial-milestone","preclinical"]],["meeting","학회 발표",["data-presentation"]],["approval","허가 결정",["pdufa","regulatory-decision"]],["etc","기타",["corporate","other"]],["earnings","실적 발표",["earnings"]]];   // 허가 신청·출시·상업화는 2026-10-10 사용자 결정으로 제외(칩도 항목도 없음)
+  const CT_GROUP=[["approval","허가 결정",["pdufa","regulatory-decision"]],["earnings","실적 발표",["earnings"]],["meeting","학회 발표",["data-presentation"]],["readout","임상 결과",["phase-readout"]],["trial","임상 진행",["trial-milestone","preclinical"]],["etc","기타",["corporate","other"]]];   // 허가 신청·출시·상업화는 2026-10-10 사용자 결정으로 제외(칩도 항목도 없음)
   const CT_GROUP_OF={};CT_GROUP.forEach(([k,,ts])=>ts.forEach(t=>CT_GROUP_OF[t]=k));
   const CT_TYPE={earnings:"실적 발표","phase-readout":"탑라인/결과","trial-milestone":"임상 마일스톤","regulatory-decision":"허가 결정","regulatory-filing":"허가 신청",pdufa:"PDUFA","data-presentation":"학회 발표","licensing-deal":"딜",corporate:"기업","drug-launch":"출시",preclinical:"전임상",commercial:"상업화",other:"기타"};
   const PREC={day:"",range:"기간",month:"월 중",quarter:"분기 중",half:"반기 중",year:"연중",tbd:"미정"};
