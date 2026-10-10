@@ -800,7 +800,7 @@ svg.sp{width:66px;height:20px;display:block}
     const dartRow=x=>row(hhmm(x.ts),`${coLink(x.company)} <a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.title)}</a>`,"");
     const trRow=x=>row(hhmm(x.ts),`${coLink(x.company)} · ${esc(x.title)}`,`<span class="tag ${x.change==="new"?"new":""}">${TR_CHANGE[x.change]||esc(x.change)}</span>`);
     const evRow=c=>row(dday(c.sort),`${coLink(c.sponsor)} · ${esc(c.asset)} <span style="color:var(--mute)">${esc(c.event||c.ind)}</span>`,`<span class="tag ${c.imp==="high"?"hi":c.imp==="medium"?"mid":""}">${esc(CT_TYPE[c.type]||c.type)}</span>`);
-    const mkRowS=x=>{const s=byName.get(x.name)||x;return row("",`${coLink(x.name)}`,`<span class="num ${cls(x.chg_pct)}">${bbar(x.chg_pct,6,1)}${fmtPct(x.chg_pct)}</span>`);};
+    const mkRowS=x=>row("",`${coLink(x.name)}`,`<span class="num ${cls(x.chg_pct)}">${fmtPct(x.chg_pct)}</span>`);
     const hfRow=t=>{const st=stockOf(t);const e=findCompany(t);return row("",`${tkChip(t,accumSet().has(t)?"acc":"dis")} ${e?coLink(e.name):""}`,st?`<span class="num ${cls(st.chg_pct)}">${bbar(st.chg_pct,6,1)}${fmtPct(st.chg_pct)}</span>`:"");};
     const byMove=arr=>[...arr].sort((a,b)=>Math.abs((stockOf(b)||{}).chg_pct||0)-Math.abs((stockOf(a)||{}).chg_pct||0));
     const top=(arr,n)=>arr.slice(0,n);
@@ -830,9 +830,9 @@ svg.sp{width:66px;height:20px;display:block}
       ${card("Watch List","Yahoo Finance 기준","",wl.length?`<div class="tbl wl"><table><thead><tr><th class="l">티커</th><th class="l">회사</th><th>시총</th><th>종가</th><th>평균 목표가</th><th>괴리율</th><th>1D</th><th>1W</th><th>1M</th><th>YTD</th><th class="l">신호</th></tr></thead><tbody>${wl.map(o=>{const st=o.st,up=st.tgt&&st.n_an>=2&&st.close?(st.tgt/st.close-1)*100:null,pc=v=>v==null?"—":`<span class="${cls(v)}">${fmtPct(v)}</span>`;return`<tr><td class="l">${tkChip(st.ticker,"")}</td><td class="l">${coLink(o.e.name,o.e.name===st.ticker?st.name:o.e.name)}</td><td class="num">${fmtCap(st.mcap)}</td><td class="num">$${Number(st.close).toFixed(2)}</td><td class="num">${st.tgt&&st.n_an>=2?"$"+Number(st.tgt).toFixed(2):"—"}</td><td class="num">${pc(up)}</td><td class="num">${pc(st.chg_pct)}</td><td class="num">${pc(st.ret_1w)}</td><td class="num">${pc(st.ret_1m)}</td><td class="num">${pc(st.ytd)}</td><td class="l">${o.tags.map(t=>`<span class="tag">${esc(t)}</span>`).join(" ")}</td></tr>`;}).join("")}</tbody></table></div>`:"")}
       ${data.macro?card("Global Markets",`${esc(data.macro.date)}`,`macro`,`<div class="hk">${macroKpi(data.macro)}</div>`):""}
       ${card("US Healthcare Equities",m?`${esc(m.date)} 종가 · ▲${(m.stocks||[]).filter(s=>s.chg_pct>0).length} ▼${(m.stocks||[]).filter(s=>s.chg_pct<0).length}`:"",`market`,m?`<div class="two2"><div><h4>상승</h4>${(m.top||[]).slice(0,10).map(mkRowS).join("")}</div><div><h4>하락</h4>${(m.bottom||[]).slice(0,10).map(mkRowS).join("")}</div></div>`:"")}
-      ${card("Newsflow",hmNews[0]?"HIGH·MID · 최근 "+fmtTs(hmNews[0].ts):"HIGH·MID",`news`,hmNews.length?top(hmNews,10).map(newsRow).join(""):"")}
+      ${card("Newsflow","",`news`,hmNews.length?top(hmNews,10).map(newsRow).join(""):"")}
       ${card("Clinical Trials","",`trials`,ctTop.length?ctTop.map(x=>x.kind==="clinical"?row(hhmm(x.ts),`<a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.headline||"")}</a>`,`<span class="tag">결과</span>`):trRow(x)).join(""):"")}
-      ${card("Catalysts","HIGH·MID",`cal`,calAll().filter(c=>isDated(c)&&c.imp!=="low"&&c.sort>=today).slice(0,10).map(evRow).join(""))}
+      ${card("Catalysts","",`cal`,calAll().filter(c=>isDated(c)&&c.imp!=="low"&&c.sort>=today).slice(0,10).map(evRow).join(""))}
     </div>`;
     v.querySelectorAll("[data-go]").forEach(a=>a.onclick=e=>{e.preventDefault();setTab(a.dataset.go);});
   }
