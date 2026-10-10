@@ -738,7 +738,7 @@ svg.sp{width:66px;height:20px;display:block}
     const sect=(title,arr)=>arr.length?`<div class="mo" style="margin-top:16px"><span>${title}</span><span>${arr.length}건</span></div>`+arr.map(c=>evHTML(c).replace('<div class="h">','<div class="h">'+dday(c.sort))).join(""):"";
     const fold=(title,arr)=>arr.length?`<details class="all fold"><summary><span>${title}</span><span>${arr.length}건</span></summary>${arr.map(c=>evHTML(c).replace('<div class="h">','<div class="h">'+dday(c.sort))).join("")}</details>`:"";
     h+=sect("이번 주",week)+fold("이번 달",month)+fold("다음 달",next);
-    if(confs.length){h+=`<div class="mo" style="margin-top:16px"><span>학회 및 컨퍼런스 일정</span><span>${confs.length}건</span></div>`;let cy="";confs.forEach(c=>{const y=c.start.slice(0,4);if(y!==cy){cy=y;h+=`<div class="mo"><span>${y}</span></div>`;}h+=confHTML(c);});}
+    if(confs.length){h+=`<div class="mo" style="margin-top:16px"><span>학회 및 컨퍼런스 일정</span></div>`;let cy="";confs.forEach(c=>{const y=c.start.slice(0,4);if(y!==cy){cy=y;h+=`<div class="mo"><span>${y}</span></div>`;}h+=confHTML(c);});}
     if(!dated.length&&!confs.length)h+=`<div class="note">조건에 맞는 이벤트가 없습니다.</div>`;
     h+=`</div>`;
     v.innerHTML=h;
