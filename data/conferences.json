@@ -1,0 +1,667 @@
+{
+ "generated": "2026-10-10",
+ "n": 66,
+ "note": "기준 목록 = 2025년 일정 미리보기 표8(43개 행사). 2026·2027 날짜는 2026-10-10 웹 확인. 2027 미정: ASH·AASLD·AHA·ACR·CTAD 등 → 공지되면 추가",
+ "items": [
+  {
+   "id": "ASCO-GI-2026",
+   "short": "ASCO GI",
+   "name": "ASCO Gastrointestinal Cancers Symposium",
+   "start": "2026-01-08",
+   "end": "2026-01-10",
+   "city": "San Francisco",
+   "kw": "위암, 식도암, 대장암",
+   "confirmed": true
+  },
+  {
+   "id": "JPM-2026",
+   "short": "JPM",
+   "name": "J.P. Morgan Healthcare Conference",
+   "start": "2026-01-12",
+   "end": "2026-01-15",
+   "city": "San Francisco",
+   "kw": "바이오텍 투자, 제약산업 동향, 파트너링",
+   "confirmed": true
+  },
+  {
+   "id": "World-ADC-London-2026",
+   "short": "World ADC London",
+   "name": "World ADC London",
+   "start": "2026-02-23",
+   "end": "2026-02-26",
+   "city": "London",
+   "kw": "ADC",
+   "confirmed": true
+  },
+  {
+   "id": "AAAAI-2026",
+   "short": "AAAAI",
+   "name": "American Academy of Allergy Asthma & Immunology",
+   "start": "2026-02-27",
+   "end": "2026-03-02",
+   "city": "Philadelphia",
+   "kw": "알레르기, 천식, 면역",
+   "confirmed": true
+  },
+  {
+   "id": "BIO-BIG-2026",
+   "short": "BIO BIG",
+   "name": "BIO Investment & Growth Summit (구 BIO CEO & Investor)",
+   "start": "2026-03-02",
+   "end": "2026-03-03",
+   "city": "Miami Beach",
+   "kw": "바이오텍 투자, 제약산업 동향",
+   "confirmed": false
+  },
+  {
+   "id": "AD-PD-2026",
+   "short": "AD/PD",
+   "name": "International Conference on Alzheimer's and Parkinson's Diseases",
+   "start": "2026-03-17",
+   "end": "2026-03-21",
+   "city": "Copenhagen",
+   "kw": "알츠하이머, 파킨슨, 신경퇴행성질환",
+   "confirmed": true
+  },
+  {
+   "id": "ELCC-2026",
+   "short": "ELCC",
+   "name": "European Lung Cancer Congress",
+   "start": "2026-03-25",
+   "end": "2026-03-28",
+   "city": "Copenhagen",
+   "kw": "폐암",
+   "confirmed": true
+  },
+  {
+   "id": "ACC-2026",
+   "short": "ACC",
+   "name": "American College of Cardiology",
+   "start": "2026-03-28",
+   "end": "2026-03-30",
+   "city": "New Orleans",
+   "kw": "심혈관 질환",
+   "confirmed": true
+  },
+  {
+   "id": "AACR-2026",
+   "short": "AACR",
+   "name": "American Association for Cancer Research",
+   "start": "2026-04-17",
+   "end": "2026-04-22",
+   "city": "San Diego",
+   "kw": "암 치료 최신 동향, 임상시험 결과",
+   "confirmed": true
+  },
+  {
+   "id": "AAN-2026",
+   "short": "AAN",
+   "name": "American Academy of Neurology",
+   "start": "2026-04-18",
+   "end": "2026-04-22",
+   "city": "Chicago",
+   "kw": "신경과학, 뇌질환, 신경퇴행성질환",
+   "confirmed": true
+  },
+  {
+   "id": "ISCT-2026",
+   "short": "ISCT",
+   "name": "International Society for Cell & Gene Therapy",
+   "start": "2026-05-06",
+   "end": "2026-05-09",
+   "city": "Dublin",
+   "kw": "세포, 유전자 치료제, 재생의학",
+   "confirmed": true
+  },
+  {
+   "id": "ASGCT-2026",
+   "short": "ASGCT",
+   "name": "American Society of Gene and Cell Therapy",
+   "start": "2026-05-11",
+   "end": "2026-05-15",
+   "city": "Boston",
+   "kw": "세포, 유전자 치료제, 희귀질환",
+   "confirmed": true
+  },
+  {
+   "id": "TIDES-USA-2026",
+   "short": "TIDES USA",
+   "name": "Oligonucleotide & Peptide Therapeutics (TIDES) USA",
+   "start": "2026-05-11",
+   "end": "2026-05-14",
+   "city": "Boston",
+   "kw": "RNA, Peptide",
+   "confirmed": true
+  },
+  {
+   "id": "EASL-2026",
+   "short": "EASL",
+   "name": "European Association for the Study of the Liver",
+   "start": "2026-05-27",
+   "end": "2026-05-30",
+   "city": "Barcelona",
+   "kw": "간 질환, MASH, 간암, 간섬유화",
+   "confirmed": true
+  },
+  {
+   "id": "ASCO-2026",
+   "short": "ASCO",
+   "name": "American Society of Clinical Oncology",
+   "start": "2026-05-29",
+   "end": "2026-06-02",
+   "city": "Chicago",
+   "kw": "암 치료 최신 동향, 임상시험 결과",
+   "confirmed": true
+  },
+  {
+   "id": "EULAR-2026",
+   "short": "EULAR",
+   "name": "European Alliance of Associations for Rheumatology",
+   "start": "2026-06-03",
+   "end": "2026-06-06",
+   "city": "London",
+   "kw": "자가면역, 류마티스, 염증성 질환",
+   "confirmed": true
+  },
+  {
+   "id": "ADA-2026",
+   "short": "ADA",
+   "name": "American Diabetes Association",
+   "start": "2026-06-05",
+   "end": "2026-06-08",
+   "city": "New Orleans",
+   "kw": "당뇨, 비만, 대사질환",
+   "confirmed": true
+  },
+  {
+   "id": "EHA-2026",
+   "short": "EHA",
+   "name": "European Hematology Association",
+   "start": "2026-06-11",
+   "end": "2026-06-14",
+   "city": "Stockholm",
+   "kw": "혈액질환, 조혈모세포 이식, 혈액암",
+   "confirmed": true
+  },
+  {
+   "id": "BIO-USA-2026",
+   "short": "BIO USA",
+   "name": "BIO International Convention",
+   "start": "2026-06-22",
+   "end": "2026-06-25",
+   "city": "San Diego",
+   "kw": "파트너링, CDMO",
+   "confirmed": true
+  },
+  {
+   "id": "ISSCR-2026",
+   "short": "ISSCR",
+   "name": "International Society for Stem Cell Research",
+   "start": "2026-07-08",
+   "end": "2026-07-11",
+   "city": "Montréal",
+   "kw": "줄기세포, 재생의학",
+   "confirmed": true
+  },
+  {
+   "id": "AAIC-2026",
+   "short": "AAIC",
+   "name": "Alzheimer's Association International Conference",
+   "start": "2026-07-12",
+   "end": "2026-07-15",
+   "city": "London",
+   "kw": "알츠하이머, 치매",
+   "confirmed": true
+  },
+  {
+   "id": "ASRS-2026",
+   "short": "ASRS",
+   "name": "American Society of Retina Specialists",
+   "start": "2026-07-15",
+   "end": "2026-07-18",
+   "city": "Montréal",
+   "kw": "안과 질환",
+   "confirmed": true
+  },
+  {
+   "id": "ESC-2026",
+   "short": "ESC",
+   "name": "European Society of Cardiology",
+   "start": "2026-08-28",
+   "end": "2026-08-31",
+   "city": "Munich",
+   "kw": "심혈관 질환",
+   "confirmed": true
+  },
+  {
+   "id": "WCLC-2026",
+   "short": "WCLC",
+   "name": "IASLC World Conference on Lung Cancer",
+   "start": "2026-09-12",
+   "end": "2026-09-15",
+   "city": "Seoul",
+   "kw": "폐암",
+   "confirmed": true
+  },
+  {
+   "id": "EASD-2026",
+   "short": "EASD",
+   "name": "European Association for the Study of Diabetes",
+   "start": "2026-09-28",
+   "end": "2026-10-02",
+   "city": "Milan",
+   "kw": "당뇨, 비만",
+   "confirmed": true
+  },
+  {
+   "id": "AAO-2026",
+   "short": "AAO",
+   "name": "American Academy of Ophthalmology",
+   "start": "2026-10-09",
+   "end": "2026-10-12",
+   "city": "New Orleans",
+   "kw": "안과 질환",
+   "confirmed": true
+  },
+  {
+   "id": "World-ADC-SD-2026",
+   "short": "World ADC SD",
+   "name": "World ADC San Diego",
+   "start": "2026-10-12",
+   "end": "2026-10-15",
+   "city": "San Diego",
+   "kw": "ADC",
+   "confirmed": false
+  },
+  {
+   "id": "ESMO-2026",
+   "short": "ESMO",
+   "name": "European Society for Medical Oncology",
+   "start": "2026-10-23",
+   "end": "2026-10-27",
+   "city": "Madrid",
+   "kw": "암 치료 최신 동향, 임상시험 결과",
+   "confirmed": true
+  },
+  {
+   "id": "CPHI-2026",
+   "short": "CPHI",
+   "name": "CPHI Worldwide (Frankfurt)",
+   "start": "2026-10-28",
+   "end": "2026-10-30",
+   "city": "Frankfurt",
+   "kw": "파트너링, CDMO",
+   "confirmed": false
+  },
+  {
+   "id": "TIDES-Europe-2026",
+   "short": "TIDES Europe",
+   "name": "Oligonucleotide & Peptide Therapeutics (TIDES) Europe",
+   "start": "2026-11-03",
+   "end": "2026-11-05",
+   "city": "Amsterdam",
+   "kw": "RNA, DNA, 펩타이드",
+   "confirmed": true
+  },
+  {
+   "id": "SITC-2026",
+   "short": "SITC",
+   "name": "Society for Immunotherapy of Cancer",
+   "start": "2026-11-04",
+   "end": "2026-11-08",
+   "city": "Phoenix",
+   "kw": "면역항암제",
+   "confirmed": true
+  },
+  {
+   "id": "AASLD-2026",
+   "short": "AASLD",
+   "name": "American Association for the Study of Liver Diseases",
+   "start": "2026-11-05",
+   "end": "2026-11-09",
+   "city": "Denver",
+   "kw": "간 질환, MASH",
+   "confirmed": true
+  },
+  {
+   "id": "ACR-2026",
+   "short": "ACR",
+   "name": "American College of Rheumatology Convergence",
+   "start": "2026-11-06",
+   "end": "2026-11-11",
+   "city": "Orlando",
+   "kw": "자가면역, 류마티스",
+   "confirmed": true
+  },
+  {
+   "id": "AHA-2026",
+   "short": "AHA",
+   "name": "American Heart Association Scientific Sessions",
+   "start": "2026-11-06",
+   "end": "2026-11-09",
+   "city": "Chicago",
+   "kw": "심혈관 질환",
+   "confirmed": true
+  },
+  {
+   "id": "ObesityWeek-2026",
+   "short": "ObesityWeek",
+   "name": "ObesityWeek",
+   "start": "2026-11-14",
+   "end": "2026-11-17",
+   "city": "National Harbor",
+   "kw": "비만",
+   "confirmed": true
+  },
+  {
+   "id": "SfN-2026",
+   "short": "SfN",
+   "name": "Society for Neuroscience",
+   "start": "2026-11-14",
+   "end": "2026-11-18",
+   "city": "Washington DC",
+   "kw": "뇌, 신경 질환",
+   "confirmed": true
+  },
+  {
+   "id": "CTAD-2026",
+   "short": "CTAD",
+   "name": "Clinical Trials on Alzheimer's Disease",
+   "start": "2026-11-16",
+   "end": "2026-11-19",
+   "city": "Boston",
+   "kw": "알츠하이머, 치매",
+   "confirmed": true
+  },
+  {
+   "id": "ENA-2026",
+   "short": "ENA",
+   "name": "EORTC-NCI-AACR Symposium",
+   "start": "2026-11-18",
+   "end": "2026-11-20",
+   "city": "Barcelona",
+   "kw": "암 치료 최신 동향, 임상시험 결과",
+   "confirmed": true
+  },
+  {
+   "id": "AES-2026",
+   "short": "AES",
+   "name": "American Epilepsy Society Annual Meeting",
+   "start": "2026-12-04",
+   "end": "2026-12-08",
+   "city": "Denver",
+   "kw": "뇌전증",
+   "confirmed": true
+  },
+  {
+   "id": "ASH-2026",
+   "short": "ASH",
+   "name": "American Society of Hematology",
+   "start": "2026-12-12",
+   "end": "2026-12-15",
+   "city": "New Orleans",
+   "kw": "혈액질환, 혈액암",
+   "confirmed": true
+  },
+  {
+   "id": "JPM-2027",
+   "short": "JPM",
+   "name": "J.P. Morgan Healthcare Conference",
+   "start": "2027-01-11",
+   "end": "2027-01-14",
+   "city": "San Francisco",
+   "kw": "바이오텍 투자, 제약산업 동향, 파트너링",
+   "confirmed": false
+  },
+  {
+   "id": "ASCO-GI-2027",
+   "short": "ASCO GI",
+   "name": "ASCO Gastrointestinal Cancers Symposium",
+   "start": "2027-01-21",
+   "end": "2027-01-23",
+   "city": "San Francisco",
+   "kw": "위암, 식도암, 대장암",
+   "confirmed": true
+  },
+  {
+   "id": "BIO-BIG-2027",
+   "short": "BIO BIG",
+   "name": "BIO Investment & Growth Summit (구 BIO CEO & Investor)",
+   "start": "2027-02-16",
+   "end": "2027-02-17",
+   "city": "Miami Beach",
+   "kw": "바이오텍 투자, 제약산업 동향",
+   "confirmed": false
+  },
+  {
+   "id": "AD-PD-2027",
+   "short": "AD/PD",
+   "name": "International Conference on Alzheimer's and Parkinson's Diseases",
+   "start": "2027-03-16",
+   "end": "2027-03-20",
+   "city": "Barcelona",
+   "kw": "알츠하이머, 파킨슨, 신경퇴행성질환",
+   "confirmed": true
+  },
+  {
+   "id": "ELCC-2027",
+   "short": "ELCC",
+   "name": "European Lung Cancer Congress",
+   "start": "2027-03-17",
+   "end": "2027-03-20",
+   "city": "Munich",
+   "kw": "폐암",
+   "confirmed": true
+  },
+  {
+   "id": "AACR-2027",
+   "short": "AACR",
+   "name": "American Association for Cancer Research",
+   "start": "2027-04-02",
+   "end": "2027-04-07",
+   "city": "Orlando",
+   "kw": "암 치료 최신 동향, 임상시험 결과",
+   "confirmed": false
+  },
+  {
+   "id": "ACC-2027",
+   "short": "ACC",
+   "name": "American College of Cardiology",
+   "start": "2027-04-10",
+   "end": "2027-04-12",
+   "city": "Houston",
+   "kw": "심혈관 질환",
+   "confirmed": true
+  },
+  {
+   "id": "AAN-2027",
+   "short": "AAN",
+   "name": "American Academy of Neurology",
+   "start": "2027-05-01",
+   "end": "2027-05-05",
+   "city": "Washington DC",
+   "kw": "신경과학, 뇌질환, 신경퇴행성질환",
+   "confirmed": true
+  },
+  {
+   "id": "ASGCT-2027",
+   "short": "ASGCT",
+   "name": "American Society of Gene and Cell Therapy",
+   "start": "2027-05-03",
+   "end": "2027-05-07",
+   "city": "Philadelphia",
+   "kw": "세포, 유전자 치료제, 희귀질환",
+   "confirmed": true
+  },
+  {
+   "id": "ASCO-2027",
+   "short": "ASCO",
+   "name": "American Society of Clinical Oncology",
+   "start": "2027-06-04",
+   "end": "2027-06-08",
+   "city": "Chicago",
+   "kw": "암 치료 최신 동향, 임상시험 결과",
+   "confirmed": true
+  },
+  {
+   "id": "BIO-USA-2027",
+   "short": "BIO USA",
+   "name": "BIO International Convention",
+   "start": "2027-06-07",
+   "end": "2027-06-10",
+   "city": "Philadelphia",
+   "kw": "파트너링, CDMO",
+   "confirmed": false
+  },
+  {
+   "id": "EULAR-2027",
+   "short": "EULAR",
+   "name": "European Alliance of Associations for Rheumatology",
+   "start": "2027-06-09",
+   "end": "2027-06-12",
+   "city": "Berlin",
+   "kw": "자가면역, 류마티스, 염증성 질환",
+   "confirmed": true
+  },
+  {
+   "id": "EHA-2027",
+   "short": "EHA",
+   "name": "European Hematology Association",
+   "start": "2027-06-10",
+   "end": "2027-06-13",
+   "city": "Barcelona",
+   "kw": "혈액질환, 조혈모세포 이식, 혈액암",
+   "confirmed": true
+  },
+  {
+   "id": "EASL-2027",
+   "short": "EASL",
+   "name": "European Association for the Study of the Liver",
+   "start": "2027-06-16",
+   "end": "2027-06-19",
+   "city": "London",
+   "kw": "간 질환, MASH, 간암, 간섬유화",
+   "confirmed": true
+  },
+  {
+   "id": "ADA-2027",
+   "short": "ADA",
+   "name": "American Diabetes Association",
+   "start": "2027-06-18",
+   "end": "2027-06-21",
+   "city": "Washington DC",
+   "kw": "당뇨, 비만, 대사질환",
+   "confirmed": true
+  },
+  {
+   "id": "AAIC-2027",
+   "short": "AAIC",
+   "name": "Alzheimer's Association International Conference",
+   "start": "2027-07-18",
+   "end": "2027-07-21",
+   "city": "Chicago",
+   "kw": "알츠하이머, 치매",
+   "confirmed": true
+  },
+  {
+   "id": "ESC-2027",
+   "short": "ESC",
+   "name": "European Society of Cardiology",
+   "start": "2027-08-27",
+   "end": "2027-08-30",
+   "city": "Milan",
+   "kw": "심혈관 질환",
+   "confirmed": true
+  },
+  {
+   "id": "WCLC-2027",
+   "short": "WCLC",
+   "name": "IASLC World Conference on Lung Cancer",
+   "start": "2027-09-11",
+   "end": "2027-09-14",
+   "city": "Denver",
+   "kw": "폐암",
+   "confirmed": false
+  },
+  {
+   "id": "ESMO-2027",
+   "short": "ESMO",
+   "name": "European Society for Medical Oncology",
+   "start": "2027-09-17",
+   "end": "2027-09-21",
+   "city": "Barcelona",
+   "kw": "암 치료 최신 동향, 임상시험 결과",
+   "confirmed": false
+  },
+  {
+   "id": "EASD-2027",
+   "short": "EASD",
+   "name": "European Association for the Study of Diabetes",
+   "start": "2027-09-21",
+   "end": "2027-09-24",
+   "city": "Budapest",
+   "kw": "당뇨, 비만",
+   "confirmed": true
+  },
+  {
+   "id": "WCN-2027",
+   "short": "WCN",
+   "name": "World Congress of Neurology",
+   "start": "2027-10-23",
+   "end": "2027-10-25",
+   "city": "Cape Town",
+   "kw": "신경과학, 뇌질환, 신경계 치료법",
+   "confirmed": false
+  },
+  {
+   "id": "SfN-2027",
+   "short": "SfN",
+   "name": "Society for Neuroscience",
+   "start": "2027-10-23",
+   "end": "2027-10-27",
+   "city": "Chicago",
+   "kw": "뇌, 신경 질환",
+   "confirmed": true
+  },
+  {
+   "id": "SITC-2027",
+   "short": "SITC",
+   "name": "Society for Immunotherapy of Cancer",
+   "start": "2027-11-03",
+   "end": "2027-11-07",
+   "city": "National Harbor",
+   "kw": "면역항암제",
+   "confirmed": true
+  },
+  {
+   "id": "AAO-2027",
+   "short": "AAO",
+   "name": "American Academy of Ophthalmology",
+   "start": "2027-11-12",
+   "end": "2027-11-15",
+   "city": "Las Vegas",
+   "kw": "안과 질환",
+   "confirmed": false
+  },
+  {
+   "id": "ObesityWeek-2027",
+   "short": "ObesityWeek",
+   "name": "ObesityWeek",
+   "start": "2027-11-14",
+   "end": "2027-11-17",
+   "city": "",
+   "kw": "비만",
+   "confirmed": false
+  },
+  {
+   "id": "AES-2027",
+   "short": "AES",
+   "name": "American Epilepsy Society Annual Meeting",
+   "start": "2027-12-03",
+   "end": "2027-12-07",
+   "city": "Baltimore",
+   "kw": "뇌전증",
+   "confirmed": false
+  }
+ ]
+}
