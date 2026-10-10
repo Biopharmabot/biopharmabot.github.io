@@ -415,7 +415,10 @@ svg.sp{width:66px;height:20px;display:block}
   function tkOf(e){return new Set(e.tk.map(t=>t.toUpperCase()));}
   const tkRe=t=>new RegExp("(?:\\(|\\b(?:nasdaq|nyse|nyse american|tsx|asx)[:\\s]+)"+t.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\b","i");
   const COMMON_CORE=new Set("assembly atrium aura beam bicycle castle century clarity climb cogent compass context crispr design disc edgewise fate fulcrum grail harmony harrow heron innate jade jazz kodiak legend lexicon ligand mane maze milestone odyssey outlook perspective precision prevail prime rapport relay revolution rhythm rocket scribe seaport silence skye solid spruce spyglass stoke structure summit tango tris turn twist united upstream vertex viking voyager waters werewolf zealand denali gossamer ironwood".split(" "));
-  function matchNews(e,x){const hay=[x.title,x.headline,x.summary].join(" ");const low=hay.toLowerCase();
+  function matchNews(e,x){
+    /* [rss v59~] 봇이 기사 당사자 티커(tickers)를 붙여 주면 그것만으로 판정 — 문맥을 읽고 붙인 값이라 가장 정확 */
+    if(Array.isArray(x.tickers)&&x.tickers.length){const T=x.tickers.map(t=>String(t).toUpperCase());return e.tk.some(t=>T.includes(String(t).toUpperCase())||T.includes(String(t).split(" ")[0].toUpperCase()))||(!!e.krx&&T.includes(e.krx));}
+    const hay=[x.title,x.headline,x.summary].join(" ");const low=hay.toLowerCase();
     /* 회사명 매칭(2026-10-10 수정): 단어 경계로만 찾고, 'structure'·'summit'처럼 일반 영어 단어인 한 단어 이름은
        'Structure Therapeutics' 같은 전체 이름이 나올 때만 인정 — 'capital structure' 기사에 엉뚱한 회사가 붙던 문제 */
     const esc_=w=>w.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");const wb=w=>new RegExp("(^|[^a-z0-9])"+esc_(w)+"($|[^a-z0-9])","i");
