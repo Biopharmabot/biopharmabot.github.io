@@ -13,6 +13,7 @@
   --bg:#f7f7f5; --fg:#181817; --mute:#6b6b66; --line:#d9d9d4; --panel:#ffffff; --panel2:#efefeb; --panel3:#e4e4de;
   --up:#1f6f3f; --down:#b3261e; --hi:#b3261e; --mid:#8a6d00; --accent:#181817; --bar:#8f8f89; --acc:#2f5fa8;
   --g-approval:#b3261e; --g-earnings:#2f5fa8; --g-meeting:#6a4fb3; --g-readout:#1f6f3f; --g-trial:#c27a1a; --g-etc:#8f8f89;
+  --cbar:#dfe7f5; --cbar-fg:#2b3a55; --cbar-past:#ececea; --cbar-past-fg:#7a7a75;
   --sans:"IBM Plex Sans KR",system-ui,-apple-system,"Segoe UI","Malgun Gothic",sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
   color-scheme:light;
@@ -20,11 +21,13 @@
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#111110; --fg:#ececea; --mute:#8f8f89; --line:#2c2c2a; --panel:#181817; --panel2:#1f1f1d; --panel3:#2a2a27;
   --up:#4cc27a; --down:#ff6b5e; --hi:#ff6b5e; --mid:#e2b93b; --accent:#ececea; --bar:#6e6e69; --acc:#7da2e6;
-  --g-approval:#ff6b5e; --g-earnings:#7da2e6; --g-meeting:#b39ddb; --g-readout:#4cc27a; --g-trial:#e8a04a; --g-etc:#8c8c86; color-scheme:dark}}
+  --g-approval:#ff6b5e; --g-earnings:#7da2e6; --g-meeting:#b39ddb; --g-readout:#4cc27a; --g-trial:#e8a04a; --g-etc:#8c8c86;
+  --cbar:#2a3a55; --cbar-fg:#c9d6ee; --cbar-past:#262624; --cbar-past-fg:#8c8c86; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#111110; --fg:#ececea; --mute:#8f8f89; --line:#2c2c2a; --panel:#181817; --panel2:#1f1f1d; --panel3:#2a2a27;
   --up:#4cc27a; --down:#ff6b5e; --hi:#ff6b5e; --mid:#e2b93b; --accent:#ececea; --bar:#6e6e69; --acc:#7da2e6;
-  --g-approval:#ff6b5e; --g-earnings:#7da2e6; --g-meeting:#b39ddb; --g-readout:#4cc27a; --g-trial:#e8a04a; --g-etc:#8c8c86; color-scheme:dark}
+  --g-approval:#ff6b5e; --g-earnings:#7da2e6; --g-meeting:#b39ddb; --g-readout:#4cc27a; --g-trial:#e8a04a; --g-etc:#8c8c86;
+  --cbar:#2a3a55; --cbar-fg:#c9d6ee; --cbar-past:#262624; --cbar-past-fg:#8c8c86; color-scheme:dark}
 *{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:14px;line-height:1.45;padding-inline:16px;padding-block:0 60px;max-width:1120px;margin:0 auto}
@@ -220,9 +223,10 @@ svg.spark{width:100%;height:56px;display:block}
 .mg{margin:8px 0 4px}
 .mg .wdr,.mg .wk{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
 .mg .wk{position:relative;margin-top:3px}
-.cbar{position:absolute;height:14px;line-height:14px;font-size:10px;padding:0 5px;border-radius:3px;background:var(--fg);color:var(--bg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:auto;cursor:default}
-.cbar span{opacity:.7;font-weight:400}
-.cbar.past{background:var(--bar)}
+.cbar{position:absolute;height:14px;line-height:14px;font-size:10px;padding:0 5px;border-radius:3px;background:var(--cbar);color:var(--cbar-fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:auto;cursor:default}
+.cbar b{font-weight:600}
+.cbar span{opacity:.75;font-weight:400}
+.cbar.past{background:var(--cbar-past);color:var(--cbar-past-fg)}
 .mg .wd{font-size:10px;color:var(--mute);text-align:center;font-family:var(--mono);padding:2px 0}
 .mg .dc{min-height:96px;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:3px 5px;font-size:11px;cursor:pointer;min-width:0}
 .mg .dc.o{opacity:.45} .mg .dc.td{border-color:var(--fg)} .mg .dc.sel{background:var(--panel2);border-color:var(--fg)}
@@ -294,7 +298,6 @@ svg.sp{width:66px;height:20px;display:block}
     <button role="tab" data-k="news">Newsflow</button>
     <button role="tab" data-k="trials">Clinical Trials</button>
     <button role="tab" data-k="cal">Catalysts</button>
-    <button role="tab" data-k="conf">Conferences</button>
     <button role="tab" data-k="hedge">13F Holdings</button>
   </div>
 </div>
@@ -311,7 +314,7 @@ svg.sp{width:66px;height:20px;display:block}
 (function(){
   const BASE=/[?&]feed=local/.test(location.search)?"devfeed/":"https://storage.googleapis.com/biopharmabot-public/feed/";
   const $=id=>document.getElementById(id);
-  const KINDS={home:"개요",news:"뉴스",dart:"DART",trials:"임상",market:"US 헬스케어",macro:"글로벌마켓",hedge:"헷지펀드",cal:"캘린더",conf:"학회"};   // trend 탭 제거(2026-10-10)
+  const KINDS={home:"개요",news:"뉴스",dart:"DART",trials:"임상",market:"US 헬스케어",macro:"글로벌마켓",hedge:"헷지펀드",cal:"캘린더"};   // trend 탭 제거(2026-10-10)
   const CATS={news:["임상시험","딜","펀딩","규제","정책","실적","기타"],dart:[],trials:["change"]};
   // Clinical Trials 탭: 데이터 소스 = 임상시험 결과(rss 봇 심층분석, feed clinical) 또는 임상시험 변동(ctgov 봇, feed trials). 2026-10-10
   const srcKind=()=>tab==="trials"?(cat==="change"?"trials":cat==="result"?"clinical":"both"):tab;
@@ -333,7 +336,7 @@ svg.sp{width:66px;height:20px;display:block}
   const SRC={hub:"Hub",bb:"BB",both:"Hub+BB"};
   const FUNDS=["Baker Bros","RA Capital","Orbimed","RTW","Avoro","Deerfield","Perceptive","Deep Track"];
   let tab="home", data={news:[],dart:[],trials:[],clinical:[],market:null,macro:null}, loadedDays={news:[],dart:[],trials:[],clinical:[]}, q="", cat="ALL", rel="ALL";
-  let hedge=null, cal=null, bb=null, comps=[], view="time", scY="ret_1m", scX="wtd", calMonth=null, calDay=null, conf=null, confYear=null, calF={region:"ALL",imp:{high:true,medium:true,low:false},grp:{readout:true,trial:true,meeting:true,approval:true,etc:true,earnings:true},q:"",src:{hub:true,bb:true}}, hBasis="shares", sortState={}, trendDays=null,kw=null;
+  let hedge=null, cal=null, bb=null, comps=[], view="time", scY="ret_1m", scX="wtd", calMonth=null, calDay=null, conf=null, confYear=null, calView="cal", calF={region:"ALL",imp:{high:true,medium:true,low:false},grp:{readout:true,trial:true,meeting:true,approval:true,etc:true,earnings:true},q:"",src:{hub:true,bb:true}}, hBasis="shares", sortState={}, trendDays=null,kw=null;
   const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
   const fmtPct=v=>v==null||!isFinite(v)?"—":(v>0?"+":"")+Number(v).toFixed(2)+"%";
   const fmtW=v=>v==null?"—":(v*100).toFixed(1)+"%";
@@ -344,7 +347,7 @@ svg.sp{width:66px;height:20px;display:block}
   const dayOf=ts=>{const d=new Date(ts);return isNaN(d)?"":d.toLocaleDateString("sv-SE",{timeZone:"Asia/Seoul"});};
   const kstToday=(off=0)=>new Date(Date.now()+9*3600e3-off*864e5).toISOString().slice(0,10);
   const fmtTs=ts=>ts?new Date(ts).toLocaleString("ko-KR",{month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit",hour12:false,timeZone:"Asia/Seoul"}):"—";
-  try{const t=localStorage.getItem("bpb.theme");if(t)document.documentElement.dataset.theme=t;const h=location.hash.slice(1).split("&")[0];if(KINDS[h])tab=h;}catch(e){}
+  try{const t=localStorage.getItem("bpb.theme");if(t)document.documentElement.dataset.theme=t;const h=location.hash.slice(1).split("&")[0];if(KINDS[h])tab=h;else if(h==="conf"){tab="cal";calView="conf";}}catch(e){}
   $("theme").onclick=()=>{const cur=document.documentElement.dataset.theme||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light");const next=cur==="dark"?"light":"dark";document.documentElement.dataset.theme=next;try{localStorage.setItem("bpb.theme",next)}catch(e){}};
 
   /* ───────── data ───────── */
@@ -455,8 +458,7 @@ svg.sp{width:66px;height:20px;display:block}
   function renderFilters(){
     const f=$("filters");
     if(["home","market","macro","hedge"].includes(tab)){f.innerHTML="";return;}
-    if(tab==="conf"){renderConfFilters();return;}
-    if(tab==="cal"){renderCalFilters();return;}
+    if(tab==="cal"){if(calView==="conf")renderConfFilters();else renderCalFilters();return;}
     const cats=CATS[tab];
     let h=tab==="trials"?`<button class="chip" type="button" data-cat="ALL" aria-pressed="${cat==="ALL"}">전체</button><button class="chip" type="button" data-cat="result" aria-pressed="${cat==="result"}">임상시험 결과</button><button class="chip" type="button" data-cat="change" aria-pressed="${cat==="change"}">임상시험 변동</button>`
       :`<button class="chip" type="button" data-cat="ALL" aria-pressed="${cat==="ALL"}">전체</button>`+cats.map(c=>`<button class="chip" type="button" data-cat="${c}" aria-pressed="${cat===c}">${c}</button>`).join("");
@@ -670,8 +672,9 @@ svg.sp{width:66px;height:20px;display:block}
   /* ───────── calendar ───────── */
   function renderCalFilters(){
     const f=$("filters");if(!cal&&!bb){f.innerHTML="";return;}
-    f.innerHTML=`${["ALL","GLOBAL","KR"].map(r=>`<button class="chip" data-r="${r}" aria-pressed="${calF.region===r}">${r==="ALL"?"전체":r==="KR"?"국내":"글로벌"}</button>`).join("")}<span class="sep"></span>${["high","medium","low"].map(i=>`<button class="chip" data-i="${i}" aria-pressed="${calF.imp[i]}">${i==="high"?"HIGH":i==="medium"?"MID":"LOW"}</button>`).join("")}<span class="sep"></span>${CT_GROUP.map(([k,l])=>`<button class="chip" data-g="${k}" aria-pressed="${calF.grp[k]}"><i class="g-${k}"></i>${l}</button>`).join("")}<input id="cq" type="search" placeholder="회사·약물·적응증·티커 검색" value="${esc(calF.q)}"><span class="r" id="cnt"></span>`;
+    f.innerHTML=`${viewChips()}<span class="sep"></span>${["ALL","GLOBAL","KR"].map(r=>`<button class="chip" data-r="${r}" aria-pressed="${calF.region===r}">${r==="ALL"?"전체":r==="KR"?"국내":"글로벌"}</button>`).join("")}<span class="sep"></span>${["high","medium","low"].map(i=>`<button class="chip" data-i="${i}" aria-pressed="${calF.imp[i]}">${i==="high"?"HIGH":i==="medium"?"MID":"LOW"}</button>`).join("")}<span class="sep"></span>${CT_GROUP.map(([k,l])=>`<button class="chip" data-g="${k}" aria-pressed="${calF.grp[k]}"><i class="g-${k}"></i>${l}</button>`).join("")}<input id="cq" type="search" placeholder="회사·약물·적응증·티커 검색" value="${esc(calF.q)}"><span class="r" id="cnt"></span>`;
     f.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{calF.src[b.dataset.s]=!calF.src[b.dataset.s];render();});
+    bindViewChips(f);
     f.querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>{calF.region=b.dataset.r;render();});
     f.querySelectorAll("[data-i]").forEach(b=>b.onclick=()=>{calF.imp[b.dataset.i]=!calF.imp[b.dataset.i];render();});
     f.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{calF.grp[b.dataset.g]=!calF.grp[b.dataset.g];render();});
@@ -699,8 +702,8 @@ svg.sp{width:66px;height:20px;display:block}
       const pad=lanes.length?16+lanes.length*17:0;
       let cells="";
       for(let i=0;i<7;i++){const d=new Date(d0.getTime()+i*864e5);const k=iso(d);const inM=k.slice(0,7)===calMonth;const ev=byDay.get(k)||[];
-        cells+=`<div class="dc ${inM?"":"o"} ${k===today?"td":""} ${calDay===k?"sel":""}" data-day="${k}" title="${k} · ${ev.length}건" style="padding-top:${3+pad}px"><div class="d">${d.getUTCDate()}</div>${ev.slice(0,5).map(c=>`<div class="e"><i class="g-${CT_GROUP_OF[c.type]||"etc"}"></i>${esc(c.sponsor.split(" / ")[0])} ${esc(c.asset)}</div>`).join("")}${ev.length>5?`<div class="mo">+${ev.length-5}</div>`:""}</div>`;}
-      const bars=segs.map(sg=>`<div class="cbar ${sg.c.end<today?"past":""}" style="top:${18+sg.lane*17}px;left:calc(${sg.s0}/7*100% + 2px);width:calc(${sg.e0-sg.s0+1}/7*100% - 4px)" title="${esc(sg.c.name)} · ${esc(sg.c.start)}~${esc(sg.c.end)}${sg.c.city?" · "+esc(sg.c.city):""}">${esc(sg.c.short)}${sg.c.city?` <span>${esc(sg.c.city)}</span>`:""}</div>`).join("");
+        cells+=`<div class="dc ${inM?"":"o"} ${k===today?"td":""} ${calDay===k?"sel":""}" data-day="${k}" title="${k} · ${ev.length}건" style="padding-top:${3+pad}px;min-height:${96+pad}px"><div class="d">${d.getUTCDate()}</div>${ev.slice(0,5).map(c=>`<div class="e"><i class="g-${CT_GROUP_OF[c.type]||"etc"}"></i>${esc(c.sponsor.split(" / ")[0])} ${esc(c.asset)}</div>`).join("")}${ev.length>5?`<div class="mo">+${ev.length-5}</div>`:""}</div>`;}
+      const bars=segs.map(sg=>`<div class="cbar ${sg.c.end<today?"past":""}" style="top:${18+sg.lane*17}px;left:calc(${sg.s0}/7*100% + 2px);width:calc(${sg.e0-sg.s0+1}/7*100% - 4px)" title="${esc(sg.c.name)} · ${esc(sg.c.start)}~${esc(sg.c.end)}${sg.c.city?" · "+esc(sg.c.city):""}"><b>${esc(sg.c.short)}</b> ${esc(sg.c.name)}${sg.c.city?` <span>· ${esc(sg.c.city)}</span>`:""}</div>`).join("");
       weeks+=`<div class="wk">${cells}${bars}</div>`;
     }
     const pm=new Date(Date.UTC(yy,mm-2,1)).toISOString().slice(0,7),nm=new Date(Date.UTC(yy,mm,1)).toISOString().slice(0,7);
@@ -708,18 +711,21 @@ svg.sp{width:66px;height:20px;display:block}
   }
 
   /* ───────── conferences ───────── */
+  const viewChips=()=>`<button class="chip" data-v="cal" aria-pressed="${calView==="cal"}">카탈리스트</button><button class="chip" data-v="conf" aria-pressed="${calView==="conf"}">학회 일정</button>`;
+  const bindViewChips=f=>f.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>{calView=b.dataset.v;render();});
   function confYears(){return [...new Set((conf?conf.items:[]).map(c=>c.start.slice(0,4)))].sort();}
   function renderConfFilters(){
     const f=$("filters");const ys=confYears();if(!ys.length){f.innerHTML="";return;}
     if(!confYear||!ys.includes(confYear))confYear=ys.includes(kstToday().slice(0,4))?kstToday().slice(0,4):ys[0];
-    f.innerHTML=ys.map(y=>`<button class="chip" data-y="${y}" aria-pressed="${confYear===y}">${y}</button>`).join("");
+    f.innerHTML=viewChips()+`<span class="sep"></span>`+ys.map(y=>`<button class="chip" data-y="${y}" aria-pressed="${confYear===y}">${y}</button>`).join("");
+    bindViewChips(f);
     f.querySelectorAll("[data-y]").forEach(b=>b.onclick=()=>{confYear=b.dataset.y;render();});
   }
   function renderConf(){
     const v=$("view");if(!conf){v.innerHTML=`<div class="empty">학회 일정 데이터를 읽지 못했습니다.</div>`;return;}
     const today=kstToday();const items=conf.items.filter(c=>c.start.slice(0,4)===confYear);
     const fmt=(s,e)=>`${s.slice(5)} ~ ${e.slice(5)}`;
-    let h=`<div class="hdr"><b>Conferences</b><span class="sub">${esc(confYear)}년 · ${items.length}건 · 업데이트 ${esc(conf.generated)}</span></div><div class="cal conf">`;
+    let h=`<div class="hdr"><b>Catalysts</b><span class="sub">학회 일정 ${esc(confYear)}년 · ${items.length}건 · 업데이트 ${esc(conf.generated)}</span></div><div class="cal conf">`;
     let mo="";
     items.forEach(c=>{const m=c.start.slice(0,7);if(m!==mo){mo=m;h+=`<div class="mo" style="margin-top:16px"><span>${+m.slice(5)}월</span><span>${items.filter(x=>x.start.slice(0,7)===m).length}건</span></div>`;}
       const past=c.end<today,live=c.start<=today&&today<=c.end;
@@ -877,7 +883,7 @@ svg.sp{width:66px;height:20px;display:block}
   ji.onblur=()=>setTimeout(()=>jl.hidden=true,150);
 
   function render(){renderTabs();renderStrip();renderFilters();
-    if(tab==="home")renderHome();else if(tab==="market")renderMarket();else if(tab==="macro")renderMacro();else if(tab==="hedge")renderHedge();else if(tab==="cal")renderCal();else if(tab==="conf")renderConf();else renderList();}
+    if(tab==="home")renderHome();else if(tab==="market")renderMarket();else if(tab==="macro")renderMacro();else if(tab==="hedge")renderHedge();else if(tab==="cal"){if(calView==="conf")renderConf();else renderCal();}else renderList();}
 
   render();
   Promise.all([loadStatic(),loadLatest()]).then(()=>{buildCompanyIndex();render();const m=location.hash.match(/[#&]co=([^&]+)/);if(m)openCompany(decodeURIComponent(m[1]));});
