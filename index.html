@@ -215,7 +215,7 @@ svg.spark{width:100%;height:56px;display:block}
 /* month grid */
 .mg{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;margin:8px 0 4px}
 .mg .wd{font-size:10px;color:var(--mute);text-align:center;font-family:var(--mono);padding:2px 0}
-.mg .dc{min-height:58px;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:3px 5px;font-size:11px;cursor:pointer;min-width:0}
+.mg .dc{min-height:96px;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:3px 5px;font-size:11px;cursor:pointer;min-width:0}
 .mg .dc.o{opacity:.45} .mg .dc.td{border-color:var(--fg)} .mg .dc.sel{background:var(--panel2);border-color:var(--fg)}
 .mg .dc .d{font-family:var(--mono);color:var(--mute);font-size:10px}
 .mg .dc .e{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35}
@@ -671,7 +671,7 @@ svg.sp{width:66px;height:20px;display:block}
     const byDay=new Map();list.filter(isDated).forEach(c=>{const k=c.sort;if(!byDay.has(k))byDay.set(k,[]);byDay.get(k).push(c);});
     let cells="";for(let i=0;i<42;i++){const d=new Date(start.getTime()+i*864e5);const iso=d.toISOString().slice(0,10);const inM=iso.slice(0,7)===calMonth;const ev=byDay.get(iso)||[];
       if(i===35&&!inM)break;
-      cells+=`<div class="dc ${inM?"":"o"} ${iso===today?"td":""} ${calDay===iso?"sel":""}" data-day="${iso}" title="${iso} · ${ev.length}건"><div class="d">${d.getUTCDate()}</div>${ev.slice(0,3).map(c=>`<div class="e"><i class="${c.imp==="high"?"hi":c.imp==="medium"?"mid":""}"></i>${esc(c.sponsor.split(" / ")[0])} ${esc(c.asset)}</div>`).join("")}${ev.length>3?`<div class="mo">+${ev.length-3}</div>`:""}</div>`;}
+      cells+=`<div class="dc ${inM?"":"o"} ${iso===today?"td":""} ${calDay===iso?"sel":""}" data-day="${iso}" title="${iso} · ${ev.length}건"><div class="d">${d.getUTCDate()}</div>${ev.slice(0,5).map(c=>`<div class="e"><i class="${c.imp==="high"?"hi":c.imp==="medium"?"mid":""}"></i>${esc(c.sponsor.split(" / ")[0])} ${esc(c.asset)}</div>`).join("")}${ev.length>5?`<div class="mo">+${ev.length-5}</div>`:""}</div>`;}
     const pm=new Date(Date.UTC(yy,mm-2,1)).toISOString().slice(0,7),nm=new Date(Date.UTC(yy,mm,1)).toISOString().slice(0,7);
     return`<div class="mnav"><button data-m="${pm}">‹</button><b>${yy}년 ${mm}월</b><button data-m="${nm}">›</button>${calDay?`<button data-m="clear">${calDay} 선택 해제</button>`:""}<span class="note" style="margin:0 0 0 auto">날짜를 누르면 그 날만 · 점 색 = 중요도</span></div><div class="mg">${["일","월","화","수","목","금","토"].map(w=>`<div class="wd">${w}</div>`).join("")}${cells}</div>`;
   }
