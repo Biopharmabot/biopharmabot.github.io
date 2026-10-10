@@ -814,7 +814,7 @@ svg.sp{width:66px;height:20px;display:block}
     const wl=(()=>{if(!m||!m.stocks)return[];const d30=kstToday(-30);
       const cats=calAll().filter(c=>isDated(c)&&c.imp==="high"&&c.type!=="earnings"&&c.sort>=today&&c.sort<=d30);
       const wg=(hedge&&hedge.groups&&hedge.groups.weight)||{};const hfUp=new Set([...(wg.new||[]),...(wg.add||[])].flatMap(r=>r.items||[]));
-      return m.stocks.filter(st=>st.mcap&&st.mcap>=200e6&&st.mcap<=20e9).map(st=>{const tags=[];let main=0,sub=0;   /* 시총 $200M~$20B(대형 제약은 인수 주체·초소형 제외). ★ 로컬 실험실 D:/NEWS/watchlab 의 S0_bpb_watchlist 와 항상 같은 규칙 유지 (2026-10-10 사용자) */
+      return m.stocks.filter(st=>st.mcap&&st.mcap>=300e6&&st.mcap<=30e9).map(st=>{const tags=[];let main=0,sub=0;   /* 시총 $300M~$30B(헬스케어 포트폴리오 전 전략 공통 유니버스). ★ 로컬 실험실 D:/NEWS/watchlab 의 S0_bpb_watchlist 와 항상 같은 규칙 유지 (2026-10-10 사용자) */
         const c=cats.filter(c=>(c.tk||[]).some(t=>t.split(" ")[0].toUpperCase()===st.ticker)).sort((a,b)=>a.sort<b.sort?-1:1)[0];
         if(c){main++;const n=Math.round((new Date(c.sort)-new Date(today))/864e5);tags.push(`${CT_TYPE[c.type]||c.type} ${n?"D-"+n:"D-day"}`);}
         const up=st.tgt&&st.n_an>=2&&st.close?(st.tgt/st.close-1)*100:null;
