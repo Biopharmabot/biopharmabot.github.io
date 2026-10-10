@@ -813,8 +813,16 @@ svg.sp{width:66px;height:20px;display:block}
        정렬 = 주 신호 수 → 카탈리스트 보유 → 보조 신호 수 → 업사이드. 주 신호 1개 이상인 종목 중 상위 10개 */
     /* 바이오파마봇 Watch List v3 (2026-10-10 사용자 확정). ★ 로컬 실험실 D:/NEWS/watchlab 의 S0_bpb_watchlist 와 항상 같은 규칙.
        대상: 시총 $300M~$30B · 필수 ① HIGH 카탈리스트(실적 제외) 30일 이내 우선, 없으면 90일 이내 ② 평균 목표가 업사이드 ≥ 50%(애널리스트 2명 이상, 상한 없음)
-       가점: 급등 +5% 또는 거래량 2배+상승 · 13F 비중 확대
+       가점: 매수 구간 진입(buyZone — 돌파·눌림목·반등, 추격 구간 제외) · 13F 비중 확대
        정렬: 카탈리스트 30일 이내 → 수급 신호 → 13F → 업사이드, 상위 10 */
+    /* 교과서적 매수 구간(2026-10-10 사용자 확정). 추격 구간(RSI≥75 또는 1M≥+50%)은 제외.
+       돌파: 52주 고점 -3% 이내 + 상승일 + 거래량 1.5배 이상
+       눌림목: 50일선 위·50일선 상승 + 20일선 ±3% + RSI 40~60 + 상승일
+       반등: 10일 내 RSI ≤35 → 지금 ≥40·상승 + 20일선 회복 */
+    const buyZone=st=>{const rsi=st.rsi14,c=st.chg_pct||0;if(rsi==null)return"";if(rsi>=75||(st.ret_1m||0)>=50)return"";
+      if((st.from_hi52??-99)>=-3&&c>0&&(st.vol_ratio||0)>=1.5)return"돌파";
+      const s50=st.ma50_slope??st.ma20_slope;if((st.ma50_gap??-1)>0&&(s50??-1)>0&&Math.abs(st.ma20_gap??99)<=3&&rsi>=40&&rsi<=60&&c>0)return"눌림목";
+      if(st.rsi_min10!=null&&st.rsi_min10<=35&&rsi>=40&&(st.rsi_prev5==null||rsi>st.rsi_prev5)&&(st.ma20_gap??-1)>0)return"반등";return"";};
     const wlName=(e,st)=>{const first=(e.name||"").split(/[\s/,]+/)[0].toUpperCase();return e.name&&!/\//.test(e.name)&&first.length>=3&&st.name.toUpperCase().includes(first)?(e.name===e.name.toUpperCase()?e.name.toLowerCase().replace(/([a-z])/g,c=>c.toUpperCase()):e.name):st.name.toLowerCase().replace(/([a-z])/g,c=>c.toUpperCase()).replace(/(Inc|Corp|Plc|Ltd|Co)\.?/g,m=>m);};
     const wl=(()=>{if(!m||!m.stocks)return[];const d90=kstToday(-90),d30=kstToday(-30);
       const cats=calAll().filter(c=>isDated(c)&&c.imp==="high"&&c.type!=="earnings"&&c.sort>=today&&c.sort<=d90);
@@ -826,7 +834,7 @@ svg.sp{width:66px;height:20px;display:block}
         tags.push(`${CT_TYPE[c.type]||c.type} ${n?"D-"+n:"D-day"}`);
         const up=st.tgt&&st.n_an>=2&&st.close?(st.tgt/st.close-1)*100:null;
         if(up==null||up<50)return null;tags.push("업사이드");
-        if(st.chg_pct>=5){sig++;tags.push("급등");}else if((st.vol_ratio||0)>=2&&st.chg_pct>0){sig++;tags.push(`거래량 ${st.vol_ratio.toFixed(1)}×`);}
+        const bz=buyZone(st);if(bz){sig++;tags.push(bz);}
         if(hfUp.has(st.ticker)){sub++;tags.push("13F 확대");}
         return{st,e:findCompany(st.ticker)||{name:st.name,tk:[st.ticker]},tags,sig,sub,near:c.sort<=d30?1:0,up:up??-1};
       }).filter(Boolean).sort((a,b)=>b.near-a.near||b.sig-a.sig||b.sub-a.sub||b.up-a.up).slice(0,10);})();
