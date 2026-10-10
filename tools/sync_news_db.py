@@ -71,7 +71,8 @@ def sync_ctgov(con, pub_bucket):
             name = os.path.basename(blob.name)
             if not name.endswith(".json") or name == "latest.json":
                 continue
-            if name in have and name != "kr_sector_hist.json":
+            recent_days = {(dt.datetime.now(KST).date() - dt.timedelta(days=i)).isoformat() + ".json" for i in range(4)}
+            if name in have and name != "kr_sector_hist.json" and name not in recent_days:   # 최근 4일치는 재실행·필드 추가가 있을 수 있어 매번 다시 받음
                 continue
             blob.download_to_filename(os.path.join(kdir, name)); n += 1
         print(f"[feed] {kind}: 새 파일 {n}개 → {kdir} (총 {len(os.listdir(kdir))}개)")
