@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Hub catalyst 테이블(D:\\Hub\\hub.sqlite) → data/catalyst.json · 회사 매핑 → data/companies.json
 사용: python tools/export_catalyst.py
-- catalyst: status upcoming/imminent. expected_date는 YYYY-MM-DD·YYYY-MM·YYYY-Qn·YYYY-Hn·YYYY·(미상) 혼재라
+- catalyst: status upcoming/imminent, **region KR 제외**(2026-10-10 사용자 결정: 국내 저술은 내부 평가용, 공개 안 함). expected_date는 YYYY-MM-DD·YYYY-MM·YYYY-Qn·YYYY-Hn·YYYY·(미상) 혼재라
   정렬키(sort)·정밀도(prec)를 붙인다. 예정일이 45일 넘게 지난 것은 상태 미갱신분으로 보고 뺀다.
 - companies: Hub company(krx·bloomberg 있는 것) + bots/daily/tickers.csv(미국 300여 종목).
   페이지의 종목 바로가기·회사 모아보기 매칭용.
@@ -47,7 +47,7 @@ def main():
     today = dt.date.today()
     floor = (today - dt.timedelta(days=45)).isoformat()
     rows, seen = [], set()
-    for r in con.execute("select * from catalyst where status in ('upcoming','imminent')"):
+    for r in con.execute("select * from catalyst where status in ('upcoming','imminent') and region!='KR'"):
         sort, prec = parse_date(r["expected_date"])
         if sort < floor:
             continue
