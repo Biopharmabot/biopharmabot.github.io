@@ -1,6 +1,6 @@
 {
  "generated": "2026-10-10",
- "n": 66,
+ "n": 76,
  "note": "기준 목록 = 2025년 일정 미리보기 표8(43개 행사). 2026·2027 날짜는 2026-10-10 웹 확인. 2027 미정: ASH·AASLD·AHA·ACR·CTAD 등 → 공지되면 추가",
  "items": [
   {
@@ -151,7 +151,9 @@
    "end": "2026-06-02",
    "city": "Chicago",
    "kw": "암 치료 최신 동향, 임상시험 결과",
-   "confirmed": true
+   "confirmed": true,
+   "titles": "2026-04-21",
+   "abstracts": "2026-05-21"
   },
   {
    "id": "EULAR-2026",
@@ -274,6 +276,16 @@
    "confirmed": false
   },
   {
+   "id": "ASN-2026",
+   "short": "ASN",
+   "name": "ASN Kidney Week",
+   "start": "2026-10-22",
+   "end": "2026-10-25",
+   "city": "Denver",
+   "kw": "신장 질환, IgA 신증",
+   "confirmed": true
+  },
+  {
    "id": "ESMO-2026",
    "short": "ESMO",
    "name": "European Society for Medical Oncology",
@@ -311,7 +323,10 @@
    "end": "2026-11-08",
    "city": "Phoenix",
    "kw": "면역항암제",
-   "confirmed": true
+   "confirmed": true,
+   "titles": "2026-10-02",
+   "abstracts": "2026-11-03",
+   "lba": "2026-11-06"
   },
   {
    "id": "AASLD-2026",
@@ -342,6 +357,26 @@
    "city": "Chicago",
    "kw": "심혈관 질환",
    "confirmed": true
+  },
+  {
+   "id": "BIO-Europe-2026",
+   "short": "BIO-Europe",
+   "name": "BIO-Europe",
+   "start": "2026-11-09",
+   "end": "2026-11-11",
+   "city": "Cologne",
+   "kw": "파트너링, 라이선싱",
+   "confirmed": true
+  },
+  {
+   "id": "Stifel-HC-2026",
+   "short": "Stifel HC",
+   "name": "Stifel Healthcare Conference",
+   "start": "2026-11-10",
+   "end": "2026-11-12",
+   "city": "New York",
+   "kw": "바이오텍 투자, IR",
+   "confirmed": false
   },
   {
    "id": "ObesityWeek-2026",
@@ -394,6 +429,26 @@
    "confirmed": true
   },
   {
+   "id": "ESMO-Asia-2026",
+   "short": "ESMO Asia",
+   "name": "ESMO Asia Congress",
+   "start": "2026-12-04",
+   "end": "2026-12-06",
+   "city": "Singapore",
+   "kw": "암 치료 최신 동향(아시아)",
+   "confirmed": true
+  },
+  {
+   "id": "SABCS-2026",
+   "short": "SABCS",
+   "name": "San Antonio Breast Cancer Symposium",
+   "start": "2026-12-08",
+   "end": "2026-12-11",
+   "city": "San Antonio",
+   "kw": "유방암",
+   "confirmed": true
+  },
+  {
    "id": "ASH-2026",
    "short": "ASH",
    "name": "American Society of Hematology",
@@ -401,7 +456,8 @@
    "end": "2026-12-15",
    "city": "New Orleans",
    "kw": "혈액질환, 혈액암",
-   "confirmed": true
+   "confirmed": true,
+   "abstracts": "2026-11-04"
   },
   {
    "id": "JPM-2027",
@@ -421,6 +477,16 @@
    "end": "2027-01-23",
    "city": "San Francisco",
    "kw": "위암, 식도암, 대장암",
+   "confirmed": true
+  },
+  {
+   "id": "ASCO-GU-2027",
+   "short": "ASCO GU",
+   "name": "ASCO Genitourinary Cancers Symposium",
+   "start": "2027-02-11",
+   "end": "2027-02-13",
+   "city": "San Francisco",
+   "kw": "전립선암, 신장암, 방광암",
    "confirmed": true
   },
   {
@@ -454,6 +520,16 @@
    "confirmed": true
   },
   {
+   "id": "AAD-2027",
+   "short": "AAD",
+   "name": "American Academy of Dermatology",
+   "start": "2027-03-19",
+   "end": "2027-03-23",
+   "city": "San Francisco",
+   "kw": "피부과, 아토피, 건선",
+   "confirmed": true
+  },
+  {
    "id": "AACR-2027",
    "short": "AACR",
    "name": "American Association for Cancer Research",
@@ -461,6 +537,19 @@
    "end": "2027-04-07",
    "city": "Orlando",
    "kw": "암 치료 최신 동향, 임상시험 결과",
+   "confirmed": false,
+   "titles": "2027-03-02",
+   "abstracts": "2027-03-19",
+   "lba": "2027-04-02"
+  },
+  {
+   "id": "BIO-Europe-Spring-2027",
+   "short": "BIO-Europe Spring",
+   "name": "BIO-Europe Spring",
+   "start": "2027-04-05",
+   "end": "2027-04-07",
+   "city": "Lyon",
+   "kw": "파트너링, 라이선싱",
    "confirmed": false
   },
   {
@@ -491,6 +580,26 @@
    "end": "2027-05-07",
    "city": "Philadelphia",
    "kw": "세포, 유전자 치료제, 희귀질환",
+   "confirmed": true
+  },
+  {
+   "id": "ATS-2027",
+   "short": "ATS",
+   "name": "American Thoracic Society International Conference",
+   "start": "2027-05-14",
+   "end": "2027-05-19",
+   "city": "New Orleans",
+   "kw": "호흡기, IPF, COPD, 천식",
+   "confirmed": true
+  },
+  {
+   "id": "DDW-2027",
+   "short": "DDW",
+   "name": "Digestive Disease Week",
+   "start": "2027-05-15",
+   "end": "2027-05-18",
+   "city": "Washington DC",
+   "kw": "소화기, IBD, 간",
    "confirmed": true
   },
   {
