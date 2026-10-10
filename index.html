@@ -315,14 +315,14 @@ svg.sp{width:66px;height:20px;display:block}
   const isPhase4=x=>/^Phase 4/.test(phaseLabel(x));   // 4상 결과는 수집 대상 아님(2026-10-10) — feed 에 남아 있어도 숨긴다
   const phTag=x=>{const l=phaseLabel(x);return l?`<span class="tag ph">${esc(l)}</span>`:"";};
   const TR_CHANGE={new:"신규 등록",first:"감시 편입",change:"변경"};
-  const CT_GROUP=[["readout","임상 결과",["phase-readout"]],["trial","임상 진행",["trial-milestone","preclinical"]],["meeting","학회 발표",["data-presentation"]],["filing","허가 신청",["regulatory-filing"]],["approval","허가 결정",["pdufa","regulatory-decision"]],["launch","출시·상업화",["drug-launch","commercial"]],["deal","딜·기업",["licensing-deal","corporate","other"]]];
+  const CT_GROUP=[["readout","임상 결과",["phase-readout"]],["trial","임상 진행",["trial-milestone","preclinical"]],["meeting","학회 발표",["data-presentation"]],["approval","허가 결정",["pdufa","regulatory-decision"]],["deal","딜·기업",["licensing-deal","corporate","other"]],["earnings","실적 발표",["earnings"]]];   // 허가 신청·출시·상업화는 2026-10-10 사용자 결정으로 제외(칩도 항목도 없음)
   const CT_GROUP_OF={};CT_GROUP.forEach(([k,,ts])=>ts.forEach(t=>CT_GROUP_OF[t]=k));
-  const CT_TYPE={"phase-readout":"탑라인/결과","trial-milestone":"임상 마일스톤","regulatory-decision":"허가 결정","regulatory-filing":"허가 신청",pdufa:"PDUFA","data-presentation":"학회 발표","licensing-deal":"딜",corporate:"기업","drug-launch":"출시",preclinical:"전임상",commercial:"상업화",other:"기타"};
+  const CT_TYPE={earnings:"실적 발표","phase-readout":"탑라인/결과","trial-milestone":"임상 마일스톤","regulatory-decision":"허가 결정","regulatory-filing":"허가 신청",pdufa:"PDUFA","data-presentation":"학회 발표","licensing-deal":"딜",corporate:"기업","drug-launch":"출시",preclinical:"전임상",commercial:"상업화",other:"기타"};
   const PREC={day:"",range:"기간",month:"월 중",quarter:"분기 중",half:"반기 중",year:"연중",tbd:"미정"};
   const SRC={hub:"Hub",bb:"BB",both:"Hub+BB"};
   const FUNDS=["Baker Bros","RA Capital","Orbimed","RTW","Avoro","Deerfield","Perceptive","Deep Track"];
   let tab="home", data={news:[],dart:[],trials:[],clinical:[],market:null,macro:null}, loadedDays={news:[],dart:[],trials:[],clinical:[]}, q="", cat="ALL", rel="ALL";
-  let hedge=null, cal=null, bb=null, comps=[], view="time", scY="ret_1m", scX="wtd", calMonth=null, calDay=null, calF={region:"ALL",imp:{high:true,medium:true,low:false},grp:{readout:true,trial:true,meeting:true,filing:true,approval:true,launch:true,deal:true},q:"",src:{hub:true,bb:true}}, hBasis="shares", sortState={}, trendDays=null;
+  let hedge=null, cal=null, bb=null, comps=[], view="time", scY="ret_1m", scX="wtd", calMonth=null, calDay=null, calF={region:"ALL",imp:{high:true,medium:true,low:false},grp:{readout:true,trial:true,meeting:true,approval:true,deal:true,earnings:true},q:"",src:{hub:true,bb:true}}, hBasis="shares", sortState={}, trendDays=null;
   const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
   const fmtPct=v=>v==null||!isFinite(v)?"—":(v>0?"+":"")+Number(v).toFixed(2)+"%";
   const fmtW=v=>v==null?"—":(v*100).toFixed(1)+"%";
@@ -340,8 +340,8 @@ svg.sp{width:66px;height:20px;display:block}
   async function getJSON(path,abs){try{const r=await fetch((abs?"":BASE)+path+"?t="+Math.floor(Date.now()/60000),{cache:"no-store"});if(!r.ok)return null;return await r.json();}catch(e){return null;}}
   function merge(kind,arr){if(!Array.isArray(arr))return;const have=new Set(data[kind].map(x=>x.id));arr.forEach(x=>{if(!x.id||!have.has(x.id)){data[kind].push(x);have.add(x.id);}});data[kind].sort((a,b)=>(b.ts||"")<(a.ts||"")?-1:1);}
   async function loadLatest(){
-    const [n,d,t,m,mc]=await Promise.all([getJSON("news/latest.json"),getJSON("clinical/latest.json"),getJSON("trials/latest.json"),getJSON("market/latest.json"),getJSON("macro/latest.json")]);
-    merge("news",n);merge("clinical",d);merge("trials",t);if(m&&m.date)data.market=m;if(mc&&mc.date)data.macro=mc;   /* DART 는 대시보드에서 수집 안 함(2026-10-10 사용자 결정, 봇·텔레그램은 그대로) */
+    const [n,d,t,m,mc,er]=await Promise.all([getJSON("news/latest.json"),getJSON("clinical/latest.json"),getJSON("trials/latest.json"),getJSON("market/latest.json"),getJSON("macro/latest.json"),getJSON("earnings/latest.json")]);
+    merge("news",n);merge("clinical",d);merge("trials",t);if(m&&m.date)data.market=m;if(mc&&mc.date)data.macro=mc;if(er&&er.items)data.earnings=er;   /* DART 는 대시보드에서 수집 안 함(2026-10-10 사용자 결정, 봇·텔레그램은 그대로) */
     render();
   }
   async function loadStatic(){
@@ -403,10 +403,11 @@ svg.sp{width:66px;height:20px;display:block}
   const IMPO={high:0,medium:1,low:2};
   let _calAll=null,_calKey="";
   function calAll(){ // Hub+Bloomberg 합치고, 같은 날짜·유형·티커면 한 건으로(BB 설명문 우선, src="both")
-    const key=(cal?cal.generated+cal.n:"")+"|"+(bb?bb.asof+bb.n:"");if(_calAll&&_calKey===key)return _calAll;_calKey=key;
+    const er=data.earnings;const key=(cal?cal.generated+cal.n:"")+"|"+(bb?bb.asof+bb.n:"")+"|"+(er?er.date+er.n:"");if(_calAll&&_calKey===key)return _calAll;_calKey=key;
     const out=[],idx=new Map();const keys=c=>c.tk.map(t=>`${c.sort}|${c.type}|${t.split(" ")[0].toUpperCase()}`);
     (cal?cal.items:[]).forEach(c=>{out.push(c);keys(c).forEach(kk=>idx.set(kk,c));});
     (bb?bb.items:[]).forEach(b=>{const h=keys(b).map(kk=>idx.get(kk)).find(x=>x&&x.src!=="both");if(h){const m={...b,src:"both",imp:IMPO[h.imp]<IMPO[b.imp]?h.imp:b.imp,nct:h.nct||b.nct,ta:b.ta||h.ta,region:h.region,tk:[...new Set([...b.tk,...h.tk])]};out[out.indexOf(h)]=m;keys(m).forEach(kk=>idx.set(kk,m));}else out.push(b);});
+    (er?er.items:[]).forEach(e=>{const mc=e.mcap||0;out.push({id:"er-"+e.ticker,src:"er",region:"GLOBAL",sponsor:e.name,asset:"실적 발표",ind:"",ta:"",type:"earnings",status:"upcoming",date:e.date_end?e.date+"~"+e.date_end:e.date,sort:e.date,prec:e.date_end?"range":"day",end:e.date_end||e.date,imp:mc>=5e10?"high":mc>=5e9?"medium":"low",stage:null,nct:null,tk:[e.ticker],event:e.eps_est!=null?"EPS 컨센서스 "+(+e.eps_est).toFixed(2):""});});
     _calAll=out.sort((a,b)=>a.sort<b.sort?-1:a.sort>b.sort?1:(IMPO[a.imp]??3)-(IMPO[b.imp]??3));return _calAll;}
   function hfHit(text,tickers){ // 헷지펀드 매집/축소 매칭(티커 집합 또는 본문) → {a,d} 또는 null. 개요 '13F 소식' 카드 필터용
     if(!hedge)return null;const A=accumSet(),D=distSet();const tks=tickers||[];
@@ -660,7 +661,7 @@ svg.sp{width:66px;height:20px;display:block}
   }
   function calFiltered(){
     const needle=calF.q.trim().toLowerCase();
-    return calAll().filter(c=>(c.src==="both"?(calF.src.hub||calF.src.bb):calF.src[c.src||"hub"])&&(calF.region==="ALL"||c.region===calF.region)&&calF.imp[c.imp]&&calF.grp[CT_GROUP_OF[c.type]||"deal"]&&(!needle||[c.sponsor,c.asset,c.ind,c.ta,c.event,c.tk.join(" "),c.stage].join(" ").toLowerCase().includes(needle)));
+    return calAll().filter(c=>(calF.region==="ALL"||c.region===calF.region)&&calF.imp[c.imp]&&(CT_GROUP_OF[c.type]&&calF.grp[CT_GROUP_OF[c.type]])&&(!needle||[c.sponsor,c.asset,c.ind,c.ta,c.event,c.tk.join(" "),c.stage].join(" ").toLowerCase().includes(needle)));
   }
   const evHTML=c=>{const past=isDated(c)&&c.sort<kstToday();const A=accumSet();const dateTxt=c.src!=="hub"&&isDated(c)?c.sort+(c.prec==="range"?"~":""):c.date;
     return`<div class="ev"><div class="d ${past?"past":""}" title="${esc(c.date)}">${esc(dateTxt)}${!isDated(c)?`<br><span style="color:var(--mute)">${PREC[c.prec]}</span>`:past?"<br>지남":c.prec==="range"?`<br><span style="color:var(--mute)">${esc(c.date)}</span>`:""}</div><div><div class="h">${coLink(c.sponsor)}<b>${esc(c.asset)}</b><span class="tag ${c.imp==="high"?"hi":c.imp==="medium"?"mid":""}">${esc(CT_TYPE[c.type]||c.type)}</span>${c.stage?`<span class="tag">${esc(c.stage)}</span>`:""}${c.region==="KR"?`<span class="tag">국내</span>`:""}${c.tk.map(t=>tkChip(t,A.has(t)?"acc":"")).join("")}</div>${c.event?`<div class="m" style="color:var(--fg)">${esc(c.event)}</div>`:""}<div class="m">${esc(c.ind)}${c.ta?" · "+esc(c.ta):""}${c.mod?" · "+esc(c.mod):""}${c.nct?" · "+esc(c.nct):""}${c.end&&c.end!==c.date&&c.prec==="day"?" · 창 ~"+esc(c.end):""}</div></div></div>`;};
