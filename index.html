@@ -823,7 +823,8 @@ svg.sp{width:66px;height:20px;display:block}
       if((st.from_hi52??-99)>=-3&&c>0&&(st.vol_ratio||0)>=1.5)return"돌파";
       const s50=st.ma50_slope??st.ma20_slope;if((st.ma50_gap??-1)>0&&(s50??-1)>0&&Math.abs(st.ma20_gap??99)<=3&&rsi>=40&&rsi<=60&&c>0)return"눌림목";
       if(st.rsi_min10!=null&&st.rsi_min10<=35&&rsi>=40&&(st.rsi_prev5==null||rsi>st.rsi_prev5)&&(st.ma20_gap??-1)>0)return"반등";return"";};
-    const wlName=(e,st)=>{const first=(e.name||"").split(/[\s/,]+/)[0].toUpperCase();return e.name&&!/\//.test(e.name)&&first.length>=3&&st.name.toUpperCase().includes(first)?(e.name===e.name.toUpperCase()?e.name.toLowerCase().replace(/([a-z])/g,c=>c.toUpperCase()):e.name):st.name.toLowerCase().replace(/([a-z])/g,c=>c.toUpperCase()).replace(/(Inc|Corp|Plc|Ltd|Co)\.?/g,m=>m);};
+    const tcase=x=>x.toLowerCase().replace(/(^|[\s\-(])([a-z])/g,(m,a,b)=>a+b.toUpperCase());
+    const wlName=(e,st)=>{const first=(e.name||"").split(/[\s/,]+/)[0].toUpperCase();return e.name&&!/\//.test(e.name)&&first.length>=3&&st.name.toUpperCase().includes(first)?(e.name===e.name.toUpperCase()?tcase(e.name):e.name):tcase(st.name);};
     const wl=(()=>{if(!m||!m.stocks)return[];const d90=kstToday(-90),d30=kstToday(-30);
       const cats=calAll().filter(c=>isDated(c)&&c.imp==="high"&&c.type!=="earnings"&&c.sort>=today&&c.sort<=d90);
       const wg=(hedge&&hedge.groups&&hedge.groups.weight)||{};const hfUp=new Set([...(wg.new||[]),...(wg.add||[])].flatMap(r=>r.items||[]));
