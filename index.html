@@ -799,7 +799,7 @@ svg.sp{width:66px;height:20px;display:block}
     const top=(arr,n)=>arr.slice(0,n);
     const trialsPick=[...data.trials.filter(x=>x.change==="new"||/중단|terminat|withdraw|suspend/i.test((x.lines||[]).join(" ")+x.status)),...data.trials].filter((x,i,a)=>a.indexOf(x)===i);
     const wd=["일","월","화","수","목","금","토"][new Date(today+"T00:00:00Z").getUTCDay()];const dateKo=`${+today.slice(0,4)}년 ${+today.slice(5,7)}월 ${+today.slice(8,10)}일 ${wd}요일`;
-    v.innerHTML=`<div class="greet"><div class="g">좋은 하루입니다.</div><div class="dt">${dateKo}</div></div>
+    v.innerHTML=`<div class="greet"><div class="g">${dateKo}</div></div>
     
     <div class="grid">
       ${card("HIGH 뉴스",hiNews[0]?"최근 "+fmtTs(hiNews[0].ts):"—",`news`,hiNews.length?top(hiNews,7).map(newsRow).join(""):"")}
