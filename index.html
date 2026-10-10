@@ -688,7 +688,7 @@ svg.sp{width:66px;height:20px;display:block}
     const curQ=`${today.slice(0,4)}-${String(Math.floor((+today.slice(5,7)-1)/3)*3+1).padStart(2,"0")}-01`,curH=`${today.slice(0,4)}-${+today.slice(5,7)<=6?"01":"07"}-01`,curM=today.slice(0,7)+"-01",curY=today.slice(0,4)+"-01-01";
     const inProg=rough.filter(c=>(c.prec==="month"&&c.sort===curM)||(c.prec==="quarter"&&c.sort===curQ)||(c.prec==="half"&&c.sort===curH)||(c.prec==="year"&&c.sort===curY));
     const later=rough.filter(c=>!inProg.includes(c));
-    let h=`<div class="hdr"><b>Catalysts</b><span class="sub">업데이트 ${esc([cal&&cal.generated,bb&&bb.asof,kw&&kw.asof].filter(Boolean).sort().pop()||"")}</span></div><div class="kpi"><div><div class="k">30일 내 (날짜 확정)</div><div class="v">${in30.length}</div><div class="d">HIGH ${in30.filter(c=>c.imp==="high").length}</div></div><div><div class="k">이번 주</div><div class="v">${dated.filter(c=>c.sort<=wk).length}</div><div class="d">${today} ~ ${wk}</div></div><div><div class="k">진행 중 (이달·이번 분기·반기)</div><div class="v">${inProg.length}</div><div class="d">날짜만 안 박힌 것</div></div><div><div class="k">13F 매집 종목 이벤트</div><div class="v">${list.filter(c=>c.tk.some(t=>accumSet().has(t))).length}</div><div class="d">헷지펀드 탭 참조</div></div></div>`;
+    let h=`<div class="hdr"><b>Catalysts</b><span class="sub">업데이트 ${esc([cal&&cal.generated,bb&&bb.asof,kw&&kw.asof].filter(Boolean).sort().pop()||"")}</span></div>`;
     h+=monthGrid(all)+`<div class="cal">`;
     const sect=(title,arr,withDD)=>arr.length?`<div class="mo" style="margin-top:16px"><span>${title}</span><span>${arr.length}건</span></div>`+arr.map(c=>withDD?evHTML(c).replace('<div class="h">','<div class="h">'+dday(c.sort)):evHTML(c)).join(""):"";
     if(calDay){h+=sect(calDay+" "+dday(calDay),datedAll,false);}
