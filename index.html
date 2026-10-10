@@ -336,7 +336,7 @@ svg.sp{width:66px;height:20px;display:block}
   const SRC={hub:"Hub",bb:"BB",both:"Hub+BB"};
   const FUNDS=["Baker Bros","RA Capital","Orbimed","RTW","Avoro","Deerfield","Perceptive","Deep Track"];
   let tab="home", data={news:[],dart:[],trials:[],clinical:[],market:null,macro:null}, loadedDays={news:[],dart:[],trials:[],clinical:[]}, q="", cat="ALL", rel="ALL";
-  let hedge=null, cal=null, bb=null, comps=[], view="time", scY="ret_1m", scX="wtd", calMonth=null, calDay=null, conf=null, confYear=null, calView="cal", calF={region:"ALL",imp:{high:true,medium:true,low:false},grp:{readout:true,trial:true,meeting:true,approval:true,etc:true,earnings:true},q:"",src:{hub:true,bb:true}}, hBasis="shares", sortState={}, trendDays=null,kw=null;
+  let hedge=null, cal=null, bb=null, comps=[], view="time", scY="ret_1m", scX="wtd", calMonth=null, calDay=null, conf=null, calF={region:"ALL",imp:{high:true,medium:true,low:false},grp:{readout:true,trial:true,meeting:true,approval:true,etc:true,earnings:true},q:"",src:{hub:true,bb:true}}, hBasis="shares", sortState={}, trendDays=null,kw=null;
   const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
   const fmtPct=v=>v==null||!isFinite(v)?"—":(v>0?"+":"")+Number(v).toFixed(2)+"%";
   const fmtW=v=>v==null?"—":(v*100).toFixed(1)+"%";
@@ -347,7 +347,7 @@ svg.sp{width:66px;height:20px;display:block}
   const dayOf=ts=>{const d=new Date(ts);return isNaN(d)?"":d.toLocaleDateString("sv-SE",{timeZone:"Asia/Seoul"});};
   const kstToday=(off=0)=>new Date(Date.now()+9*3600e3-off*864e5).toISOString().slice(0,10);
   const fmtTs=ts=>ts?new Date(ts).toLocaleString("ko-KR",{month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit",hour12:false,timeZone:"Asia/Seoul"}):"—";
-  try{const t=localStorage.getItem("bpb.theme");if(t)document.documentElement.dataset.theme=t;const h=location.hash.slice(1).split("&")[0];if(KINDS[h])tab=h;else if(h==="conf"){tab="cal";calView="conf";}}catch(e){}
+  try{const t=localStorage.getItem("bpb.theme");if(t)document.documentElement.dataset.theme=t;const h=location.hash.slice(1).split("&")[0];if(KINDS[h])tab=h;}catch(e){}
   $("theme").onclick=()=>{const cur=document.documentElement.dataset.theme||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light");const next=cur==="dark"?"light":"dark";document.documentElement.dataset.theme=next;try{localStorage.setItem("bpb.theme",next)}catch(e){}};
 
   /* ───────── data ───────── */
@@ -458,7 +458,7 @@ svg.sp{width:66px;height:20px;display:block}
   function renderFilters(){
     const f=$("filters");
     if(["home","market","macro","hedge"].includes(tab)){f.innerHTML="";return;}
-    if(tab==="cal"){if(calView==="conf")renderConfFilters();else renderCalFilters();return;}
+    if(tab==="cal"){renderCalFilters();return;}
     const cats=CATS[tab];
     let h=tab==="trials"?`<button class="chip" type="button" data-cat="ALL" aria-pressed="${cat==="ALL"}">전체</button><button class="chip" type="button" data-cat="result" aria-pressed="${cat==="result"}">임상시험 결과</button><button class="chip" type="button" data-cat="change" aria-pressed="${cat==="change"}">임상시험 변동</button>`
       :`<button class="chip" type="button" data-cat="ALL" aria-pressed="${cat==="ALL"}">전체</button>`+cats.map(c=>`<button class="chip" type="button" data-cat="${c}" aria-pressed="${cat===c}">${c}</button>`).join("");
@@ -672,9 +672,8 @@ svg.sp{width:66px;height:20px;display:block}
   /* ───────── calendar ───────── */
   function renderCalFilters(){
     const f=$("filters");if(!cal&&!bb){f.innerHTML="";return;}
-    f.innerHTML=`${viewChips()}<span class="sep"></span>${["ALL","GLOBAL","KR"].map(r=>`<button class="chip" data-r="${r}" aria-pressed="${calF.region===r}">${r==="ALL"?"전체":r==="KR"?"국내":"글로벌"}</button>`).join("")}<span class="sep"></span>${["high","medium","low"].map(i=>`<button class="chip" data-i="${i}" aria-pressed="${calF.imp[i]}">${i==="high"?"HIGH":i==="medium"?"MID":"LOW"}</button>`).join("")}<span class="sep"></span>${CT_GROUP.map(([k,l])=>`<button class="chip" data-g="${k}" aria-pressed="${calF.grp[k]}"><i class="g-${k}"></i>${l}</button>`).join("")}<input id="cq" type="search" placeholder="회사·약물·적응증·티커 검색" value="${esc(calF.q)}"><span class="r" id="cnt"></span>`;
+    f.innerHTML=`${["ALL","GLOBAL","KR"].map(r=>`<button class="chip" data-r="${r}" aria-pressed="${calF.region===r}">${r==="ALL"?"전체":r==="KR"?"국내":"글로벌"}</button>`).join("")}<span class="sep"></span>${["high","medium","low"].map(i=>`<button class="chip" data-i="${i}" aria-pressed="${calF.imp[i]}">${i==="high"?"HIGH":i==="medium"?"MID":"LOW"}</button>`).join("")}<span class="sep"></span>${CT_GROUP.map(([k,l])=>`<button class="chip" data-g="${k}" aria-pressed="${calF.grp[k]}"><i class="g-${k}"></i>${l}</button>`).join("")}<input id="cq" type="search" placeholder="회사·약물·적응증·티커 검색" value="${esc(calF.q)}"><span class="r" id="cnt"></span>`;
     f.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{calF.src[b.dataset.s]=!calF.src[b.dataset.s];render();});
-    bindViewChips(f);
     f.querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>{calF.region=b.dataset.r;render();});
     f.querySelectorAll("[data-i]").forEach(b=>b.onclick=()=>{calF.imp[b.dataset.i]=!calF.imp[b.dataset.i];render();});
     f.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{calF.grp[b.dataset.g]=!calF.grp[b.dataset.g];render();});
@@ -702,61 +701,44 @@ svg.sp{width:66px;height:20px;display:block}
       const pad=lanes.length?16+lanes.length*17:0;
       let cells="";
       for(let i=0;i<7;i++){const d=new Date(d0.getTime()+i*864e5);const k=iso(d);const inM=k.slice(0,7)===calMonth;const ev=byDay.get(k)||[];
-        cells+=`<div class="dc ${inM?"":"o"} ${k===today?"td":""} ${calDay===k?"sel":""}" data-day="${k}" title="${k} · ${ev.length}건" style="padding-top:${3+pad}px;min-height:${96+pad}px"><div class="d">${d.getUTCDate()}</div>${ev.slice(0,5).map(c=>`<div class="e"><i class="g-${CT_GROUP_OF[c.type]||"etc"}"></i>${esc(c.sponsor.split(" / ")[0])} ${esc(c.asset)}</div>`).join("")}${ev.length>5?`<div class="mo">+${ev.length-5}</div>`:""}</div>`;}
+        cells+=`<div class="dc ${inM?"":"o"} ${k===today?"td":""}" data-day="${k}" title="${k} · ${ev.length}건" style="padding-top:${3+pad}px;min-height:${96+pad}px"><div class="d">${d.getUTCDate()}</div>${ev.slice(0,5).map(c=>`<div class="e"><i class="g-${CT_GROUP_OF[c.type]||"etc"}"></i>${esc(c.sponsor.split(" / ")[0])} ${esc(c.asset)}</div>`).join("")}${ev.length>5?`<div class="mo">+${ev.length-5}</div>`:""}</div>`;}
       const bars=segs.map(sg=>`<div class="cbar ${sg.c.end<today?"past":""}" style="top:${18+sg.lane*17}px;left:calc(${sg.s0}/7*100% + 2px);width:calc(${sg.e0-sg.s0+1}/7*100% - 4px)" title="${esc(sg.c.name)} · ${esc(sg.c.start)}~${esc(sg.c.end)}${sg.c.city?" · "+esc(sg.c.city):""}"><b>${esc(sg.c.short)}</b> ${esc(sg.c.name)}${sg.c.city?` <span>· ${esc(sg.c.city)}</span>`:""}</div>`).join("");
       weeks+=`<div class="wk">${cells}${bars}</div>`;
     }
     const pm=new Date(Date.UTC(yy,mm-2,1)).toISOString().slice(0,7),nm=new Date(Date.UTC(yy,mm,1)).toISOString().slice(0,7);
-    return`<div class="mnav"><button data-m="${pm}">‹</button><b>${yy}년 ${mm}월</b><button data-m="${nm}">›</button>${calDay?`<button data-m="clear">${calDay} 선택 해제</button>`:""}</div><div class="mg"><div class="wdr">${["일","월","화","수","목","금","토"].map(w=>`<div class="wd">${w}</div>`).join("")}</div>${weeks}</div>`;
+    const lim=calWindow();
+    return`<div class="mnav"><button data-m="${pm}" ${pm<lim.m0?"disabled":""}>‹</button><b>${yy}년 ${mm}월</b><button data-m="${nm}" ${nm>lim.m3?"disabled":""}>›</button></div><div class="mg"><div class="wdr">${["일","월","화","수","목","금","토"].map(w=>`<div class="wd">${w}</div>`).join("")}</div>${weeks}</div>`;
   }
 
-  /* ───────── conferences ───────── */
-  const viewChips=()=>`<button class="chip" data-v="cal" aria-pressed="${calView==="cal"}">카탈리스트</button><button class="chip" data-v="conf" aria-pressed="${calView==="conf"}">학회 일정</button>`;
-  const bindViewChips=f=>f.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>{calView=b.dataset.v;render();});
-  function confYears(){return [...new Set((conf?conf.items:[]).map(c=>c.start.slice(0,4)))].sort();}
-  function renderConfFilters(){
-    const f=$("filters");const ys=confYears();if(!ys.length){f.innerHTML="";return;}
-    if(!confYear||!ys.includes(confYear))confYear=ys.includes(kstToday().slice(0,4))?kstToday().slice(0,4):ys[0];
-    f.innerHTML=viewChips()+`<span class="sep"></span>`+ys.map(y=>`<button class="chip" data-y="${y}" aria-pressed="${confYear===y}">${y}</button>`).join("");
-    bindViewChips(f);
-    f.querySelectorAll("[data-y]").forEach(b=>b.onclick=()=>{confYear=b.dataset.y;render();});
+  /* 공개 창: 오늘 ~ 이번 달+3개월 말(2026-10-10 사용자 결정). 그 밖(이후·미정·지난 예정일)은 수집만 하고 화면엔 안 낸다 */
+  function calWindow(){const t=kstToday();const y=+t.slice(0,4),m=+t.slice(5,7);const m0=t.slice(0,7);const e=new Date(Date.UTC(y,m+3,0));const m3=e.toISOString().slice(0,7);return{t,m0,m3,end:e.toISOString().slice(0,10)};}
+  function dayEvents(iso){const all=calFiltered().filter(c=>isDated(c)&&c.sort===iso);const cf=(conf?conf.items:[]).filter(c=>c.start<=iso&&iso<=c.end);return{all,cf};}
+  function openDay(iso){
+    const {all,cf}=dayEvents(iso);const dr=$("dr");
+    dr.innerHTML=`<div class="hd"><b>${esc(iso)}</b>${dday(iso)}<span class="tag">${all.length+cf.length}건</span><button type="button" id="drClose">닫기 ✕</button></div>
+      ${cf.length?`<h3 class="sec">학회 일정</h3><div class="cal">${cf.map(confHTML).join("")}</div>`:""}
+      ${all.length?`<h3 class="sec">이벤트</h3><div class="cal">${all.map(c=>evHTML(c)).join("")}</div>`:(cf.length?"":`<div class="note">이 날 이벤트가 없습니다.</div>`)}`;
+    $("ov").classList.add("on");dr.classList.add("on");$("drClose").onclick=closeCompany;
   }
-  function renderConf(){
-    const v=$("view");if(!conf){v.innerHTML=`<div class="empty">학회 일정 데이터를 읽지 못했습니다.</div>`;return;}
-    const today=kstToday();const items=conf.items.filter(c=>c.start.slice(0,4)===confYear);
-    const fmt=(s,e)=>`${s.slice(5)} ~ ${e.slice(5)}`;
-    let h=`<div class="hdr"><b>Catalysts</b><span class="sub">학회 일정 ${esc(confYear)}년 · ${items.length}건 · 업데이트 ${esc(conf.generated)}</span></div><div class="cal conf">`;
-    let mo="";
-    items.forEach(c=>{const m=c.start.slice(0,7);if(m!==mo){mo=m;h+=`<div class="mo" style="margin-top:16px"><span>${+m.slice(5)}월</span><span>${items.filter(x=>x.start.slice(0,7)===m).length}건</span></div>`;}
-      const past=c.end<today,live=c.start<=today&&today<=c.end;
-      h+=`<div class="ev"><div class="d" ${past?'style="color:var(--mute)"':""}>${fmt(c.start,c.end)}${live?`<br><span style="color:var(--fg)">진행 중</span>`:!past&&c.start>today?`<br>${dday(c.start)}`:""}</div><div><div class="h"><b>${esc(c.short)}</b> ${esc(c.name)}${c.city?`<span class="tag">${esc(c.city)}</span>`:""}</div><div class="m">${esc(c.kw)}</div></div></div>`;});
-    h+=`</div>`;v.innerHTML=h;
-  }
+  const confHTML=c=>{const t=kstToday();const live=c.start<=t&&t<=c.end;return`<div class="ev"><div class="d">${esc(c.start.slice(5))} ~ ${esc(c.end.slice(5))}${live?`<br><span style="color:var(--fg)">진행 중</span>`:c.start>t?`<br>${dday(c.start)}`:""}</div><div><div class="h"><b>${esc(c.short)}</b> ${esc(c.name)}${c.city?`<span class="tag">${esc(c.city)}</span>`:""}</div><div class="m">${esc(c.kw)}</div></div></div>`;};
   function renderCal(){
     const v=$("view");if(!cal&&!bb){v.innerHTML=`<div class="empty">카탈리스트 데이터를 읽지 못했습니다.</div>`;return;}
-    const all=calFiltered();const list=calDay?all.filter(c=>isDated(c)&&c.sort===calDay):all;if($("cnt"))$("cnt").textContent=list.length+"건";
-    const today=kstToday(),wk=kstToday(-7),wk2=kstToday(-14),mo30=kstToday(-30);const in30=list.filter(c=>isDated(c)&&c.sort>=today&&c.sort<=mo30);
-    const datedAll=list.filter(isDated),dated=datedAll.filter(c=>c.sort>=today),past=datedAll.filter(c=>c.sort<today),rough=list.filter(c=>!isDated(c)&&c.prec!=="tbd"),tbd=list.filter(c=>c.prec==="tbd");
-    const curQ=`${today.slice(0,4)}-${String(Math.floor((+today.slice(5,7)-1)/3)*3+1).padStart(2,"0")}-01`,curH=`${today.slice(0,4)}-${+today.slice(5,7)<=6?"01":"07"}-01`,curM=today.slice(0,7)+"-01",curY=today.slice(0,4)+"-01-01";
-    const inProg=rough.filter(c=>(c.prec==="month"&&c.sort===curM)||(c.prec==="quarter"&&c.sort===curQ)||(c.prec==="half"&&c.sort===curH)||(c.prec==="year"&&c.sort===curY));
-    const later=rough.filter(c=>!inProg.includes(c));
+    const W=calWindow();const all=calFiltered();
+    const dated=all.filter(c=>isDated(c)&&c.sort>=W.t&&c.sort<=W.end);
+    if($("cnt"))$("cnt").textContent=dated.length+"건";
+    const wkEnd=kstToday(-6);const thisM=W.t.slice(0,7),nextM=new Date(Date.UTC(+W.t.slice(0,4),+W.t.slice(5,7),1)).toISOString().slice(0,7);
+    const week=dated.filter(c=>c.sort<=wkEnd),month=dated.filter(c=>c.sort>wkEnd&&c.sort.slice(0,7)===thisM),next=dated.filter(c=>c.sort>wkEnd&&c.sort.slice(0,7)===nextM);
+    const confs=(conf?conf.items:[]).filter(c=>c.end>=W.t&&c.start<=W.end);
     let h=`<div class="hdr"><b>Catalysts</b><span class="sub">업데이트 ${esc([cal&&cal.generated,bb&&bb.asof,kw&&kw.asof].filter(Boolean).sort().pop()||"")}</span></div>`;
     h+=monthGrid(all)+`<div class="cal">`;
-    const sect=(title,arr,withDD)=>arr.length?`<div class="mo" style="margin-top:16px"><span>${title}</span><span>${arr.length}건</span></div>`+arr.map(c=>withDD?evHTML(c).replace('<div class="h">','<div class="h">'+dday(c.sort)):evHTML(c)).join(""):"";
-    if(calDay){h+=sect(calDay+" "+dday(calDay),datedAll,false);}
-    else{
-      h+=sect("이번 주",dated.filter(c=>c.sort<=wk),true)+sect("다음 주",dated.filter(c=>c.sort>wk&&c.sort<=wk2),true);
-      const rest=dated.filter(c=>c.sort>wk2);let mo="";rest.forEach(c=>{const m=c.sort.slice(0,7);if(m!==mo){mo=m;h+=`<div class="mo" style="margin-top:16px"><span>${m}</span><span>${rest.filter(x=>x.sort.slice(0,7)===m).length}건</span></div>`;}h+=evHTML(c).replace('<div class="h">','<div class="h">'+dday(c.sort));});
-      if(!dated.length)h+=`<div class="note">조건에 맞는 날짜 확정 이벤트가 없습니다.</div>`;
-      h+=sect("진행 중 · 이달 / 이번 분기 / 반기 / 올해 (날짜 미확정)",inProg,false);
-      if(later.length){h+=`<div class="mo" style="margin-top:20px"><span>이후 · 월 / 분기 / 반기 / 연 단위</span><span>${later.length}건</span></div>`;let mo2="";later.forEach(c=>{if(c.date!==mo2){mo2=c.date;h+=`<div class="mo"><span>${esc(c.date)}</span></div>`;}h+=evHTML(c);});}
-      if(tbd.length)h+=`<details class="all"><summary>시점 미정 ${tbd.length}건</summary>${tbd.map(evHTML).join("")}</details>`;
-      if(past.length)h+=`<details class="all"><summary>지난 예정일 ${past.length}건 (결과 미반영 · 상태 미갱신분)</summary>${past.map(evHTML).join("")}</details>`;
-    }
+    const sect=(title,arr)=>arr.length?`<div class="mo" style="margin-top:16px"><span>${title}</span><span>${arr.length}건</span></div>`+arr.map(c=>evHTML(c).replace('<div class="h">','<div class="h">'+dday(c.sort))).join(""):"";
+    h+=sect("이번 주",week)+sect("이번 달",month)+sect("다음 달",next);
+    if(confs.length)h+=`<div class="mo" style="margin-top:16px"><span>학회 일정</span><span>${confs.length}건</span></div>`+confs.map(confHTML).join("");
+    if(!dated.length&&!confs.length)h+=`<div class="note">조건에 맞는 이벤트가 없습니다.</div>`;
     h+=`</div>`;
     v.innerHTML=h;
-    v.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{if(b.dataset.m==="clear")calDay=null;else calMonth=b.dataset.m;render();});
-    v.querySelectorAll("[data-day]").forEach(d=>d.onclick=()=>{calDay=calDay===d.dataset.day?null:d.dataset.day;render();});
+    v.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{if(b.disabled)return;calMonth=b.dataset.m;render();});
+    v.querySelectorAll("[data-day]").forEach(d=>d.onclick=()=>openDay(d.dataset.day));
   }
 
   /* ───────── trend ───────── */
@@ -883,7 +865,7 @@ svg.sp{width:66px;height:20px;display:block}
   ji.onblur=()=>setTimeout(()=>jl.hidden=true,150);
 
   function render(){renderTabs();renderStrip();renderFilters();
-    if(tab==="home")renderHome();else if(tab==="market")renderMarket();else if(tab==="macro")renderMacro();else if(tab==="hedge")renderHedge();else if(tab==="cal"){if(calView==="conf")renderConf();else renderCal();}else renderList();}
+    if(tab==="home")renderHome();else if(tab==="market")renderMarket();else if(tab==="macro")renderMacro();else if(tab==="hedge")renderHedge();else if(tab==="cal")renderCal();else renderList();}
 
   render();
   Promise.all([loadStatic(),loadLatest()]).then(()=>{buildCompanyIndex();render();const m=location.hash.match(/[#&]co=([^&]+)/);if(m)openCompany(decodeURIComponent(m[1]));});
