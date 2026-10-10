@@ -1,7 +1,7 @@
 {
  "generated": "2026-10-10",
  "asof": "2026-10-06",
- "n": 60,
+ "n": 64,
  "items": [
   {
    "id": "kw-2026-08-03-실적",
@@ -27,11 +27,11 @@
    "rep": "2026-08-03"
   },
   {
-   "id": "kw-2026-08-04-화이자-머크-실적",
+   "id": "kw-2026-08-04-머크-실적",
    "src": "kw",
    "region": "GLOBAL",
    "sponsor": "",
-   "asset": "화이자, 머크 실적",
+   "asset": "머크 실적",
    "event": "",
    "ind": "",
    "ta": "",
@@ -44,7 +44,32 @@
    "imp": "medium",
    "stage": null,
    "nct": null,
-   "tk": [],
+   "tk": [
+    "MRK"
+   ],
+   "rep": "2026-08-03"
+  },
+  {
+   "id": "kw-2026-08-04-화이자-실적",
+   "src": "kw",
+   "region": "GLOBAL",
+   "sponsor": "",
+   "asset": "화이자 실적",
+   "event": "",
+   "ind": "",
+   "ta": "",
+   "type": "earnings",
+   "status": "upcoming",
+   "date": "2026-08-04",
+   "sort": "2026-08-04",
+   "prec": "day",
+   "end": "2026-08-04",
+   "imp": "medium",
+   "stage": null,
+   "nct": null,
+   "tk": [
+    "PFE"
+   ],
    "rep": "2026-08-03"
   },
   {
@@ -71,11 +96,11 @@
    "rep": "2026-08-03"
   },
   {
-   "id": "kw-2026-08-05-릴리-노보-실적",
+   "id": "kw-2026-08-05-노보-실적",
    "src": "kw",
    "region": "GLOBAL",
    "sponsor": "",
-   "asset": "릴리, 노보 실적",
+   "asset": "노보 실적",
    "event": "",
    "ind": "",
    "ta": "",
@@ -88,15 +113,40 @@
    "imp": "medium",
    "stage": null,
    "nct": null,
-   "tk": [],
+   "tk": [
+    "NVO"
+   ],
    "rep": "2026-08-03"
   },
   {
-   "id": "kw-2026-08-06-Halozyme-실적",
+   "id": "kw-2026-08-06-실적",
+   "src": "kw",
+   "region": "GLOBAL",
+   "sponsor": "Halozyme Therapeutics",
+   "asset": "실적",
+   "event": "",
+   "ind": "",
+   "ta": "",
+   "type": "earnings",
+   "status": "upcoming",
+   "date": "2026-08-06",
+   "sort": "2026-08-06",
+   "prec": "day",
+   "end": "2026-08-06",
+   "imp": "medium",
+   "stage": null,
+   "nct": null,
+   "tk": [
+    "HALO"
+   ],
+   "rep": "2026-08-03"
+  },
+  {
+   "id": "kw-2026-08-06-실적",
    "src": "kw",
    "region": "GLOBAL",
    "sponsor": "Roivant Sciences Ltd",
-   "asset": "Halozyme 실적",
+   "asset": "실적",
    "event": "",
    "ind": "",
    "ta": "",
@@ -588,7 +638,8 @@
    "stage": null,
    "nct": null,
    "tk": [
-    "ARTV"
+    "ARTV",
+    "SMMT"
    ],
    "rep": "2026-09-07"
   },
@@ -1021,11 +1072,11 @@
    "rep": "2026-10-06"
   },
   {
-   "id": "kw-2026-10-10-Sankyo-Merck-I-DXd-B7-H3-ADC-PDUFA",
+   "id": "kw-2026-10-10-Daiichi-Sankyo-Merck-I-DXd-B7-H3-ADC-PDUFA",
    "src": "kw",
    "region": "GLOBAL",
    "sponsor": "Daiichi Sankyo Co Ltd",
-   "asset": "Sankyo/Merck I-DXd(B7-H3 ADC) PDUFA",
+   "asset": "Daiichi Sankyo/Merck I-DXd(B7-H3 ADC) PDUFA",
    "event": "",
    "ind": "",
    "ta": "",
@@ -1039,7 +1090,9 @@
    "stage": null,
    "nct": null,
    "tk": [
-    "4568"
+    "4568",
+    "DSNKY",
+    "MRK"
    ],
    "rep": "2026-10-06"
   },
@@ -1103,7 +1156,9 @@
    "imp": "medium",
    "stage": null,
    "nct": null,
-   "tk": [],
+   "tk": [
+    "JNJ"
+   ],
    "rep": "2026-10-06"
   },
   {
@@ -1191,15 +1246,17 @@
    "imp": "medium",
    "stage": null,
    "nct": null,
-   "tk": [],
+   "tk": [
+    "GSK"
+   ],
    "rep": "2026-10-06"
   },
   {
-   "id": "kw-2026-10-29-MSD-릴리-실적",
+   "id": "kw-2026-10-29-릴리-실적",
    "src": "kw",
    "region": "GLOBAL",
    "sponsor": "",
-   "asset": "MSD, 릴리 실적",
+   "asset": "릴리 실적",
    "event": "",
    "ind": "",
    "ta": "",
@@ -1212,15 +1269,40 @@
    "imp": "medium",
    "stage": null,
    "nct": null,
-   "tk": [],
+   "tk": [
+    "LLY"
+   ],
    "rep": "2026-10-06"
   },
   {
-   "id": "kw-2026-10-30-AZ-사노피-실적",
+   "id": "kw-2026-10-29-MSD-실적",
    "src": "kw",
    "region": "GLOBAL",
    "sponsor": "",
-   "asset": "AZ, 사노피 실적",
+   "asset": "MSD 실적",
+   "event": "",
+   "ind": "",
+   "ta": "",
+   "type": "earnings",
+   "status": "upcoming",
+   "date": "2026-10-29",
+   "sort": "2026-10-29",
+   "prec": "day",
+   "end": "2026-10-29",
+   "imp": "medium",
+   "stage": null,
+   "nct": null,
+   "tk": [
+    "MRK"
+   ],
+   "rep": "2026-10-06"
+  },
+  {
+   "id": "kw-2026-10-30-AZ-실적",
+   "src": "kw",
+   "region": "GLOBAL",
+   "sponsor": "",
+   "asset": "AZ 실적",
    "event": "",
    "ind": "",
    "ta": "",
@@ -1233,7 +1315,32 @@
    "imp": "medium",
    "stage": null,
    "nct": null,
-   "tk": [],
+   "tk": [
+    "AZN"
+   ],
+   "rep": "2026-10-06"
+  },
+  {
+   "id": "kw-2026-10-30-사노피-실적",
+   "src": "kw",
+   "region": "GLOBAL",
+   "sponsor": "",
+   "asset": "사노피 실적",
+   "event": "",
+   "ind": "",
+   "ta": "",
+   "type": "earnings",
+   "status": "upcoming",
+   "date": "2026-10-30",
+   "sort": "2026-10-30",
+   "prec": "day",
+   "end": "2026-10-30",
+   "imp": "medium",
+   "stage": null,
+   "nct": null,
+   "tk": [
+    "SNY"
+   ],
    "rep": "2026-10-06"
   },
   {

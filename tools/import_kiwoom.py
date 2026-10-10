@@ -24,6 +24,25 @@ TYPE_RULES = [
     ("trial", re.compile(r"[1-3]상|임상|IND|투여|환자 등록|LPI|개시|첫 환자|FPI", re.I)),
 ]
 MONTH_RE = re.compile(r"_(\d{8})\.pdf$")
+ALIAS = {  # 키움 문구의 회사 약칭 → 미국 티커 (글로벌 중복 판정용). 소문자 키.
+    "j&j": "JNJ", "존슨앤존슨": "JNJ", "msd": "MRK", "머크": "MRK", "merck": "MRK", "릴리": "LLY", "lilly": "LLY", "화이자": "PFE", "pfizer": "PFE",
+    "노보": "NVO", "노보노디스크": "NVO", "novo": "NVO", "사노피": "SNY", "sanofi": "SNY", "az": "AZN", "아스트라제네카": "AZN", "astrazeneca": "AZN",
+    "gsk": "GSK", "로슈": "RHHBY", "roche": "RHHBY", "노바티스": "NVS", "novartis": "NVS", "애브비": "ABBV", "abbvie": "ABBV", "암젠": "AMGN", "amgen": "AMGN",
+    "길리어드": "GILD", "gilead": "GILD", "bms": "BMY", "리제네론": "REGN", "regeneron": "REGN", "모더나": "MRNA", "moderna": "MRNA", "버텍스": "VRTX", "vertex": "VRTX",
+    "바이오젠": "BIIB", "biogen": "BIIB", "다케다": "TAK", "takeda": "TAK", "다이이찌산쿄": "DSNKY", "daiichi sankyo": "DSNKY", "daiichi": "DSNKY", "바이엘": "BAYRY",
+    "애보트": "ABT", "abbott": "ABT", "유나이티드헬스": "UNH", "halozyme": "HALO", "roivant": "ROIV", "biohaven": "BHVN", "capricor": "CAPR", "ultragenyx": "RARE",
+    "jazz": "JAZZ", "ionis": "IONS", "arrowhead": "ARWR", "artiva": "ARTV", "intellia": "NTLA", "summit": "SMMT",
+}
+
+
+def alias_tickers(text):
+    """문구 안의 약칭(쉼표·슬래시 구분 포함)에서 티커 목록."""
+    out = []
+    for tok in re.split(r"[\s,/()]+", text):
+        t = ALIAS.get(tok.lower().rstrip(".,"))
+        if t and t not in out:
+            out.append(t)
+    return out
 
 
 def load_companies():
@@ -158,6 +177,12 @@ def parse_calendar(pdf_path):
                 t = re.sub(r"\s+", " ", t).strip(" ;.,")
                 if len(t) < 2 or SKIP.search(t):
                     continue
+                m2 = re.fullmatch(r"(.+?),\s*(.+?)\s+(실적.*)", t)   # 'MSD, 릴리 실적' → 'MSD 실적' + '릴리 실적'
+                if m2 and "," in t and len(t) < 40:
+                    parts = [x.strip() for x in t[: -len(m2.group(3))].split(",") if x.strip()]
+                    for pt in parts:
+                        items.append({"date": d.isoformat(), "text": f"{pt} {m2.group(3)}"})
+                    continue
                 items.append({"date": d.isoformat(), "text": t})
     return rep, items
 
@@ -195,13 +220,16 @@ def main():
         d, t = it["date"], it["text"]
         mc = match_company(t, comps)
         if mc:  # 회사명이 문구 맨 앞이면 asset 에서는 뺀다(화면이 회사 · 문구로 보이므로)
-            first = t.split(" ")[0]
-            if mc[0].lower().startswith(first.lower().rstrip("-–,")) and len(t) > len(first) + 2:
+            toks = t.split(" ")
+            first = toks[0]
+            nxt = re.split(r"[/,]", toks[1])[0].lower() if len(toks) > 1 else ""
+            cont = nxt and nxt in mc[0].lower().split()   # 'Daiichi Sankyo/Merck' 처럼 회사명이 이어지면 그대로 둔다
+            if mc[0].lower().startswith(first.lower().rstrip("-–,")) and len(t) > len(first) + 2 and not t[len(first):].startswith(("/", ",")) and not cont:
                 t = t[len(first):].lstrip(" -–,")
         out.append({"id": "kw-" + re.sub(r"[^0-9a-zA-Z가-힣]+", "-", d + "-" + t)[:80].strip("-"), "src": "kw", "region": ("KR" if (mc[2] or re.search(r"[가-힣]", mc[0])) else "GLOBAL") if mc else region_of(t),
                     "sponsor": mc[0] if mc else "", "asset": t, "event": "", "ind": "", "ta": "", "type": classify(t), "status": "upcoming",
                     "date": d, "sort": d, "prec": "day", "end": d, "imp": "medium", "stage": None, "nct": None,
-                    "tk": [k.split(" ")[0] for k in (mc[1] if mc else [])], "rep": it["rep"]})
+                    "tk": list(dict.fromkeys([k.split(" ")[0] for k in (mc[1] if mc else [])] + alias_tickers(it["text"]))), "rep": it["rep"]})
     doc = {"generated": dt.date.today().isoformat(), "asof": latest.isoformat() if latest else None, "n": len(out), "items": out}
     dst = os.path.join(ROOT, "data", "kiwoom.json")
     json.dump(doc, open(dst, "w", encoding="utf-8"), ensure_ascii=False, indent=1)

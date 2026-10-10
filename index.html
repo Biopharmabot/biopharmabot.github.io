@@ -407,9 +407,12 @@ svg.sp{width:66px;height:20px;display:block}
     const out=[],idx=new Map();const keys=c=>c.tk.map(t=>`${c.sort}|${c.type}|${t.split(" ")[0].toUpperCase()}`);
     (cal?cal.items:[]).forEach(c=>{out.push(c);keys(c).forEach(kk=>idx.set(kk,c));});
     (bb?bb.items:[]).forEach(b=>{const h=keys(b).map(kk=>idx.get(kk)).find(x=>x&&x.src!=="both");if(h){const m={...b,src:"both",imp:IMPO[h.imp]<IMPO[b.imp]?h.imp:b.imp,nct:h.nct||b.nct,ta:b.ta||h.ta,region:h.region,tk:[...new Set([...b.tk,...h.tk])]};out[out.indexOf(h)]=m;keys(m).forEach(kk=>idx.set(kk,m));}else out.push(b);});
-    (kw?kw.items:[]).forEach(k=>{const ks=k.tk.length?keys(k):[`${k.sort}|${k.type}|${k.asset}`];if(ks.some(kk=>idx.has(kk)))return;out.push(k);ks.forEach(kk=>idx.set(kk,k));});
     (up?up.items:[]).forEach(u=>{const ph=(u.phases||[]).map(p=>p.replace("PHASE","")).join("/");const mo=u.pcd.length===7;out.push({id:"up-"+u.nct,src:"up",region:u.region||"KR",sponsor:u.company,asset:(u.interv||[])[0]||u.title,ind:(u.cond||[]).join(" / "),ta:"",type:"trial-milestone",status:"upcoming",date:u.pcd,sort:mo?u.pcd+"-01":u.pcd,prec:mo?"month":"day",end:u.pcd,imp:(u.phases||[]).includes("PHASE3")?"medium":"low",stage:ph?"Phase "+ph:null,nct:u.nct,tk:[],event:"1차 완료 예정"+(u.enroll?" · "+u.enroll+"명":"")});});
     (er?er.items:[]).forEach(e=>{const mc=e.mcap||0;out.push({id:"er-"+e.ticker,src:"er",region:"GLOBAL",sponsor:e.name,asset:"실적 발표",ind:"",ta:"",type:"earnings",status:"upcoming",date:e.date_end?e.date+"~"+e.date_end:e.date,sort:e.date,prec:e.date_end?"range":"day",end:e.date_end||e.date,imp:mc>=5e10?"high":mc>=5e9?"medium":"low",stage:null,nct:null,tk:[e.ticker],event:e.eps_est!=null?"EPS 컨센서스 "+(+e.eps_est).toFixed(2):""});});
+    /* 키움 달력은 보조 소스: 같은 유형 묶음에서 같은 회사(티커 또는 회사명) 건이 이미 있으면 뺀다(실적은 ±3일, 그 외 같은 날). 글로벌은 우리 수집분이 메인 — 2026-10-10 */
+    (kw?kw.items:[]).forEach(k=>{const g=CT_GROUP_OF[k.type]||"etc";const tol=g==="earnings"?3:0;const near=(a,b)=>Math.abs((new Date(a)-new Date(b))/864e5)<=tol;const sp=core(k.sponsor||"");
+      const dup=out.some(o=>(CT_GROUP_OF[o.type]||"etc")===g&&near(o.sort,k.sort)&&((k.tk.length&&o.tk.some(t=>k.tk.includes(t.split(" ")[0].toUpperCase())))||(sp&&core(o.sponsor||"")===sp)));
+      if(dup)return;out.push(k);keys(k).forEach(kk=>idx.set(kk,k));});
     _calAll=out.sort((a,b)=>a.sort<b.sort?-1:a.sort>b.sort?1:(IMPO[a.imp]??3)-(IMPO[b.imp]??3));return _calAll;}
   function hfHit(text,tickers){ // 헷지펀드 매집/축소 매칭(티커 집합 또는 본문) → {a,d} 또는 null. 개요 '13F 소식' 카드 필터용
     if(!hedge)return null;const A=accumSet(),D=distSet();const tks=tickers||[];
