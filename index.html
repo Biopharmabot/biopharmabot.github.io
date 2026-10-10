@@ -728,12 +728,12 @@ svg.sp{width:66px;height:20px;display:block}
     if($("cnt"))$("cnt").textContent=dated.length+"건";
     const wkEnd=kstToday(-6);const thisM=W.t.slice(0,7),nextM=new Date(Date.UTC(+W.t.slice(0,4),+W.t.slice(5,7),1)).toISOString().slice(0,7);
     const week=dated.filter(c=>c.sort<=wkEnd),month=dated.filter(c=>c.sort>wkEnd&&c.sort.slice(0,7)===thisM),next=dated.filter(c=>c.sort>wkEnd&&c.sort.slice(0,7)===nextM);
-    const confs=(conf?conf.items:[]).filter(c=>c.end>=W.t&&c.start<=W.end);
+    const confs=(conf?conf.items:[]).filter(c=>c.end>=W.t&&+c.start.slice(0,4)<=+W.t.slice(0,4)+1);   /* 학회 일정은 올해·내년 예정분 전부(2026-10-10 사용자) */
     let h=`<div class="hdr"><b>Catalysts</b><span class="sub">업데이트 ${esc([cal&&cal.generated,bb&&bb.asof,kw&&kw.asof].filter(Boolean).sort().pop()||"")}</span></div>`;
     h+=monthGrid(all)+`<div class="cal">`;
     const sect=(title,arr)=>arr.length?`<div class="mo" style="margin-top:16px"><span>${title}</span><span>${arr.length}건</span></div>`+arr.map(c=>evHTML(c).replace('<div class="h">','<div class="h">'+dday(c.sort))).join(""):"";
     h+=sect("이번 주",week)+sect("이번 달",month)+sect("다음 달",next);
-    if(confs.length)h+=`<div class="mo" style="margin-top:16px"><span>학회 일정</span><span>${confs.length}건</span></div>`+confs.map(confHTML).join("");
+    if(confs.length){h+=`<div class="mo" style="margin-top:16px"><span>학회 일정</span><span>${confs.length}건</span></div>`;let cy="";confs.forEach(c=>{const y=c.start.slice(0,4);if(y!==cy){cy=y;h+=`<div class="mo"><span>${y}</span></div>`;}h+=confHTML(c);});}
     if(!dated.length&&!confs.length)h+=`<div class="note">조건에 맞는 이벤트가 없습니다.</div>`;
     h+=`</div>`;
     v.innerHTML=h;
