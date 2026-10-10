@@ -124,6 +124,7 @@ details.all summary{cursor:pointer;font-size:12px;color:var(--mute)}
 .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;margin-top:4px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px 12px;min-width:0}
 .card.wide{grid-column:1/-1}
+.grid.one{grid-template-columns:minmax(0,1fr)}
 .card .hd{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}
 .card .hd b{font-weight:600;font-size:13px}
 .card .hd .sub{font-size:11px;color:var(--mute)}
@@ -788,7 +789,7 @@ svg.sp{width:66px;height:20px;display:block}
     const week=calAll().filter(c=>isDated(c)&&c.imp!=="low"&&c.sort>=today&&c.sort<=kstToday(-7));
     const month=calAll().filter(c=>c.sort>=today&&c.sort<=kstToday(-30)&&c.imp!=="low");
     const row=(t,x,n)=>`<div class="row"><span class="t">${t}</span><span class="x">${x}</span>${n?`<span class="n">${n}</span>`:""}</div>`;
-    const card=(title,sub,go,body,wide)=>`<section class="card ${wide?"wide":""}"><div class="hd"><b>${title}</b><span class="sub">${sub||""}</span>${go?`<a href="#${go}" data-go="${go}">${KINDS[go]} →</a>`:""}</div>${body||`<div class="none">아직 없음</div>`}</section>`;
+    const card=(title,sub,go,body,wide)=>`<section class="card ${wide?"wide":""}"><div class="hd"><b>${title}</b><span class="sub">${sub||""}</span>${go?`<a href="#${go}" data-go="${go}">→</a>`:""}</div>${body||`<div class="none">아직 없음</div>`}</section>`;
     const newsRow=x=>row(hhmm(x.ts),`<a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.headline||x.title)}</a>`,`<span class="tag">${esc(x.category||"")}</span>`);
     const dartRow=x=>row(hhmm(x.ts),`${coLink(x.company)} <a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.title)}</a>`,"");
     const trRow=x=>row(hhmm(x.ts),`${coLink(x.company)} · ${esc(x.title)}`,`<span class="tag ${x.change==="new"?"new":""}">${TR_CHANGE[x.change]||esc(x.change)}</span>`);
@@ -798,18 +799,27 @@ svg.sp{width:66px;height:20px;display:block}
     const byMove=arr=>[...arr].sort((a,b)=>Math.abs((stockOf(b)||{}).chg_pct||0)-Math.abs((stockOf(a)||{}).chg_pct||0));
     const top=(arr,n)=>arr.slice(0,n);
     const trialsPick=[...data.trials.filter(x=>x.change==="new"||/중단|terminat|withdraw|suspend/i.test((x.lines||[]).join(" ")+x.status)),...data.trials].filter((x,i,a)=>a.indexOf(x)===i);
+    /* Watch List v1 (2026-10-10): 최근 2일 안에 서로 다른 신호가 2가지 이상 겹친 기업. 13F 는 Home 에서 쓰지 않음.
+       신호 = HIGH·MID 뉴스 · 임상 결과(rss 심층분석) · 임상 변동(신규·중단 등) · 7일 내 HIGH·MID 카탈리스트 · 급등락 ±5% 또는 거래량 2배 */
+    const wl=(()=>{const d2=kstToday(1),wk7=kstToday(-7);const M=new Map();const mt=mentions();
+      const add=(e,t)=>{if(!e)return;const o=M.get(e.key)||{e,sig:new Set()};o.sig.add(t);M.set(e.key,o);};
+      data.news.filter(x=>dayOf(x.ts)>=d2&&(x.relevance==="high"||x.relevance==="medium")).forEach(x=>(mt.newsCo.get(x.id)||[]).forEach(e=>add(e,"뉴스")));
+      (data.clinical||[]).filter(x=>dayOf(x.ts)>=d2).forEach(x=>cindex.filter(e=>matchNews(e,{title:x.headline,headline:x.headline,summary:""})).forEach(e=>add(e,"임상 결과")));
+      data.trials.filter(x=>dayOf(x.ts)>=d2).forEach(x=>add(findCompany(x.company),"임상 변동"));
+      calAll().filter(c=>isDated(c)&&c.imp!=="low"&&c.sort>=today&&c.sort<=wk7).forEach(c=>{const e=(c.tk||[]).map(t=>findCompany(t.split(" ")[0])).find(Boolean)||(c.sponsor?findCompany(c.sponsor.split(" / ")[0]):null);{const n=Math.round((new Date(c.sort)-new Date(today))/864e5);add(e,n?"D-"+n:"D-day");}});
+      (m&&m.stocks||[]).filter(s=>Math.abs(s.chg_pct)>=5||(s.vol_ratio||0)>=2).forEach(s=>add(findCompany(s.ticker),Math.abs(s.chg_pct)>=5?(s.chg_pct>0?"급등":"급락"):"거래량"));
+      const kind=t=>/^D/.test(t)?"cat":t;
+      return[...M.values()].map(o=>{const sig=[...o.sig];const st=o.e.tk.map(t=>stockOf(t)).find(Boolean);return{e:o.e,sig,n:new Set(sig.map(kind)).size,st};}).filter(o=>o.n>=2).sort((a,b)=>b.n-a.n||Math.abs((b.st||{}).chg_pct||0)-Math.abs((a.st||{}).chg_pct||0));})();
     const wd=["일","월","화","수","목","금","토"][new Date(today+"T00:00:00Z").getUTCDay()];const dateKo=`${+today.slice(0,4)}년 ${+today.slice(5,7)}월 ${+today.slice(8,10)}일 ${wd}요일`;
     v.innerHTML=`<div class="greet"><div class="g">${dateKo}</div></div>
     
-    <div class="grid">
-      ${card("HIGH 뉴스",hiNews[0]?"최근 "+fmtTs(hiNews[0].ts):"—",`news`,hiNews.length?top(hiNews,7).map(newsRow).join(""):"")}
-      ${card("임상 변경",(data.trials[0]?"최근 "+dayOf(data.trials[0].ts)+" · ":"")+"신규 등록·중단 우선",`trials`,data.trials.length?trialsPick.slice(0,7).map(trRow).join(""):"")}
-      ${card("이번 주 카탈리스트",week.length?`${today} ~ ${kstToday(-7)} · HIGH·MID`:"이번 주 날짜 확정분 없음 · 30일 내 HIGH·MID",`cal`,(week.length?week:month.filter(isDated)).slice(0,10).map(evRow).join(""))}
-      ${card("마켓 무버",m?`${esc(m.date)} 종가 · ▲${(m.stocks||[]).filter(s=>s.chg_pct>0).length} ▼${(m.stocks||[]).filter(s=>s.chg_pct<0).length}`:"",`market`,m?`<div class="two2"><div><h4>상승</h4>${(m.top||[]).slice(0,6).map(mkRowS).join("")}</div><div><h4>하락</h4>${(m.bottom||[]).slice(0,6).map(mkRowS).join("")}</div></div>`:"")}
-      ${card("13F 매집 · 축소 × 전일 등락",hedge?`${esc(hedge.quarter)} 보유(${qInfo(hedge.quarter).end} 기준) × 등락 ${m?esc(m.date):"—"}`:"",`hedge`,hedge?`<div class="two2"><div><h4>매집 ${hedge.accum.length}</h4>${byMove(hedge.accum).slice(0,7).map(hfRow).join("")}</div><div><h4>축소 · 청산 ${hedge.distrib.length}</h4>${byMove(hedge.distrib).slice(0,7).map(hfRow).join("")}</div></div>${m?"":`<div class="none">마켓 데이터가 들어오면 등락이 붙습니다</div>`}`:"")}
-      ${data.macro?card("글로벌마켓",`${esc(data.macro.date)} · 지수 · 금리 · 심리`,`macro`,(()=>{const mc=data.macro;const all=Object.values(mc.indices).flat();const pick=["^GSPC","^IXIC","^NBI","^STOXX","^N225","000300.SS","^KS11","^KQ11"].map(t=>all.find(r=>r.t===t)).filter(Boolean);const t10=(mc.rates||[]).find(r=>r.t==="^TNX"),hy=(mc.fred||[]).find(r=>r.id==="BAMLH0A0HYM2"),vix=(mc.vol||[]).find(r=>r.t==="^VIX"),fg=mc.fear_greed;return`<div class="two2"><div>${pick.map(r=>row("",esc(r.name),`<span class="num ${cls(r.chg)}">${bbar(r.chg,8,1)}${fmtPct(r.chg)}</span>`)).join("")}</div><div>${fg?row("",`Fear &amp; Greed`,`<span class="num"><b>${fg.score.toFixed(0)}</b> ${FG_KO[fg.rating]||esc(fg.rating)}</span>`):""}${t10?row("",`미 10년`,`<span class="num">${t10.last.toFixed(2)}% <span class="${t10.chg_bp>0?"down":"up"}">${fmtBp(t10.chg_bp)}</span></span>`):""}${hy?row("",`HY 스프레드`,`<span class="num">${hy.last.toFixed(2)}% <span class="${hy.chg_bp>0?"down":"up"}">${fmtBp(hy.chg_bp)}</span></span>`):""}${vix?row("",`VIX`,`<span class="num">${vix.last.toFixed(2)} <span class="${vix.chg>0?"down":"up"}">${fmtPct(vix.chg)}</span></span>`):""}${(mc.us_sectors||[]).length?row("",`섹터 1위 / 꼴찌`,`<span class="num"><span class="up">${esc(mc.us_sectors[0].name)} ${fmtPct(mc.us_sectors[0].chg)}</span> · <span class="down">${esc(mc.us_sectors[mc.us_sectors.length-1].name)} ${fmtPct(mc.us_sectors[mc.us_sectors.length-1].chg)}</span></span>`):""}</div></div>`;})()):""}
-      ${m&&(m.stocks||[]).some(s=>s.rsi14!=null)?card("기술 신호","급등락 · 거래량 · RSI · 52주",`market`,(m.stocks||[]).map(s=>({s,n:sigs(s).length})).filter(o=>o.n).sort((a,b)=>b.n-a.n||Math.abs(b.s.chg_pct)-Math.abs(a.s.chg_pct)).slice(0,8).map(o=>row("",`${tkChip(o.s.ticker,accumSet().has(o.s.ticker)?"acc":distSet().has(o.s.ticker)?"dis":"")} ${coLink(o.s.name)}`,`${sigHTML(o.s)}<span class="num ${cls(o.s.chg_pct)}">${fmtPct(o.s.chg_pct)}</span>`)).join("")):""}
-      ${card("13F 매집·축소 종목 소식","뉴스·임상 중 헷지펀드 신호 종목",`hedge`,accumHits.length?accumHits.slice(0,8).map(({k,x})=>k==="news"?row(hhmm(x.ts),`<a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.headline||x.title)}</a>`,hfTagFor([x.title,x.headline,x.summary].join(" "))):row(hhmm(x.ts),`${coLink(x.company)} · ${esc(x.title)}`,hfTagFor(x.company+" "+x.sponsor))).join(""):"")}
+    <div class="grid one">
+      ${card("Watch List",wl.length?"최근 2일 신호가 2가지 이상 겹친 기업":"신호가 겹친 기업 없음","",wl.length?wl.slice(0,10).map(o=>row("",`${coLink(o.e.name,o.e.name===o.e.tk[0]&&o.st?o.st.name:o.e.name)}${o.e.tk[0]&&!/ /.test(o.e.tk[0])?` <span class="tag">${esc(o.e.tk[0])}</span>`:""}`,`${o.sig.map(t=>`<span class="tag">${esc(t)}</span>`).join("")}${o.st?` <span class="num ${cls(o.st.chg_pct)}">${fmtPct(o.st.chg_pct)}</span>`:""}`)).join(""):"")}
+      ${data.macro?card("Global Markets",`${esc(data.macro.date)}`,`macro`,(()=>{const mc=data.macro;const all=Object.values(mc.indices).flat();const pick=["^GSPC","^IXIC","^NBI","^STOXX","^N225","000300.SS","^KS11","^KQ11"].map(t=>all.find(r=>r.t===t)).filter(Boolean);const t10=(mc.rates||[]).find(r=>r.t==="^TNX"),hy=(mc.fred||[]).find(r=>r.id==="BAMLH0A0HYM2"),vix=(mc.vol||[]).find(r=>r.t==="^VIX"),fg=mc.fear_greed;return`<div class="two2"><div>${pick.map(r=>row("",esc(r.name),`<span class="num ${cls(r.chg)}">${bbar(r.chg,8,1)}${fmtPct(r.chg)}</span>`)).join("")}</div><div>${fg?row("",`Fear &amp; Greed`,`<span class="num"><b>${fg.score.toFixed(0)}</b> ${FG_KO[fg.rating]||esc(fg.rating)}</span>`):""}${t10?row("",`미 10년`,`<span class="num">${t10.last.toFixed(2)}% <span class="${t10.chg_bp>0?"down":"up"}">${fmtBp(t10.chg_bp)}</span></span>`):""}${hy?row("",`HY 스프레드`,`<span class="num">${hy.last.toFixed(2)}% <span class="${hy.chg_bp>0?"down":"up"}">${fmtBp(hy.chg_bp)}</span></span>`):""}${vix?row("",`VIX`,`<span class="num">${vix.last.toFixed(2)} <span class="${vix.chg>0?"down":"up"}">${fmtPct(vix.chg)}</span></span>`):""}${(mc.us_sectors||[]).length?row("",`섹터 1위 / 꼴찌`,`<span class="num"><span class="up">${esc(mc.us_sectors[0].name)} ${fmtPct(mc.us_sectors[0].chg)}</span> · <span class="down">${esc(mc.us_sectors[mc.us_sectors.length-1].name)} ${fmtPct(mc.us_sectors[mc.us_sectors.length-1].chg)}</span></span>`):""}</div></div>`;})()):""}
+      ${card("US Healthcare Equities",m?`${esc(m.date)} 종가 · ▲${(m.stocks||[]).filter(s=>s.chg_pct>0).length} ▼${(m.stocks||[]).filter(s=>s.chg_pct<0).length}`:"",`market`,m?`<div class="two2"><div><h4>상승</h4>${(m.top||[]).slice(0,6).map(mkRowS).join("")}</div><div><h4>하락</h4>${(m.bottom||[]).slice(0,6).map(mkRowS).join("")}</div></div>`:"")}
+      ${card("Newsflow",hiNews[0]?"HIGH · 최근 "+fmtTs(hiNews[0].ts):"HIGH",`news`,hiNews.length?top(hiNews,7).map(newsRow).join(""):"")}
+      ${card("Clinical Trials",data.trials[0]?"신규 등록·중단 우선 · 최근 "+dayOf(data.trials[0].ts):"",`trials`,data.trials.length?trialsPick.slice(0,7).map(trRow).join(""):"")}
+      ${card("Catalysts",week.length?`이번 주 · ${today} ~ ${kstToday(-7)} · HIGH·MID`:"30일 내 HIGH·MID",`cal`,(week.length?week:month.filter(isDated)).slice(0,10).map(evRow).join(""))}
     </div>`;
     v.querySelectorAll("[data-go]").forEach(a=>a.onclick=e=>{e.preventDefault();setTab(a.dataset.go);});
   }
