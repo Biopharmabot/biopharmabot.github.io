@@ -228,7 +228,7 @@ svg.spark{width:100%;height:56px;display:block}
 .cbar span{opacity:.75;font-weight:400}
 .cbar.past{background:var(--cbar-past);color:var(--cbar-past-fg)}
 .mg .wd{font-size:10px;color:var(--mute);text-align:center;font-family:var(--mono);padding:2px 0}
-.mg .dc{min-height:96px;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:3px 5px;font-size:11px;cursor:pointer;min-width:0}
+.mg .dc{height:140px;overflow:hidden;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:3px 5px;font-size:11px;cursor:pointer;min-width:0}
 .mg .dc.o{opacity:.45} .mg .dc.td{border-color:var(--fg)} .mg .dc.sel{background:var(--panel2);border-color:var(--fg)}
 .mg .dc .d{font-family:var(--mono);color:var(--mute);font-size:10px}
 .mg .dc .e{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35}
@@ -420,7 +420,7 @@ svg.sp{width:66px;height:20px;display:block}
     const er=data.earnings,up=data.upcoming;const key=(cal?cal.generated+cal.n:"")+"|"+(bb?bb.asof+bb.n:"")+"|"+(er?er.date+er.n:"")+"|"+(kw?kw.asof+kw.n:"")+"|"+(up?up.asof+up.n:"");if(_calAll&&_calKey===key)return _calAll;_calKey=key;
     const out=[],idx=new Map();const keys=c=>c.tk.map(t=>`${c.sort}|${c.type}|${t.split(" ")[0].toUpperCase()}`);
     (cal?cal.items:[]).forEach(c=>{out.push(c);keys(c).forEach(kk=>idx.set(kk,c));});
-    (bb?bb.items:[]).forEach(b=>{const h=keys(b).map(kk=>idx.get(kk)).find(x=>x&&x.src!=="both");if(h){const m={...b,src:"both",imp:IMPO[h.imp]<IMPO[b.imp]?h.imp:b.imp,nct:h.nct||b.nct,ta:b.ta||h.ta,region:h.region,tk:[...new Set([...b.tk,...h.tk])]};out[out.indexOf(h)]=m;keys(m).forEach(kk=>idx.set(kk,m));}else out.push(b);});
+    (bb?bb.items:[]).filter(b=>b.cat!=="Medical Association Meetings").forEach(b=>{const h=keys(b).map(kk=>idx.get(kk)).find(x=>x&&x.src!=="both");if(h){const m={...b,src:"both",imp:IMPO[h.imp]<IMPO[b.imp]?h.imp:b.imp,nct:h.nct||b.nct,ta:b.ta||h.ta,region:h.region,tk:[...new Set([...b.tk,...h.tk])]};out[out.indexOf(h)]=m;keys(m).forEach(kk=>idx.set(kk,m));}else out.push(b);});
     (up?up.items:[]).forEach(u=>{const ph=(u.phases||[]).map(p=>p.replace("PHASE","")).join("/");const mo=u.pcd.length===7;out.push({id:"up-"+u.nct,src:"up",region:u.region||"KR",sponsor:u.company,asset:(u.interv||[])[0]||u.title,ind:(u.cond||[]).join(" / "),ta:"",type:"trial-milestone",status:"upcoming",date:u.pcd,sort:mo?u.pcd+"-01":u.pcd,prec:mo?"month":"day",end:u.pcd,imp:(u.phases||[]).includes("PHASE3")?"medium":"low",stage:ph?"Phase "+ph:null,nct:u.nct,tk:[],event:"1차 완료 예정"+(u.enroll?" · "+u.enroll+"명":"")});});
     (er?er.items:[]).forEach(e=>{const mc=e.mcap||0;out.push({id:"er-"+e.ticker,src:"er",region:"GLOBAL",sponsor:e.name,asset:"실적 발표",ind:"",ta:"",type:"earnings",status:"upcoming",date:e.date_end?e.date+"~"+e.date_end:e.date,sort:e.date,prec:e.date_end?"range":"day",end:e.date_end||e.date,imp:mc>=5e10?"high":mc>=5e9?"medium":"low",stage:null,nct:null,tk:[e.ticker],event:e.eps_est!=null?"EPS 컨센서스 "+(+e.eps_est).toFixed(2):""});});
     /* 키움 달력은 보조 소스: 같은 유형 묶음에서 같은 회사(티커 또는 회사명) 건이 이미 있으면 뺀다(실적은 ±3일, 그 외 같은 날). 글로벌은 우리 수집분이 메인 — 2026-10-10 */
@@ -698,11 +698,11 @@ svg.sp{width:66px;height:20px;display:block}
       /* 이 주에 걸친 학회 → 줄(lane) 배정 */
       const segs=confs.filter(c=>c.start<=b&&c.end>=a).sort((x,y)=>x.start<y.start?-1:1).map(c=>{const s0=c.start<a?0:Math.round((new Date(c.start)-d0)/864e5);const e0=c.end>b?6:Math.round((new Date(c.end)-d0)/864e5);return{c,s0,e0};});
       const lanes=[];segs.forEach(sg=>{let L=lanes.findIndex(l=>l.every(o=>o.e0<sg.s0||o.s0>sg.e0));if(L<0){lanes.push([]);L=lanes.length-1;}lanes[L].push(sg);sg.lane=L;});
-      const pad=lanes.length?16+lanes.length*17:0;
+      const pad=lanes.length*17;const rows=Math.max(1,7-lanes.length);
       let cells="";
       for(let i=0;i<7;i++){const d=new Date(d0.getTime()+i*864e5);const k=iso(d);const inM=k.slice(0,7)===calMonth;const ev=byDay.get(k)||[];
-        cells+=`<div class="dc ${inM?"":"o"} ${k===today?"td":""}" data-day="${k}" title="${k} · ${ev.length}건" style="padding-top:${3+pad}px;min-height:${96+pad}px"><div class="d">${d.getUTCDate()}</div>${ev.slice(0,5).map(c=>`<div class="e"><i class="g-${CT_GROUP_OF[c.type]||"etc"}"></i>${esc(c.sponsor.split(" / ")[0])} ${esc(c.asset)}</div>`).join("")}${ev.length>5?`<div class="mo">+${ev.length-5}</div>`:""}</div>`;}
-      const bars=segs.map(sg=>`<div class="cbar ${sg.c.end<today?"past":""}" style="top:${18+sg.lane*17}px;left:calc(${sg.s0}/7*100% + 2px);width:calc(${sg.e0-sg.s0+1}/7*100% - 4px)" title="${esc(sg.c.name)} · ${esc(sg.c.start)}~${esc(sg.c.end)}${sg.c.city?" · "+esc(sg.c.city):""}"><b>${esc(sg.c.short)}</b> ${esc(sg.c.name)}${sg.c.city?` <span>· ${esc(sg.c.city)}</span>`:""}</div>`).join("");
+        cells+=`<div class="dc ${inM?"":"o"} ${k===today?"td":""}" data-day="${k}" title="${k} · ${ev.length}건" ><div class="d">${d.getUTCDate()}</div><div style="height:${pad}px"></div>${ev.slice(0,rows).map(c=>`<div class="e"><i class="g-${CT_GROUP_OF[c.type]||"etc"}"></i>${esc(c.sponsor.split(" / ")[0])} ${esc(c.asset)}</div>`).join("")}${ev.length>rows?`<div class="mo">+${ev.length-rows}</div>`:""}</div>`;}
+      const bars=segs.map(sg=>`<div class="cbar ${sg.c.end<today?"past":""}" style="top:${19+sg.lane*17}px;left:calc(${sg.s0}/7*100% + 2px);width:calc(${sg.e0-sg.s0+1}/7*100% - 4px)" title="${esc(sg.c.name)} · ${esc(sg.c.start)}~${esc(sg.c.end)}${sg.c.city?" · "+esc(sg.c.city):""}"><b>${esc(sg.c.short)}</b> ${esc(sg.c.name)}${sg.c.city?` <span>· ${esc(sg.c.city)}</span>`:""}</div>`).join("");
       weeks+=`<div class="wk">${cells}${bars}</div>`;
     }
     const pm=new Date(Date.UTC(yy,mm-2,1)).toISOString().slice(0,7),nm=new Date(Date.UTC(yy,mm,1)).toISOString().slice(0,7);
