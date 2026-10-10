@@ -24,6 +24,7 @@ Biopharmabot/                ← git: Biopharmabot/biopharmabot.github.io (페�
   data/catalyst.json         tools/export_catalyst.py  ← D:\Hub\hub.sqlite catalyst (upcoming/imminent · 수시)
   data/companies.json        (export_catalyst.py가 같이 씀) Hub company krx·bloomberg + bots/daily/tickers.csv
   data/bloomberg.json        tools/export_bloomberg.py ← D:\Catalyst\raw\excel\Biopharma_catalyst_YYYYMMDD.xlsx 최신 (주 1회)
+  tools/build_conferences.py 학회·컨퍼런스 목록(이름·2026/2027 날짜·도시·설명·초록 공개일)을 코드 안 표로 들고 data/conferences.json 생성. 날짜 추가·수정은 이 파일을 고쳐 실행 → commit
   tools/import_kiwoom.py     키움증권 'Kiwoom Healthcare 종합정리' 주간 PDF(D:\Download) 1페이지 '향후 한달 이벤트 달력' → data/kiwoom.json (좌표로 격자 복원 · 여러 호 중복 제거 · 유형은 키워드 · 회사는 companies.json 매칭). **1~2주에 한 번** 새 PDF 받은 뒤 실행 → commit·push(이전 호와 중복은 자동 제거). 페이지는 Hub·Bloomberg 와 합쳐 보여 주되 **키움은 국내 기업만, 추정((E)·예상·추정) 제외**(2026-10-10 사용자): 같은 유형 묶음에 같은 회사(티커·회사명) 건이 이미 있으면 뺀다(실적은 ±3일). 약칭→티커 사전(ALIAS)·"A, B 실적" 분리 포함. 출처 표기는 없음
   bots/daily/ipo_watch.py    IPO 대기 목록(GCS feed/ipo/watch.json): `list` · `add TICKER "회사명" [--note]` · `remove TICKER` · `check`. daily 봇(v1.34)이 매 실행 때 대기 종목을 야후에 조회해 시세가 생기면 유니버스에 편입(source=IPO, 티커가 안 잡히면 회사명 검색)하고 텔레그램 캡션에 "신규 상장 편입" 한 줄. 재배포 없음
   tools/sync_news_db.py      GCS feed(news·dart·trials·clinical 날짜 파일) → D:\NEWS\news.sqlite + ctgov 스냅샷(비공개 버킷, 테이블 ctgov 43k건, D:\NEWS\ctgov\)·공개 feed(upcoming·company index·earnings·ipo → D:\NEWS\feed\). **매일 08:40 자동**: Windows 작업 스케줄러 'Biopharmabot local sync' → D:\NEWS\sync.cmd → 로그 D:\NEWS\sync.log (2026-10-10 등록). 수동은 같은 명령, --no-ctgov 로 feed 만
