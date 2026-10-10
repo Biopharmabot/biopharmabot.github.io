@@ -340,8 +340,8 @@ svg.sp{width:66px;height:20px;display:block}
   async function getJSON(path,abs){try{const r=await fetch((abs?"":BASE)+path+"?t="+Math.floor(Date.now()/60000),{cache:"no-store"});if(!r.ok)return null;return await r.json();}catch(e){return null;}}
   function merge(kind,arr){if(!Array.isArray(arr))return;const have=new Set(data[kind].map(x=>x.id));arr.forEach(x=>{if(!x.id||!have.has(x.id)){data[kind].push(x);have.add(x.id);}});data[kind].sort((a,b)=>(b.ts||"")<(a.ts||"")?-1:1);}
   async function loadLatest(){
-    const [n,d,t,m,mc,er]=await Promise.all([getJSON("news/latest.json"),getJSON("clinical/latest.json"),getJSON("trials/latest.json"),getJSON("market/latest.json"),getJSON("macro/latest.json"),getJSON("earnings/latest.json")]);
-    merge("news",n);merge("clinical",d);merge("trials",t);if(m&&m.date)data.market=m;if(mc&&mc.date)data.macro=mc;if(er&&er.items)data.earnings=er;   /* DART 는 대시보드에서 수집 안 함(2026-10-10 사용자 결정, 봇·텔레그램은 그대로) */
+    const [n,d,t,m,mc,er,up]=await Promise.all([getJSON("news/latest.json"),getJSON("clinical/latest.json"),getJSON("trials/latest.json"),getJSON("market/latest.json"),getJSON("macro/latest.json"),getJSON("earnings/latest.json"),getJSON("ctgov/upcoming.json")]);
+    merge("news",n);merge("clinical",d);merge("trials",t);if(m&&m.date)data.market=m;if(mc&&mc.date)data.macro=mc;if(er&&er.items)data.earnings=er;if(up&&up.items)data.upcoming=up;   /* DART 는 대시보드에서 수집 안 함(2026-10-10 사용자 결정, 봇·텔레그램은 그대로) */
     render();
   }
   async function loadStatic(){
@@ -403,11 +403,12 @@ svg.sp{width:66px;height:20px;display:block}
   const IMPO={high:0,medium:1,low:2};
   let _calAll=null,_calKey="";
   function calAll(){ // Hub+Bloomberg 합치고, 같은 날짜·유형·티커면 한 건으로(BB 설명문 우선, src="both")
-    const er=data.earnings;const key=(cal?cal.generated+cal.n:"")+"|"+(bb?bb.asof+bb.n:"")+"|"+(er?er.date+er.n:"")+"|"+(kw?kw.asof+kw.n:"");if(_calAll&&_calKey===key)return _calAll;_calKey=key;
+    const er=data.earnings,up=data.upcoming;const key=(cal?cal.generated+cal.n:"")+"|"+(bb?bb.asof+bb.n:"")+"|"+(er?er.date+er.n:"")+"|"+(kw?kw.asof+kw.n:"")+"|"+(up?up.asof+up.n:"");if(_calAll&&_calKey===key)return _calAll;_calKey=key;
     const out=[],idx=new Map();const keys=c=>c.tk.map(t=>`${c.sort}|${c.type}|${t.split(" ")[0].toUpperCase()}`);
     (cal?cal.items:[]).forEach(c=>{out.push(c);keys(c).forEach(kk=>idx.set(kk,c));});
     (bb?bb.items:[]).forEach(b=>{const h=keys(b).map(kk=>idx.get(kk)).find(x=>x&&x.src!=="both");if(h){const m={...b,src:"both",imp:IMPO[h.imp]<IMPO[b.imp]?h.imp:b.imp,nct:h.nct||b.nct,ta:b.ta||h.ta,region:h.region,tk:[...new Set([...b.tk,...h.tk])]};out[out.indexOf(h)]=m;keys(m).forEach(kk=>idx.set(kk,m));}else out.push(b);});
     (kw?kw.items:[]).forEach(k=>{const ks=k.tk.length?keys(k):[`${k.sort}|${k.type}|${k.asset}`];if(ks.some(kk=>idx.has(kk)))return;out.push(k);ks.forEach(kk=>idx.set(kk,k));});
+    (up?up.items:[]).forEach(u=>{const ph=(u.phases||[]).map(p=>p.replace("PHASE","")).join("/");const mo=u.pcd.length===7;out.push({id:"up-"+u.nct,src:"up",region:u.region||"KR",sponsor:u.company,asset:(u.interv||[])[0]||u.title,ind:(u.cond||[]).join(" / "),ta:"",type:"trial-milestone",status:"upcoming",date:u.pcd,sort:mo?u.pcd+"-01":u.pcd,prec:mo?"month":"day",end:u.pcd,imp:(u.phases||[]).includes("PHASE3")?"medium":"low",stage:ph?"Phase "+ph:null,nct:u.nct,tk:[],event:"1차 완료 예정"+(u.enroll?" · "+u.enroll+"명":"")});});
     (er?er.items:[]).forEach(e=>{const mc=e.mcap||0;out.push({id:"er-"+e.ticker,src:"er",region:"GLOBAL",sponsor:e.name,asset:"실적 발표",ind:"",ta:"",type:"earnings",status:"upcoming",date:e.date_end?e.date+"~"+e.date_end:e.date,sort:e.date,prec:e.date_end?"range":"day",end:e.date_end||e.date,imp:mc>=5e10?"high":mc>=5e9?"medium":"low",stage:null,nct:null,tk:[e.ticker],event:e.eps_est!=null?"EPS 컨센서스 "+(+e.eps_est).toFixed(2):""});});
     _calAll=out.sort((a,b)=>a.sort<b.sort?-1:a.sort>b.sort?1:(IMPO[a.imp]??3)-(IMPO[b.imp]??3));return _calAll;}
   function hfHit(text,tickers){ // 헷지펀드 매집/축소 매칭(티커 집합 또는 본문) → {a,d} 또는 null. 개요 '13F 소식' 카드 필터용
