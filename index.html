@@ -414,7 +414,15 @@ svg.sp{width:66px;height:20px;display:block}
   function findCompany(s){const k=core(s)||String(s||"").toLowerCase();return cindex.find(e=>e.core===k||e.tk.includes(String(s).toUpperCase())||e.krx===s)||null;}
   function tkOf(e){return new Set(e.tk.map(t=>t.toUpperCase()));}
   const tkRe=t=>new RegExp("(?:\\(|\\b(?:nasdaq|nyse|nyse american|tsx|asx)[:\\s]+)"+t.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\b","i");
-  function matchNews(e,x){const hay=[x.title,x.headline,x.summary].join(" ");const low=hay.toLowerCase();if(e.core.length>=4&&!/^[a-z]{1,3}$/.test(e.core)&&low.includes(e.core))return true;if(/[가-힣]/.test(e.name)&&hay.includes(e.name))return true;return e.tk.some(t=>t.length>=3&&!t.includes(" ")&&tkRe(t).test(hay));}
+  const COMMON_CORE=new Set("assembly atrium aura beam bicycle castle century clarity climb cogent compass context crispr design disc edgewise fate fulcrum grail harmony harrow heron innate jade jazz kodiak legend lexicon ligand mane maze milestone odyssey outlook perspective precision prevail prime rapport relay revolution rhythm rocket scribe seaport silence skye solid spruce spyglass stoke structure summit tango tris turn twist united upstream vertex viking voyager waters werewolf zealand denali gossamer ironwood".split(" "));
+  function matchNews(e,x){const hay=[x.title,x.headline,x.summary].join(" ");const low=hay.toLowerCase();
+    /* 회사명 매칭(2026-10-10 수정): 단어 경계로만 찾고, 'structure'·'summit'처럼 일반 영어 단어인 한 단어 이름은
+       'Structure Therapeutics' 같은 전체 이름이 나올 때만 인정 — 'capital structure' 기사에 엉뚱한 회사가 붙던 문제 */
+    const esc_=w=>w.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");const wb=w=>new RegExp("(^|[^a-z0-9])"+esc_(w)+"($|[^a-z0-9])","i");
+    const full=String(e.name||"").toLowerCase().replace(/[,.]/g," ").replace(/\b(inc|corp|corporation|co|ltd|plc|sa|ag|nv|llc|lp|class a|cl a)\b\.?/g," ").replace(/\s+/g," ").trim();
+    if(full.length>=5&&/\s/.test(full)&&wb(full).test(low))return true;
+    if(e.core.length>=4&&!/^[a-z]{1,3}$/.test(e.core)&&!COMMON_CORE.has(e.core)&&wb(e.core).test(low))return true;
+    if(/[가-힣]/.test(e.name)&&hay.includes(e.name))return true;return e.tk.some(t=>t.length>=3&&!t.includes(" ")&&tkRe(t).test(hay));}
   function matchName(e,s){if(!s)return false;const k=core(s);return k===e.core||(k.length>=4&&e.core.length>=4&&(k.includes(e.core)||e.core.includes(k)));}
   function companyData(e){
     const tk=tkOf(e);
