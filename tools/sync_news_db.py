@@ -63,6 +63,18 @@ def sync_ctgov(con, pub_bucket):
                 print(f"[feed] {name}: 아직 없음")   # ipo/watch.json 은 대기 목록을 처음 등록할 때 생김
             else:
                 print(f"[feed 실패] {name}: {e}")
+    # 마켓·매크로 일별 스냅샷(feed/market/<날짜>.json, feed/macro/<날짜>.json + kr_sector_hist.json) — 새 날짜만
+    for kind in ("market", "macro"):
+        kdir = os.path.join(fdir, kind); os.makedirs(kdir, exist_ok=True)
+        have = set(os.listdir(kdir)); n = 0
+        for blob in pub_bucket.list_blobs(prefix=f"feed/{kind}/"):
+            name = os.path.basename(blob.name)
+            if not name.endswith(".json") or name == "latest.json":
+                continue
+            if name in have and name != "kr_sector_hist.json":
+                continue
+            blob.download_to_filename(os.path.join(kdir, name)); n += 1
+        print(f"[feed] {kind}: 새 파일 {n}개 → {kdir} (총 {len(os.listdir(kdir))}개)")
     gcloud = shutil.which("gcloud") or shutil.which("gcloud.cmd")
     if not gcloud:
         print("[ctgov] gcloud 없음 — 스냅샷 생략"); return
