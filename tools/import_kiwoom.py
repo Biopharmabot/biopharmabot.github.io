@@ -75,6 +75,29 @@ def match_company(text, comps):
 TYPE_CANON = {"earnings": "earnings", "approval": "regulatory-decision", "meeting": "data-presentation", "readout": "phase-readout", "trial": "trial-milestone"}
 
 
+def split_multi(text, comps):
+    """'ESMO (10/23~27) ; 에이비엘 ABL111 1b, 503 1상, 001 구두, 리가켐 LCB02A, 큐리언트 등' 처럼 한 칸에 여러 회사가 묶인 문구를
+    회사별 항목으로 나눈다. 회사명으로 시작하는 조각이 새 항목, 그렇지 않은 조각은 앞 항목에 붙인다. 앞머리(학회명 등)는 각 항목 끝에 괄호로."""
+    segs = [x.strip(" .") for x in re.split(r"\s*[;,]\s*", text) if x.strip(" .")]
+    if len(segs) < 3:
+        return [text]
+    ctx, items = [], []
+    for sg in segs:
+        first = sg.split(" ")[0]
+        mc = match_company(first, comps) if re.search(r"[가-힣]", first) and len(first) >= 3 else None
+        if mc:
+            items.append(sg)
+        elif items:
+            items[-1] += ", " + sg
+        else:
+            ctx.append(sg)
+    if len(items) < 2:
+        return [text]
+    ctx_clean = re.sub(r"\s*\([^)]*\)", "", " ".join(ctx)).strip(" ;,")   # 'ESMO (10/23~27)' → 'ESMO'
+    suffix = (" · " + ctx_clean) if ctx_clean else ""
+    return [re.sub(r"\s+등$", "", it) + suffix for it in items]
+
+
 def classify(text):
     """페이지 CT_TYPE/CT_GROUP 이 아는 유형 코드로 돌려준다."""
     for k, rx in TYPE_RULES:
@@ -205,8 +228,9 @@ def main():
         latest = max(latest or rep, rep)
         print(f"{os.path.basename(p)}: {len(items)}건")
         for it in items:
-            key = (it["date"], re.sub(r"\s", "", it["text"]).lower())
-            seen[key] = {**it, "rep": rep.isoformat()}
+            for t in split_multi(it["text"], comps):
+                key = (it["date"], re.sub(r"\s", "", t).lower())
+                seen[key] = {**it, "text": t, "rep": rep.isoformat()}
     uniq = {}
     for (d, _), it in sorted(seen.items()):
         k = (classify(it["text"]), re.sub(r"\s|\(.*?\)", "", it["text"]).lower())
@@ -228,7 +252,7 @@ def main():
             nxt = re.split(r"[/,]", toks[1])[0].lower() if len(toks) > 1 else ""
             cont = nxt and nxt in mc[0].lower().split()   # 'Daiichi Sankyo/Merck' 처럼 회사명이 이어지면 그대로 둔다
             if mc[0].lower().startswith(first.lower().rstrip("-–,")) and len(t) > len(first) + 2 and not t[len(first):].startswith(("/", ",")) and not cont:
-                t = t[len(first):].lstrip(" -–,")
+                t = t[len(first):].lstrip(" -–,·")
         region = ("KR" if (mc[2] or re.search(r"[가-힣]", mc[0])) else "GLOBAL") if mc else region_of(t)
         if region != "KR":   # 키움 달력은 국내 기업만 가져온다(해외는 자체 수집분과 중복) — 2026-10-10 사용자
             continue

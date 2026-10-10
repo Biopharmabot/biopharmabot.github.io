@@ -1,7 +1,7 @@
 {
  "generated": "2026-10-10",
  "asof": "2026-10-06",
- "n": 27,
+ "n": 29,
  "items": [
   {
    "id": "kw-2026-08-06-휴젤-실적",
@@ -554,11 +554,32 @@
    "rep": "2026-10-06"
   },
   {
-   "id": "kw-2026-10-23-ESMO-10-23-27-에이비엘-ABL111-1b-503-1상-001-구두-리가켐-LCB02A-CLDN18-2-ADC-큐리",
+   "id": "kw-2026-10-23-LCB02A-CLDN18-2-ADC-ESMO",
+   "src": "kw",
+   "region": "KR",
+   "sponsor": "리가켐바이오",
+   "asset": "LCB02A(CLDN18.2 ADC) · ESMO",
+   "event": "",
+   "ind": "",
+   "ta": "",
+   "type": "data-presentation",
+   "status": "upcoming",
+   "date": "2026-10-23",
+   "sort": "2026-10-23",
+   "prec": "day",
+   "end": "2026-10-23",
+   "imp": "medium",
+   "stage": null,
+   "nct": null,
+   "tk": [],
+   "rep": "2026-10-06"
+  },
+  {
+   "id": "kw-2026-10-23-ABL111-1b-503-1상-001-구두-ESMO",
    "src": "kw",
    "region": "KR",
    "sponsor": "에이비엘바이오",
-   "asset": "ESMO (10/23~27) ; 에이비엘 ABL111 1b, 503 1상, 001 구두, 리가켐 LCB02A(CLDN18.2 ADC), 큐리언트 등",
+   "asset": "ABL111 1b, 503 1상, 001 구두 · ESMO",
    "event": "",
    "ind": "",
    "ta": "",
@@ -574,6 +595,27 @@
    "tk": [
     "298380"
    ],
+   "rep": "2026-10-06"
+  },
+  {
+   "id": "kw-2026-10-23-ESMO",
+   "src": "kw",
+   "region": "KR",
+   "sponsor": "큐리언트",
+   "asset": "ESMO",
+   "event": "",
+   "ind": "",
+   "ta": "",
+   "type": "data-presentation",
+   "status": "upcoming",
+   "date": "2026-10-23",
+   "sort": "2026-10-23",
+   "prec": "day",
+   "end": "2026-10-23",
+   "imp": "medium",
+   "stage": null,
+   "nct": null,
+   "tk": [],
    "rep": "2026-10-06"
   }
  ]
