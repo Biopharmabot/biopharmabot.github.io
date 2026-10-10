@@ -541,7 +541,7 @@ svg.sp{width:66px;height:20px;display:block}
       main=h+`</div><button class="more" id="more" type="button">이전 날짜 더 보기</button>`;
     }
     const latest=srcList().map(x=>x.ts||"").sort().pop()||"";
-    const hdr=`<div class="hdr"><b>${tab==="news"?"Newsflow":tab==="trials"?"Clinical Trials":esc(KINDS[tab]||tab)}</b><span class="sub">업데이트 ${latest?esc(latest.slice(0,16).replace("T"," ")):"—"}</span></div>`;
+    const hdr=`<div class="hdr"><b>${tab==="news"?"Newsflow":tab==="trials"?"Clinical Trials":esc(KINDS[tab]||tab)}</b>${tab==="trials"?"":`<span class="sub">업데이트 ${latest?esc(latest.slice(0,16).replace("T"," ")):"—"}</span>`}</div>`;
     v.innerHTML=hdr+main;   // 탭 헤더 영어 + 업데이트 시각(2026-10-10 통일) · 사이드바 없음
     const b=$("more");if(b)b.onclick=async()=>{const k=srcKind();if(k==="both"){await loadMore("clinical");await loadMore("trials");}else loadMore(k);};
     v.querySelectorAll("[data-go]").forEach(a=>a.onclick=e=>{e.preventDefault();setTab(a.dataset.go);});
