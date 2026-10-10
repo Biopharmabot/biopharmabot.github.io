@@ -24,7 +24,7 @@ Biopharmabot/                ← git: Biopharmabot/biopharmabot.github.io (페�
   data/catalyst.json         tools/export_catalyst.py  ← D:\Hub\hub.sqlite catalyst (upcoming/imminent · 수시)
   data/companies.json        (export_catalyst.py가 같이 씀) Hub company krx·bloomberg + bots/daily/tickers.csv
   data/bloomberg.json        tools/export_bloomberg.py ← D:\Catalyst\raw\excel\Biopharma_catalyst_YYYYMMDD.xlsx 최신 (주 1회)
-  tools/sync_news_db.py      GCS feed(news·dart·trials 날짜 파일) → D:\NEWS\news.sqlite (로컬 조회용 사본 · 원할 때 실행 · 새 날짜만 추가)
+  tools/sync_news_db.py      GCS feed(news·dart·trials·clinical 날짜 파일) → D:\NEWS\news.sqlite (로컬 조회용 사본 · 원할 때 실행 · 새 날짜만 추가)
 ews.sqlite (로컬 조회용 사본 · 원할 때 실행 · 새 날짜만 추가)
   tools/backfill_telegram.py 텔레그램 채널 내보내기(HTML) → feed 날짜 파일 생성·GCS 업로드 (2026-10-09 1회 수행 · 4/24~10/8 뉴스·DART)
   db/                        (gitignore) backfill/ 임시 산출물

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""GCS 공개 feed(news·dart·trials 날짜별 JSON) → 로컬 SQLite D:/NEWS/news.sqlite (환경변수 NEWS_DB로 변경 가능)
+"""GCS 공개 feed(news·dart·trials·clinical 날짜별 JSON) → 로컬 SQLite D:/NEWS/news.sqlite (환경변수 NEWS_DB로 변경 가능)
 
 사용:  python tools/sync_news_db.py            # 새 날짜만 추가(오늘·어제는 항상 다시 읽음)
        python tools/sync_news_db.py --full     # 전체 날짜 다시 읽기
@@ -12,7 +12,7 @@ import sys, os, json, sqlite3, datetime as dt, argparse
 from google.cloud import storage
 
 BUCKET = "biopharmabot-public"
-KINDS = ["news", "dart", "trials"]
+KINDS = ["news", "dart", "trials", "clinical"]   # clinical = rss 봇 임상 심층분석(v57~, 2026-10-10 Hub 동기화 추가)
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DB = os.environ.get("NEWS_DB", r"D:\NEWS\news.sqlite")  # 환경변수 NEWS_DB로 변경 가능
 KST = dt.timezone(dt.timedelta(hours=9))
@@ -72,8 +72,8 @@ def main():
                 cur = con.execute(
                     "INSERT OR IGNORE INTO feed(id,kind,day,ts,published,title,headline,summary,category,relevance,source,url,raw)"
                     " VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                    (x["id"], kind, day, x.get("ts"), x.get("published"), x.get("title"), x.get("headline"),
-                     x.get("summary"), x.get("category"), x.get("relevance"), x.get("source"), x.get("url"),
+                    (x["id"], kind, day, x.get("ts"), x.get("published"), x.get("title") or x.get("headline"), x.get("headline"),
+                     x.get("summary") or x.get("text"), x.get("category"), x.get("relevance"), x.get("source"), x.get("url"),
                      json.dumps(x, ensure_ascii=False)))
                 added += cur.rowcount
             con.execute("INSERT OR REPLACE INTO synced VALUES(?,?,?,?)",
