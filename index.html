@@ -322,7 +322,7 @@ svg.sp{width:66px;height:20px;display:block}
   const SRC={hub:"Hub",bb:"BB",both:"Hub+BB"};
   const FUNDS=["Baker Bros","RA Capital","Orbimed","RTW","Avoro","Deerfield","Perceptive","Deep Track"];
   let tab="home", data={news:[],dart:[],trials:[],clinical:[],market:null,macro:null}, loadedDays={news:[],dart:[],trials:[],clinical:[]}, q="", cat="ALL", rel="ALL";
-  let hedge=null, cal=null, bb=null, comps=[], view="time", scY="ret_1m", scX="wtd", calMonth=null, calDay=null, calF={region:"ALL",imp:{high:true,medium:true,low:false},grp:{readout:true,trial:true,meeting:true,approval:true,etc:true,earnings:true},q:"",src:{hub:true,bb:true}}, hBasis="shares", sortState={}, trendDays=null;
+  let hedge=null, cal=null, bb=null, comps=[], view="time", scY="ret_1m", scX="wtd", calMonth=null, calDay=null, calF={region:"ALL",imp:{high:true,medium:true,low:false},grp:{readout:true,trial:true,meeting:true,approval:true,etc:true,earnings:true},q:"",src:{hub:true,bb:true}}, hBasis="shares", sortState={}, trendDays=null,kw=null;
   const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
   const fmtPct=v=>v==null||!isFinite(v)?"—":(v>0?"+":"")+Number(v).toFixed(2)+"%";
   const fmtW=v=>v==null?"—":(v*100).toFixed(1)+"%";
@@ -345,8 +345,8 @@ svg.sp{width:66px;height:20px;display:block}
     render();
   }
   async function loadStatic(){
-    const [h,c,co,b]=await Promise.all([getJSON("data/hedge.json",1),getJSON("data/catalyst.json",1),getJSON("data/companies.json",1),getJSON("data/bloomberg.json",1)]);
-    hedge=h;cal=c;bb=b;comps=Array.isArray(co)?co:[];buildCompanyIndex();render();
+    const [h,c,co,b,k]=await Promise.all([getJSON("data/hedge.json",1),getJSON("data/catalyst.json",1),getJSON("data/companies.json",1),getJSON("data/bloomberg.json",1),getJSON("data/kiwoom.json",1)]);
+    hedge=h;cal=c;bb=b;kw=k;comps=Array.isArray(co)?co:[];buildCompanyIndex();render();
   }
   async function loadDay(kind,day){if(loadedDays[kind].includes(day))return false;loadedDays[kind].push(day);const arr=await getJSON(`${kind}/${day}.json`);merge(kind,arr||[]);return !!(arr&&arr.length);}
   async function loadMore(kind){
@@ -403,10 +403,11 @@ svg.sp{width:66px;height:20px;display:block}
   const IMPO={high:0,medium:1,low:2};
   let _calAll=null,_calKey="";
   function calAll(){ // Hub+Bloomberg 합치고, 같은 날짜·유형·티커면 한 건으로(BB 설명문 우선, src="both")
-    const er=data.earnings;const key=(cal?cal.generated+cal.n:"")+"|"+(bb?bb.asof+bb.n:"")+"|"+(er?er.date+er.n:"");if(_calAll&&_calKey===key)return _calAll;_calKey=key;
+    const er=data.earnings;const key=(cal?cal.generated+cal.n:"")+"|"+(bb?bb.asof+bb.n:"")+"|"+(er?er.date+er.n:"")+"|"+(kw?kw.asof+kw.n:"");if(_calAll&&_calKey===key)return _calAll;_calKey=key;
     const out=[],idx=new Map();const keys=c=>c.tk.map(t=>`${c.sort}|${c.type}|${t.split(" ")[0].toUpperCase()}`);
     (cal?cal.items:[]).forEach(c=>{out.push(c);keys(c).forEach(kk=>idx.set(kk,c));});
     (bb?bb.items:[]).forEach(b=>{const h=keys(b).map(kk=>idx.get(kk)).find(x=>x&&x.src!=="both");if(h){const m={...b,src:"both",imp:IMPO[h.imp]<IMPO[b.imp]?h.imp:b.imp,nct:h.nct||b.nct,ta:b.ta||h.ta,region:h.region,tk:[...new Set([...b.tk,...h.tk])]};out[out.indexOf(h)]=m;keys(m).forEach(kk=>idx.set(kk,m));}else out.push(b);});
+    (kw?kw.items:[]).forEach(k=>{const ks=k.tk.length?keys(k):[`${k.sort}|${k.type}|${k.asset}`];if(ks.some(kk=>idx.has(kk)))return;out.push(k);ks.forEach(kk=>idx.set(kk,k));});
     (er?er.items:[]).forEach(e=>{const mc=e.mcap||0;out.push({id:"er-"+e.ticker,src:"er",region:"GLOBAL",sponsor:e.name,asset:"실적 발표",ind:"",ta:"",type:"earnings",status:"upcoming",date:e.date_end?e.date+"~"+e.date_end:e.date,sort:e.date,prec:e.date_end?"range":"day",end:e.date_end||e.date,imp:mc>=5e10?"high":mc>=5e9?"medium":"low",stage:null,nct:null,tk:[e.ticker],event:e.eps_est!=null?"EPS 컨센서스 "+(+e.eps_est).toFixed(2):""});});
     _calAll=out.sort((a,b)=>a.sort<b.sort?-1:a.sort>b.sort?1:(IMPO[a.imp]??3)-(IMPO[b.imp]??3));return _calAll;}
   function hfHit(text,tickers){ // 헷지펀드 매집/축소 매칭(티커 집합 또는 본문) → {a,d} 또는 null. 개요 '13F 소식' 카드 필터용
@@ -664,7 +665,7 @@ svg.sp{width:66px;height:20px;display:block}
     return calAll().filter(c=>(calF.region==="ALL"||c.region===calF.region)&&calF.imp[c.imp]&&(CT_GROUP_OF[c.type]&&calF.grp[CT_GROUP_OF[c.type]])&&(!needle||[c.sponsor,c.asset,c.ind,c.ta,c.event,c.tk.join(" "),c.stage].join(" ").toLowerCase().includes(needle)));
   }
   const evHTML=c=>{const past=isDated(c)&&c.sort<kstToday();const A=accumSet();const dateTxt=c.src!=="hub"&&isDated(c)?c.sort+(c.prec==="range"?"~":""):c.date;
-    return`<div class="ev"><div class="d ${past?"past":""}" title="${esc(c.date)}">${esc(dateTxt)}${!isDated(c)?`<br><span style="color:var(--mute)">${PREC[c.prec]}</span>`:past?"<br>지남":c.prec==="range"?`<br><span style="color:var(--mute)">${esc(c.date)}</span>`:""}</div><div><div class="h">${coLink(c.sponsor)}<b>${esc(c.asset)}</b><span class="tag ${c.imp==="high"?"hi":c.imp==="medium"?"mid":""}">${esc(CT_TYPE[c.type]||c.type)}</span>${c.stage?`<span class="tag">${esc(c.stage)}</span>`:""}${c.region==="KR"?`<span class="tag">국내</span>`:""}${c.tk.map(t=>tkChip(t,A.has(t)?"acc":"")).join("")}</div>${c.event?`<div class="m" style="color:var(--fg)">${esc(c.event)}</div>`:""}<div class="m">${esc(c.ind)}${c.ta?" · "+esc(c.ta):""}${c.mod?" · "+esc(c.mod):""}${c.nct?" · "+esc(c.nct):""}${c.end&&c.end!==c.date&&c.prec==="day"?" · 창 ~"+esc(c.end):""}</div></div></div>`;};
+    return`<div class="ev"><div class="d ${past?"past":""}" title="${esc(c.date)}">${esc(dateTxt)}${!isDated(c)?`<br><span style="color:var(--mute)">${PREC[c.prec]}</span>`:past?"<br>지남":c.prec==="range"?`<br><span style="color:var(--mute)">${esc(c.date)}</span>`:""}</div><div><div class="h">${c.sponsor?coLink(c.sponsor):""}<b>${esc(c.asset)}</b><span class="tag ${c.imp==="high"?"hi":c.imp==="medium"?"mid":""}">${esc(CT_TYPE[c.type]||c.type)}</span>${c.stage?`<span class="tag">${esc(c.stage)}</span>`:""}${c.region==="KR"?`<span class="tag">국내</span>`:""}${c.tk.map(t=>tkChip(t,A.has(t)?"acc":"")).join("")}</div>${c.event?`<div class="m" style="color:var(--fg)">${esc(c.event)}</div>`:""}<div class="m">${esc(c.ind)}${c.ta?" · "+esc(c.ta):""}${c.mod?" · "+esc(c.mod):""}${c.nct?" · "+esc(c.nct):""}${c.end&&c.end!==c.date&&c.prec==="day"?" · 창 ~"+esc(c.end):""}</div></div></div>`;};
   function monthGrid(list){
     const today=kstToday();if(!calMonth)calMonth=today.slice(0,7);
     const [yy,mm]=calMonth.split("-").map(Number);const first=new Date(Date.UTC(yy,mm-1,1));const start=new Date(first);start.setUTCDate(1-first.getUTCDay());
@@ -683,7 +684,7 @@ svg.sp{width:66px;height:20px;display:block}
     const curQ=`${today.slice(0,4)}-${String(Math.floor((+today.slice(5,7)-1)/3)*3+1).padStart(2,"0")}-01`,curH=`${today.slice(0,4)}-${+today.slice(5,7)<=6?"01":"07"}-01`,curM=today.slice(0,7)+"-01",curY=today.slice(0,4)+"-01-01";
     const inProg=rough.filter(c=>(c.prec==="month"&&c.sort===curM)||(c.prec==="quarter"&&c.sort===curQ)||(c.prec==="half"&&c.sort===curH)||(c.prec==="year"&&c.sort===curY));
     const later=rough.filter(c=>!inProg.includes(c));
-    let h=`<div class="hdr"><b>Catalysts</b><span class="sub">업데이트 ${esc([cal&&cal.generated,bb&&bb.asof].filter(Boolean).sort().pop()||"")}</span></div><div class="kpi"><div><div class="k">30일 내 (날짜 확정)</div><div class="v">${in30.length}</div><div class="d">HIGH ${in30.filter(c=>c.imp==="high").length}</div></div><div><div class="k">이번 주</div><div class="v">${dated.filter(c=>c.sort<=wk).length}</div><div class="d">${today} ~ ${wk}</div></div><div><div class="k">진행 중 (이달·이번 분기·반기)</div><div class="v">${inProg.length}</div><div class="d">날짜만 안 박힌 것</div></div><div><div class="k">13F 매집 종목 이벤트</div><div class="v">${list.filter(c=>c.tk.some(t=>accumSet().has(t))).length}</div><div class="d">헷지펀드 탭 참조</div></div></div>`;
+    let h=`<div class="hdr"><b>Catalysts</b><span class="sub">업데이트 ${esc([cal&&cal.generated,bb&&bb.asof,kw&&kw.asof].filter(Boolean).sort().pop()||"")}</span></div><div class="kpi"><div><div class="k">30일 내 (날짜 확정)</div><div class="v">${in30.length}</div><div class="d">HIGH ${in30.filter(c=>c.imp==="high").length}</div></div><div><div class="k">이번 주</div><div class="v">${dated.filter(c=>c.sort<=wk).length}</div><div class="d">${today} ~ ${wk}</div></div><div><div class="k">진행 중 (이달·이번 분기·반기)</div><div class="v">${inProg.length}</div><div class="d">날짜만 안 박힌 것</div></div><div><div class="k">13F 매집 종목 이벤트</div><div class="v">${list.filter(c=>c.tk.some(t=>accumSet().has(t))).length}</div><div class="d">헷지펀드 탭 참조</div></div></div>`;
     h+=monthGrid(all)+`<div class="cal">`;
     const sect=(title,arr,withDD)=>arr.length?`<div class="mo" style="margin-top:16px"><span>${title}</span><span>${arr.length}건</span></div>`+arr.map(c=>withDD?evHTML(c).replace('<div class="h">','<div class="h">'+dday(c.sort)):evHTML(c)).join(""):"";
     if(calDay){h+=sect(calDay+" "+dday(calDay),datedAll,false);}
