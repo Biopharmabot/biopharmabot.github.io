@@ -687,7 +687,7 @@ svg.sp{width:66px;height:20px;display:block}
     const needle=calF.q.trim().toLowerCase();
     return calAll().filter(c=>(calF.region==="ALL"||c.region===calF.region)&&calF.imp[c.imp]&&(CT_GROUP_OF[c.type]&&calF.grp[CT_GROUP_OF[c.type]])&&(!needle||[c.sponsor,c.asset,c.ind,c.ta,c.event,c.tk.join(" "),c.stage].join(" ").toLowerCase().includes(needle)));
   }
-  const evHTML=c=>{const past=isDated(c)&&c.sort<kstToday();const A=accumSet();const dateTxt=c.src!=="hub"&&isDated(c)?(c.prec==="range"?c.sort+" ~ "+(c.end&&c.end.slice(0,4)===c.sort.slice(0,4)?c.end.slice(5):c.end||""):c.sort):c.date;
+  const evHTML=c=>{const past=isDated(c)&&c.sort<kstToday();const A=accumSet();const dateTxt=c.src!=="hub"&&isDated(c)?(c.prec==="range"?c.sort+"~"+(c.end&&c.end.slice(0,4)===c.sort.slice(0,4)?c.end.slice(5):c.end||""):c.sort):c.date;
     return`<div class="ev"><div class="d ${past?"past":""}" title="${esc(c.date)}">${esc(dateTxt)}${!isDated(c)?`<br><span style="color:var(--mute)">${PREC[c.prec]}</span>`:past?"<br>지남":""}</div><div><div class="h">${c.sponsor?coLink(c.sponsor):""}<b>${esc(c.asset)}</b><span class="tag ${c.imp==="high"?"hi":c.imp==="medium"?"mid":""}">${esc(CT_TYPE[c.type]||c.type)}</span>${c.stage?`<span class="tag">${esc(c.stage)}</span>`:""}${c.region==="KR"?`<span class="tag">국내</span>`:""}${c.tk.map(t=>tkChip(t,A.has(t)?"acc":"")).join("")}</div>${c.event?`<div class="m" style="color:var(--fg)">${esc(c.event)}</div>`:""}<div class="m">${esc(c.ind)}${c.ta?" · "+esc(c.ta):""}${c.mod?" · "+esc(c.mod):""}${c.nct?" · "+esc(c.nct):""}${c.end&&c.end!==c.date&&c.prec==="day"?" · 창 ~"+esc(c.end):""}</div></div></div>`;};
   function monthGrid(list){
     const today=kstToday();if(!calMonth)calMonth=today.slice(0,7);
@@ -724,7 +724,7 @@ svg.sp{width:66px;height:20px;display:block}
       ${all.length?`<h3 class="sec">이벤트</h3><div class="cal">${all.map(c=>evHTML(c)).join("")}</div>`:(cf.length?"":`<div class="note">이 날 이벤트가 없습니다.</div>`)}`;
     $("ov").classList.add("on");dr.classList.add("on");$("drClose").onclick=closeCompany;
   }
-  const confHTML=c=>{const t=kstToday();const live=c.start<=t&&t<=c.end;return`<div class="ev"><div class="d">${esc(c.start.slice(5))} ~ ${esc(c.end.slice(5))}${live?`<br><span style="color:var(--fg)">진행 중</span>`:c.start>t?`<br>${dday(c.start)}`:""}</div><div><div class="h"><b>${esc(c.short)}</b> ${esc(c.name)}${c.city?`<span class="tag">${esc(c.city)}</span>`:""}</div><div class="m">${esc(c.kw)}</div></div></div>`;};
+  const confHTML=c=>{const t=kstToday();const live=c.start<=t&&t<=c.end;return`<div class="ev"><div class="d" style="white-space:nowrap">${esc(c.start.slice(5))}~${esc(c.end.slice(5))}${live?`<br><span style="color:var(--fg)">진행 중</span>`:c.start>t?`<br>${dday(c.start)}`:""}</div><div><div class="h"><b>${esc(c.short)}</b> ${esc(c.name)}${c.city?`<span class="tag">${esc(c.city)}</span>`:""}</div><div class="m">${esc(c.kw)}</div></div></div>`;};
   function renderCal(){
     const v=$("view");if(!cal&&!bb){v.innerHTML=`<div class="empty">카탈리스트 데이터를 읽지 못했습니다.</div>`;return;}
     const W=calWindow();const all=calFiltered();
