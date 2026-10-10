@@ -5,7 +5,7 @@
   아니면 가운데가 들어가는 열의 날짜로 본다. 같은 열에서 바로 아랫줄이고 윗줄이 끝맺음(실적·PDUFA·해제·일·')' 등)이 아니면 이어 붙인다.
 - 공휴일·'실적 시즌' 머리글은 뺀다. 여러 리포트에 겹치는 같은 (날짜, 문구)는 한 건(최신 리포트 기준).
 - type 은 문구 키워드로 매긴다(earnings/approval/meeting/readout/trial/other). 회사는 data/companies.json 이름으로 찾아 sponsor·tk 를 채운다.
-- 페이지는 이 파일을 Hub·Bloomberg 와 합쳐 보여 주며 출처는 표시하지 않는다(2026-10-10 사용자 결정).
+- 국내(KR) 항목만 저장하고 추정 표기((E)·예상·추정)는 뺀다. 페이지는 이 파일을 Hub·Bloomberg 와 합쳐 보여 주며 출처는 표시하지 않는다(2026-10-10 사용자 결정).
 """
 import sys, os, re, json, glob, datetime as dt
 sys.stdout.reconfigure(encoding="utf-8")
@@ -216,8 +216,11 @@ def main():
     vals = sorted(uniq.values(), key=lambda x: x["date"])
     norm = lambda x: re.sub(r"\s", "", x["text"]).lower()
     vals = [a for a in vals if not any(b is not a and b["date"] == a["date"] and norm(a) != norm(b) and norm(a) in norm(b) for b in vals)]
+    EST = re.compile(r"\(E\)|E\)|추정|예상")   # 키움 추정 일정(실적(E) 등)은 제외 — 2026-10-10 사용자
     for it in vals:
         d, t = it["date"], it["text"]
+        if EST.search(t):
+            continue
         mc = match_company(t, comps)
         if mc:  # 회사명이 문구 맨 앞이면 asset 에서는 뺀다(화면이 회사 · 문구로 보이므로)
             toks = t.split(" ")
@@ -226,7 +229,10 @@ def main():
             cont = nxt and nxt in mc[0].lower().split()   # 'Daiichi Sankyo/Merck' 처럼 회사명이 이어지면 그대로 둔다
             if mc[0].lower().startswith(first.lower().rstrip("-–,")) and len(t) > len(first) + 2 and not t[len(first):].startswith(("/", ",")) and not cont:
                 t = t[len(first):].lstrip(" -–,")
-        out.append({"id": "kw-" + re.sub(r"[^0-9a-zA-Z가-힣]+", "-", d + "-" + t)[:80].strip("-"), "src": "kw", "region": ("KR" if (mc[2] or re.search(r"[가-힣]", mc[0])) else "GLOBAL") if mc else region_of(t),
+        region = ("KR" if (mc[2] or re.search(r"[가-힣]", mc[0])) else "GLOBAL") if mc else region_of(t)
+        if region != "KR":   # 키움 달력은 국내 기업만 가져온다(해외는 자체 수집분과 중복) — 2026-10-10 사용자
+            continue
+        out.append({"id": "kw-" + re.sub(r"[^0-9a-zA-Z가-힣]+", "-", d + "-" + t)[:80].strip("-"), "src": "kw", "region": region,
                     "sponsor": mc[0] if mc else "", "asset": t, "event": "", "ind": "", "ta": "", "type": classify(t), "status": "upcoming",
                     "date": d, "sort": d, "prec": "day", "end": d, "imp": "medium", "stage": None, "nct": None,
                     "tk": list(dict.fromkeys([k.split(" ")[0] for k in (mc[1] if mc else [])] + alias_tickers(it["text"]))), "rep": it["rep"]})
