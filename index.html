@@ -800,13 +800,7 @@ svg.sp{width:66px;height:20px;display:block}
     const trialsPick=[...data.trials.filter(x=>x.change==="new"||/중단|terminat|withdraw|suspend/i.test((x.lines||[]).join(" ")+x.status)),...data.trials].filter((x,i,a)=>a.indexOf(x)===i);
     const wd=["일","월","화","수","목","금","토"][new Date(today+"T00:00:00Z").getUTCDay()];const dateKo=`${+today.slice(0,4)}년 ${+today.slice(5,7)}월 ${+today.slice(8,10)}일 ${wd}요일`;
     v.innerHTML=`<div class="greet"><div class="g">좋은 하루입니다.</div><div class="dt">${dateKo}</div></div>
-    <div class="kpi">
-      <div><div class="k">오늘 뉴스</div><div class="v">${data.news.filter(x=>dayOf(x.ts)===today).length}</div><div class="d">HIGH ${hiNews.filter(x=>dayOf(x.ts)===today).length}</div></div>
-      <div><div class="k">임상 변경</div><div class="v">${data.trials.filter(x=>dayOf(x.ts)===today).length}</div><div class="d">${data.trials[0]?"최근 "+dayOf(data.trials[0].ts):"—"}</div></div>
-      <div><div class="k">이번 주 카탈리스트</div><div class="v">${week.length}</div><div class="d">30일 내 날짜 확정 ${month.filter(isDated).length}</div></div>
-      ${m?`<div><div class="k">마켓 ${esc(m.date)}</div><div class="v num ${cls((m.index||[])[0]?.chg_pct)}">${fmtPct((m.index||[])[0]?.chg_pct)}</div><div class="d">${esc((m.index||[])[0]?.name||"")}${(m.index||[])[1]?" · "+esc(m.index[1].name)+" "+fmtPct(m.index[1].chg_pct):""}</div></div>`:""}
-      ${hedge?`<div><div class="k">13F ${esc(hedge.quarter)} 매집</div><div class="v">${hedge.accum.length}</div><div class="d">${qInfo(hedge.quarter).end} 보유 기준 · 축소·청산 ${hedge.distrib.length}</div></div>`:""}
-    </div>
+    
     <div class="grid">
       ${card("HIGH 뉴스",hiNews[0]?"최근 "+fmtTs(hiNews[0].ts):"—",`news`,hiNews.length?top(hiNews,7).map(newsRow).join(""):"")}
       ${card("임상 변경",(data.trials[0]?"최근 "+dayOf(data.trials[0].ts)+" · ":"")+"신규 등록·중단 우선",`trials`,data.trials.length?trialsPick.slice(0,7).map(trRow).join(""):"")}
