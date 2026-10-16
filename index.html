@@ -374,17 +374,19 @@ svg.sp{width:66px;height:20px;display:block}
   }
 
   /* ───────── company index ───────── */
+  /* 공동 스폰서 "Opus Genetics / Viatris" 는 회사별로 나눈다(2026-10-16). 'Genmab A/S'·'Inc/The' 처럼 공백 없는 슬래시는 그대로 */
+  const splitCo=s=>String(s||"").split(/\s+\/\s*|\s*\/\s+/).map(x=>x.trim()).filter(Boolean);
   const SUFFIX=/\b(inc|corp|corporation|co|ltd|plc|sa|ag|nv|llc|lp|holdings?|group|pharmaceuticals?|pharma|therapeutics|biosciences?|biotherapeutics|bio|biotech|medicines?|sciences?|laboratories|labs?)\b\.?/gi;
   const core=s=>String(s||"").replace(/[-,.&()']/g," ").replace(SUFFIX," ").replace(/\s+/g," ").trim().toLowerCase();
   let cindex=[]; // {name, krx, tk:[], core, key}
   function buildCompanyIndex(){
     const byKey=new Map();
     const add=(name,krx,tk)=>{if(!name)return;const k=core(name)||String(name).toLowerCase();let e=byKey.get(k);if(!e){e={name,krx:null,tk:new Set(),core:k,key:k};byKey.set(k,e);}if(krx)e.krx=krx;(tk||[]).forEach(t=>t&&e.tk.add(t));if(name.length<e.name.length&&/[가-힣]/.test(name)===/[가-힣]/.test(e.name))e.name=name;};
-    comps.forEach(c=>add(c.name,c.krx,c.tk));
+    comps.forEach(c=>{const ps=splitCo(c.name);ps.forEach(n=>add(n,ps.length>1?null:c.krx,ps.length>1?[]:c.tk));});
     (hedge?hedge.matrix:[]).forEach(m=>add(m.issuer,null,[m.t]));
     (data.market&&data.market.stocks||[]).forEach(s=>add(s.name,null,[s.ticker]));
     data.dart.forEach(x=>add(x.company,x.stock_code,[]));
-    data.trials.forEach(x=>add(x.company,null,[]));
+    data.trials.forEach(x=>splitCo(x.company).forEach(n=>add(n,null,[])));
     // merge entries sharing a ticker
     const byTk=new Map();
     for(const e of byKey.values()){let hit=null;for(const t of e.tk){if(byTk.has(t)){hit=byTk.get(t);break;}}if(hit&&hit!==e){e.tk.forEach(t=>hit.tk.add(t));if(!hit.krx)hit.krx=e.krx;byKey.delete(e.key);}else{e.tk.forEach(t=>byTk.set(t,e));}}
@@ -411,11 +413,11 @@ svg.sp{width:66px;height:20px;display:block}
     return{
       news:data.news.filter(x=>matchNews(e,x)),
       dart:data.dart.filter(x=>(e.krx&&x.stock_code===e.krx)||matchName(e,x.company)),
-      trials:data.trials.filter(x=>matchName(e,x.company)||matchName(e,x.sponsor)),
+      trials:data.trials.filter(x=>splitCo(x.company).some(p=>matchName(e,p))||splitCo(x.sponsor).some(p=>matchName(e,p))),
       market:(data.market&&data.market.stocks||[]).filter(s=>tk.has(s.ticker)),
       hedge:hedge?hedge.matrix.filter(m=>tk.has(m.t)):[],
       sig:hedge?hedge.signals.filter(s=>tk.has(s.t)):[],
-      cat:calAll().filter(c=>c.tk.some(t=>tk.has(t.toUpperCase()))||matchName(e,c.sponsor))
+      cat:calAll().filter(c=>c.tk.some(t=>tk.has(t.toUpperCase()))||splitCo(c.sponsor).some(p=>matchName(e,p)))
     };
   }
   const accumSet=()=>new Set(hedge?hedge.accum:[]), distSet=()=>new Set(hedge?hedge.distrib:[]);
@@ -452,7 +454,7 @@ svg.sp{width:66px;height:20px;display:block}
   const dday=d=>{const n=Math.round((new Date(d+"T00:00:00+09:00")-new Date(kstToday()+"T00:00:00+09:00"))/864e5);return`<span class="dd ${n===0?"now":n>0&&n<=7?"soon":""}">${n===0?"오늘":n>0?"D-"+n:"D+"+(-n)}</span>`;};
   const qInfo=q=>{const y=2000+(+q.slice(2)),n=+q[0];const end=new Date(Date.UTC(y,n*3,0));const due=new Date(end.getTime()+45*864e5);const f=d=>d.toISOString().slice(0,10);return{end:f(end),due:f(due)};};
   const stockOf=t=>(data.market&&data.market.stocks||[]).find(x=>x.ticker===t);
-  const coLink=(name,label)=>`<span class="co" data-co="${esc(name)}">${esc(label||name)}</span>`;
+  const coLink=(name,label)=>{const ps=splitCo(name);if(!label&&ps.length>1)return ps.map(p=>`<span class="co" data-co="${esc(p)}">${esc(p)}</span>`).join(" / ");return`<span class="co" data-co="${esc(name)}">${esc(label||name)}</span>`;};
   const tkChip=(t,extra)=>`<span class="tk ${extra||""}" data-co="${esc(t)}">${esc(t)}</span>`;
   const mkChg=t=>{const s=(data.market&&data.market.stocks||[]).find(x=>x.ticker===t);return s?`<span class="num ${cls(s.chg_pct)}">${fmtPct(s.chg_pct)}</span>`:"";};
 
@@ -719,7 +721,7 @@ svg.sp{width:66px;height:20px;display:block}
       const pad=lanes.length*17;const rows=Math.max(1,7-lanes.length);
       let cells="";
       for(let i=0;i<7;i++){const d=new Date(d0.getTime()+i*864e5);const k=iso(d);const inM=k.slice(0,7)===calMonth;const ev=byDay.get(k)||[];
-        cells+=`<div class="dc ${inM?"":"o"} ${k===today?"td":""}" data-day="${k}" title="${k} · ${ev.length}건" ><div class="d">${d.getUTCDate()}</div><div style="height:${pad}px"></div>${ev.slice(0,rows).map(c=>`<div class="e"><i class="g-${CT_GROUP_OF[c.type]||"etc"}"></i>${esc(c.sponsor.split(" / ")[0])} ${esc(c.asset)}</div>`).join("")}${ev.length>rows?`<div class="mo">+${ev.length-rows}</div>`:""}</div>`;}
+        cells+=`<div class="dc ${inM?"":"o"} ${k===today?"td":""}" data-day="${k}" title="${k} · ${ev.length}건" ><div class="d">${d.getUTCDate()}</div><div style="height:${pad}px"></div>${ev.slice(0,rows).map(c=>`<div class="e"><i class="g-${CT_GROUP_OF[c.type]||"etc"}"></i>${esc(splitCo(c.sponsor)[0]||"")} ${esc(c.asset)}</div>`).join("")}${ev.length>rows?`<div class="mo">+${ev.length-rows}</div>`:""}</div>`;}
       const bars=segs.map(sg=>`<div class="cbar ${sg.c.end<today?"past":""}" style="top:${19+sg.lane*17}px;left:calc(${sg.s0}/7*100% + 2px);width:calc(${sg.e0-sg.s0+1}/7*100% - 4px)" title="${esc(sg.c.name)} · ${esc(sg.c.start)}~${esc(sg.c.end)}${sg.c.city?" · "+esc(sg.c.city):""}"><b>${esc(sg.c.short)}</b> ${esc(sg.c.name)}${sg.c.city?` <span>· ${esc(sg.c.city)}</span>`:""}</div>`).join("");
       weeks+=`<div class="wk">${cells}${bars}</div>`;
     }
