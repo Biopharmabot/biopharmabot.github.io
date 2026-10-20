@@ -431,7 +431,7 @@
    "id": "kr-2026-09-25-리라푸그라티닙-FGFR2-담관암-PDUFA",
    "src": "kr",
    "region": "KR",
-   "sponsor": "HLB이노베이션",
+   "sponsor": "HLB Co Ltd",
    "asset": "리라푸그라티닙(FGFR2 담관암) PDUFA",
    "event": "",
    "ind": "",
@@ -445,7 +445,9 @@
    "imp": "medium",
    "stage": null,
    "nct": null,
-   "tk": [],
+   "tk": [
+    "028300"
+   ],
    "rep": "2026-09-21"
   },
   {
@@ -758,7 +760,7 @@
    "id": "kr-2026-11-08-리보세라닙-캄렐리주맙-Class-1-or-Class-2-분류-확인",
    "src": "kr",
    "region": "KR",
-   "sponsor": "HLB이노베이션",
+   "sponsor": "HLB Co Ltd",
    "asset": "리보세라닙+캄렐리주맙 Class 1 or Class 2 분류 확인",
    "event": "",
    "ind": "",
@@ -772,7 +774,9 @@
    "imp": "medium",
    "stage": null,
    "nct": null,
-   "tk": [],
+   "tk": [
+    "028300"
+   ],
    "rep": "2026-10-19"
   },
   {
