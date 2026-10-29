@@ -447,7 +447,7 @@ svg.sp{width:66px;height:20px;display:block}
     (up?up.items:[]).forEach(u=>{const ph=(u.phases||[]).map(p=>p.replace("PHASE","")).join("/");const mo=u.pcd.length===7;out.push({id:"up-"+u.nct,src:"up",region:u.region||"KR",sponsor:u.company,asset:(u.interv||[])[0]||u.title,ind:(u.cond||[]).join(" / "),ta:"",type:"trial-milestone",status:"upcoming",date:u.pcd,sort:mo?u.pcd+"-01":u.pcd,prec:mo?"month":"day",end:u.pcd,imp:(u.phases||[]).includes("PHASE3")?"medium":"low",stage:ph?"Phase "+ph:null,nct:u.nct,tk:[],event:"1차 완료 예정"+(u.enroll?" · "+u.enroll+"명":"")});});
     (conf?conf.items:[]).forEach(c=>{[["titles","초록 제목 공개"],["abstracts","초록 공개"],["lba","LBA 초록 공개"]].forEach(([k,l])=>{if(!c[k])return;out.push({id:"abs-"+c.id+"-"+k,src:"conf",region:"GLOBAL",sponsor:"",asset:c.short+" "+l,ind:c.name,ta:"",type:"data-presentation",status:"upcoming",date:c[k],sort:c[k],prec:"day",end:c[k],imp:"medium",stage:null,nct:null,tk:[],event:""});});});
     (mcal?mcal.items:[]).forEach(m=>out.push(m));   /* 매크로 일정(한국·미국) — 회사 없음, 중복 검사 대상 아님 */
-    (er?er.items:[]).forEach(e=>{const mc=e.mcap||0;out.push({id:"er-"+e.ticker,src:"er",region:"GLOBAL",sponsor:e.name,asset:e.est?"실적 발표(예상)":"실적 발표",ind:"",ta:"",type:"earnings",status:"upcoming",date:e.date_end?e.date+"~"+e.date_end:e.date,sort:e.date,prec:e.date_end?"range":"day",end:e.date_end||e.date,imp:mc>=5e10?"high":mc>=5e9?"medium":"low",stage:null,nct:null,tk:[e.ticker],event:(()=>{const parts=[];if(e.rev_est>=1e6)parts.push("매출 $"+(e.rev_est>=1e9?(e.rev_est/1e9).toFixed(2)+"B":(e.rev_est/1e6).toFixed(0)+"M"));if(e.eps_est!=null)parts.push("EPS "+(+e.eps_est).toFixed(2));return parts.length?"컨센서스 "+parts.join(" · ")+" (Yahoo Finance 기준)":"";})()});});
+    (er?er.items:[]).forEach(e=>{const mc=e.mcap||0;out.push({id:"er-"+e.ticker+"-"+e.date,src:"er",region:"GLOBAL",sponsor:e.name,asset:e.done?"실적 발표(완료)":e.est?"실적 발표(예상)":"실적 발표",ind:"",ta:"",type:"earnings",status:e.done?"done":"upcoming",date:e.date_end?e.date+"~"+e.date_end:e.date,sort:e.date,prec:e.date_end?"range":"day",end:e.date_end||e.date,imp:mc>=5e10?"high":mc>=5e9?"medium":"low",stage:null,nct:null,tk:[e.ticker],event:(()=>{const parts=[];if(e.rev_est>=1e6)parts.push("매출 $"+(e.rev_est>=1e9?(e.rev_est/1e9).toFixed(2)+"B":(e.rev_est/1e6).toFixed(0)+"M"));if(e.eps_est!=null)parts.push("EPS "+(+e.eps_est).toFixed(2));return parts.length?"컨센서스 "+parts.join(" · ")+" (Yahoo Finance 기준)":"";})()});});
     /* 키움 달력은 보조 소스: 같은 유형 묶음에서 같은 회사(티커 또는 회사명) 건이 이미 있으면 뺀다(실적은 ±3일, 그 외 같은 날). 글로벌은 우리 수집분이 메인 — 2026-10-10 */
     const confHit=k=>!k.sponsor&&k.type==="data-presentation"&&(conf?conf.items:[]).some(c=>c.start<=k.sort&&k.sort<=c.end&&(k.asset.toUpperCase().includes(c.short.replace(/ (SD|London|USA|Europe|BIG)$/,"").toUpperCase())||k.asset.includes(c.name)));
     (kw?kw.items:[]).forEach(k=>{if(confHit(k))return;const g=CT_GROUP_OF[k.type]||"etc";const tol=g==="earnings"?3:0;const near=(a,b)=>Math.abs((new Date(a)-new Date(b))/864e5)<=tol;const sp=core(k.sponsor||"");
@@ -762,16 +762,17 @@ svg.sp{width:66px;height:20px;display:block}
   function renderCal(){
     const v=$("view");if(!cal&&!bb){v.innerHTML=`<div class="empty">카탈리스트 데이터를 읽지 못했습니다.</div>`;return;}
     const W=calWindow();const all=calFiltered();
-    const dated=all.filter(c=>isDated(c)&&c.sort>=W.t&&c.sort<=W.end);
+    const dated=all.filter(c=>isDated(c)&&(c.sort>=W.t||(c.status==="done"&&c.sort>=W.m0+"-01"))&&c.sort<=W.end);   /* 발표 완료(done) 실적만 이번 달 1일부터 — 2026-10-30 사용자 결정 */
     if($("cnt"))$("cnt").textContent=dated.length+"건";
+    const done=dated.filter(c=>c.sort<W.t);
     const wkEnd=kstToday(-6);const thisM=W.t.slice(0,7),nextM=new Date(Date.UTC(+W.t.slice(0,4),+W.t.slice(5,7),1)).toISOString().slice(0,7);
-    const week=dated.filter(c=>c.sort<=wkEnd),month=dated.filter(c=>c.sort>wkEnd&&c.sort.slice(0,7)===thisM),next=dated.filter(c=>c.sort>wkEnd&&c.sort.slice(0,7)===nextM);
+    const week=dated.filter(c=>c.sort>=W.t&&c.sort<=wkEnd),month=dated.filter(c=>c.sort>wkEnd&&c.sort.slice(0,7)===thisM),next=dated.filter(c=>c.sort>wkEnd&&c.sort.slice(0,7)===nextM);
     const confs=(conf?conf.items:[]).filter(c=>c.end>=W.t&&+c.start.slice(0,4)<=+W.t.slice(0,4)+1);   /* 학회 일정은 올해·내년 예정분 전부(2026-10-10 사용자) */
     let h=`<div class="hdr"><b>Catalysts</b><span class="sub">향후 3개월 · 업데이트 ${esc([cal&&cal.generated,bb&&bb.asof,kw&&kw.asof].filter(Boolean).sort().pop()||"")}</span></div>`;
     h+=monthGrid(all)+`<div class="cal">`;
     const sect=(title,arr)=>arr.length?`<div class="mo" style="margin-top:16px"><span>${title}</span><span>${arr.length}건</span></div>`+arr.map(c=>evHTML(c).replace('<div class="h">','<div class="h">'+dday(c.sort))).join(""):"";
     const fold=(title,arr)=>arr.length?`<details class="all fold"><summary><span>${title}</span><span>${arr.length}건</span></summary>${arr.map(c=>evHTML(c).replace('<div class="h">','<div class="h">'+dday(c.sort))).join("")}</details>`:"";
-    h+=sect("이번 주",week)+fold("이번 달",month)+fold("다음 달",next);
+    h+=fold("발표 완료 · 이번 달",done)+sect("이번 주",week)+fold("이번 달",month)+fold("다음 달",next);
     if(confs.length){h+=`<div class="mo" style="margin-top:16px"><span>학회 및 컨퍼런스 일정</span></div>`;let cy="";confs.forEach(c=>{const y=c.start.slice(0,4);if(y!==cy){cy=y;h+=`<div class="mo"><span>${y}</span></div>`;}h+=confHTML(c);});}
     if(!dated.length&&!confs.length)h+=`<div class="note">조건에 맞는 이벤트가 없습니다.</div>`;
     h+=`</div>`;
