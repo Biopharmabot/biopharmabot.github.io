@@ -422,7 +422,7 @@ svg.sp{width:66px;height:20px;display:block}
     if(full.length>=5&&/\s/.test(full)&&wb(full).test(low))return true;
     if(e.core.length>=4&&!/^[a-z]{1,3}$/.test(e.core)&&!COMMON_CORE.has(e.core)&&wb(e.core).test(low))return true;
     if(/[가-힣]/.test(e.name)&&hay.includes(e.name))return true;return e.tk.some(t=>t.length>=3&&!t.includes(" ")&&tkRe(t).test(hay));}
-  function matchName(e,s){if(!s)return false;const k=core(s);return k===e.core||(k.length>=4&&e.core.length>=4&&(k.includes(e.core)||e.core.includes(k)));}
+  function matchName(e,s){if(!s)return false;const k=core(s);return k===e.core||(k.length>=4&&e.core.length>=4&&(k.startsWith(e.core+" ")||e.core.startsWith(k+" ")));}   /* 2026-10-30: 부분 포함(includes) → 앞 단어 일치로 좁힘. 'Precision BioSciences'(core precision)가 'Praxis Precision Medicines'(praxis precision)에 붙던 문제(사용자 지적) */
   function companyData(e){
     const tk=tkOf(e);
     return{
