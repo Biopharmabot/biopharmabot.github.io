@@ -322,7 +322,7 @@ svg.sp{width:66px;height:20px;display:block}
   // Clinical Trials 탭: 데이터 소스 = 임상시험 결과(rss 봇 심층분석, feed clinical) 또는 임상시험 변동(ctgov 봇, feed trials). 2026-10-10
   const srcKind=()=>tab==="trials"?(cat==="change"?"trials":cat==="result"?"clinical":"both"):tab;
   const srcList=()=>{const k=srcKind();if(k!=="both")return data[k];return [...data.clinical,...data.trials].sort((a,b)=>(b.ts||"")<(a.ts||"")?-1:1);};
-  const REL={high:["HIGH","hi"],medium:["MID","mid"],low:["LOW",""]};
+  const REL={high:["HIGH","hi"],medium:["MID","mid"],low:["LOW",""],none:["NONE",""]};
   // 임상 단계 라벨: ctgov 항목은 phases 배열, 심층분석 항목은 헤드라인·본문에서 "2b상"·"1/2상"·"Phase 3" 등을 찾는다
   const PH_RE=/(?:phase\s*|제\s*)?([1-4](?:[ab])?(?:\s*\/\s*[1-4][ab]?)?)\s*상|phase\s*([1-4](?:[ab])?(?:\s*\/\s*[1-4][ab]?)?)\b|\b(pivotal|registrational)\b/i;
   const phaseLabel=x=>{if(x.phase&&/^[0-4]/.test(String(x.phase)))return "Phase "+String(x.phase).replace(/\s+/g,"");   // rss v58부터 봇이 직접 넣는 단계
@@ -488,7 +488,7 @@ svg.sp{width:66px;height:20px;display:block}
     const cats=CATS[tab];
     let h=tab==="trials"?`<button class="chip" type="button" data-cat="ALL" aria-pressed="${cat==="ALL"}">전체</button><button class="chip" type="button" data-cat="result" aria-pressed="${cat==="result"}">임상시험 결과</button><button class="chip" type="button" data-cat="change" aria-pressed="${cat==="change"}">임상시험 변동</button>`
       :`<button class="chip" type="button" data-cat="ALL" aria-pressed="${cat==="ALL"}">전체</button>`+cats.map(c=>`<button class="chip" type="button" data-cat="${c}" aria-pressed="${cat===c}">${c}</button>`).join("");
-    if(tab==="news")h+=`<span class="sep"></span>`+["high","medium","low"].map(r=>`<button class="chip" type="button" data-rel="${r}" aria-pressed="${rel===r}">${REL[r][0]}</button>`).join("");
+    if(tab==="news")h+=`<span class="sep"></span>`+["high","medium","low","none"].map(r=>`<button class="chip" type="button" data-rel="${r}" aria-pressed="${rel===r}">${REL[r][0]}</button>`).join("");
     h+=`<input id="q" type="search" placeholder="${tab==="trials"?"회사·약물·NCT·질환 검색":"제목·요약·회사 검색"}" value="${esc(q)}">${tab==="news"||tab==="trials"?"":`<span class="sep"></span><button class="chip" data-view="time" aria-pressed="${view==="time"}">시간순</button><button class="chip" data-view="co" aria-pressed="${view==="co"}">종목별</button><span class="r" id="cnt"></span>`}`;
     f.innerHTML=h;
     f.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{cat=b.dataset.cat;render();});
