@@ -1,7 +1,7 @@
 {
- "generated": "2026-10-20",
- "asof": "2026-10-19",
- "n": 39,
+ "generated": "2026-11-10",
+ "asof": "2026-11-09",
+ "n": 54,
  "items": [
   {
    "id": "kr-2026-08-06-휴젤-실적",
@@ -25,11 +25,11 @@
    "rep": "2026-08-03"
   },
   {
-   "id": "kr-2026-08-07-파마리서치-인터로조-실적",
+   "id": "kr-2026-08-07-인터로조-실적",
    "src": "kr",
    "region": "KR",
-   "sponsor": "",
-   "asset": "파마리서치 인터로조 실적",
+   "sponsor": "파마리서치",
+   "asset": "인터로조 실적",
    "event": "",
    "ind": "",
    "ta": "",
@@ -42,29 +42,10 @@
    "imp": "medium",
    "stage": null,
    "nct": null,
-   "tk": [],
+   "tk": [
+    "214450"
+   ],
    "rep": "2026-08-03"
-  },
-  {
-   "id": "kr-2026-08-12-클래시스-실적",
-   "src": "kr",
-   "region": "KR",
-   "sponsor": "",
-   "asset": "클래시스 실적",
-   "event": "",
-   "ind": "",
-   "ta": "",
-   "type": "earnings",
-   "status": "upcoming",
-   "date": "2026-08-12",
-   "sort": "2026-08-12",
-   "prec": "day",
-   "end": "2026-08-12",
-   "imp": "medium",
-   "stage": null,
-   "nct": null,
-   "tk": [],
-   "rep": "2026-08-10"
   },
   {
    "id": "kr-2026-08-13-씨어스-실적",
@@ -254,7 +235,9 @@
    "imp": "medium",
    "stage": null,
    "nct": null,
-   "tk": [],
+   "tk": [
+    "087010"
+   ],
    "rep": "2026-09-07"
   },
   {
@@ -431,7 +414,7 @@
    "id": "kr-2026-09-25-리라푸그라티닙-FGFR2-담관암-PDUFA",
    "src": "kr",
    "region": "KR",
-   "sponsor": "HLB Co Ltd",
+   "sponsor": "HLB",
    "asset": "리라푸그라티닙(FGFR2 담관암) PDUFA",
    "event": "",
    "ind": "",
@@ -552,7 +535,9 @@
    "imp": "medium",
    "stage": null,
    "nct": null,
-   "tk": [],
+   "tk": [
+    "293780"
+   ],
    "rep": "2026-10-19"
   },
   {
@@ -579,7 +564,7 @@
    "rep": "2026-10-19"
   },
   {
-   "id": "kr-2026-10-23-LCB02A-CLDN18-2-ADC-ESMO",
+   "id": "kr-2026-10-25-LCB02A-CLDN18-2-ADC-ESMO",
    "src": "kr",
    "region": "KR",
    "sponsor": "리가켐바이오",
@@ -589,20 +574,20 @@
    "ta": "",
    "type": "data-presentation",
    "status": "upcoming",
-   "date": "2026-10-23",
-   "sort": "2026-10-23",
+   "date": "2026-10-25",
+   "sort": "2026-10-25",
    "prec": "day",
-   "end": "2026-10-23",
+   "end": "2026-10-25",
    "imp": "medium",
    "stage": null,
    "nct": null,
    "tk": [
     "141080"
    ],
-   "rep": "2026-10-19"
+   "rep": "2026-10-26"
   },
   {
-   "id": "kr-2026-10-23-ABL111-1b-503-1상-001-구두-ESMO",
+   "id": "kr-2026-10-25-ABL111-1b-503-1상-001-구두-ESMO",
    "src": "kr",
    "region": "KR",
    "sponsor": "에이비엘바이오",
@@ -612,20 +597,20 @@
    "ta": "",
    "type": "data-presentation",
    "status": "upcoming",
-   "date": "2026-10-23",
-   "sort": "2026-10-23",
+   "date": "2026-10-25",
+   "sort": "2026-10-25",
    "prec": "day",
-   "end": "2026-10-23",
+   "end": "2026-10-25",
    "imp": "medium",
    "stage": null,
    "nct": null,
    "tk": [
     "298380"
    ],
-   "rep": "2026-10-19"
+   "rep": "2026-10-26"
   },
   {
-   "id": "kr-2026-10-23-ESMO",
+   "id": "kr-2026-10-25-ESMO",
    "src": "kr",
    "region": "KR",
    "sponsor": "큐리언트",
@@ -635,17 +620,17 @@
    "ta": "",
    "type": "data-presentation",
    "status": "upcoming",
-   "date": "2026-10-23",
-   "sort": "2026-10-23",
+   "date": "2026-10-25",
+   "sort": "2026-10-25",
    "prec": "day",
-   "end": "2026-10-23",
+   "end": "2026-10-25",
    "imp": "medium",
    "stage": null,
    "nct": null,
    "tk": [
     "115180"
    ],
-   "rep": "2026-10-19"
+   "rep": "2026-10-26"
   },
   {
    "id": "kr-2026-10-26-2차-총파업-3주간-파업-예고",
@@ -671,6 +656,52 @@
    "rep": "2026-10-19"
   },
   {
+   "id": "kr-2026-10-27-실적",
+   "src": "kr",
+   "region": "KR",
+   "sponsor": "셀트리온",
+   "asset": "실적",
+   "event": "",
+   "ind": "",
+   "ta": "",
+   "type": "earnings",
+   "status": "upcoming",
+   "date": "2026-10-27",
+   "sort": "2026-10-27",
+   "prec": "day",
+   "end": "2026-10-27",
+   "imp": "medium",
+   "stage": null,
+   "nct": null,
+   "tk": [
+    "068270"
+   ],
+   "rep": "2026-10-26"
+  },
+  {
+   "id": "kr-2026-10-27-실적",
+   "src": "kr",
+   "region": "KR",
+   "sponsor": "한미약품",
+   "asset": "실적",
+   "event": "",
+   "ind": "",
+   "ta": "",
+   "type": "earnings",
+   "status": "upcoming",
+   "date": "2026-10-27",
+   "sort": "2026-10-27",
+   "prec": "day",
+   "end": "2026-10-27",
+   "imp": "medium",
+   "stage": null,
+   "nct": null,
+   "tk": [
+    "128940"
+   ],
+   "rep": "2026-10-26"
+  },
+  {
    "id": "kr-2026-10-28-넥스아이-기관-수요예측-22-28일",
    "src": "kr",
    "region": "KR",
@@ -689,7 +720,7 @@
    "stage": null,
    "nct": null,
    "tk": [],
-   "rep": "2026-10-19"
+   "rep": "2026-10-26"
   },
   {
    "id": "kr-2026-10-28-실적",
@@ -710,7 +741,7 @@
    "stage": null,
    "nct": null,
    "tk": [],
-   "rep": "2026-10-19"
+   "rep": "2026-10-26"
   },
   {
    "id": "kr-2026-10-28-실적",
@@ -733,7 +764,7 @@
    "tk": [
     "000100"
    ],
-   "rep": "2026-10-19"
+   "rep": "2026-10-26"
   },
   {
    "id": "kr-2026-11-03-IR-Day",
@@ -754,13 +785,13 @@
    "stage": null,
    "nct": null,
    "tk": [],
-   "rep": "2026-10-19"
+   "rep": "2026-10-26"
   },
   {
    "id": "kr-2026-11-08-리보세라닙-캄렐리주맙-Class-1-or-Class-2-분류-확인",
    "src": "kr",
    "region": "KR",
-   "sponsor": "HLB Co Ltd",
+   "sponsor": "HLB",
    "asset": "리보세라닙+캄렐리주맙 Class 1 or Class 2 분류 확인",
    "event": "",
    "ind": "",
@@ -777,28 +808,93 @@
    "tk": [
     "028300"
    ],
-   "rep": "2026-10-19"
+   "rep": "2026-10-26"
   },
   {
-   "id": "kr-2026-11-14-비만-학회-ObesityWeek-11-14-17일",
+   "id": "kr-2026-11-09-IR-Day",
    "src": "kr",
    "region": "KR",
-   "sponsor": "",
-   "asset": "비만 학회 ObesityWeek (11/14~17일)",
+   "sponsor": "에이프릴바이오",
+   "asset": "IR Day",
    "event": "",
    "ind": "",
    "ta": "",
    "type": "data-presentation",
    "status": "upcoming",
-   "date": "2026-11-14",
-   "sort": "2026-11-14",
+   "date": "2026-11-09",
+   "sort": "2026-11-09",
    "prec": "day",
-   "end": "2026-11-14",
+   "end": "2026-11-09",
    "imp": "medium",
    "stage": null,
    "nct": null,
    "tk": [],
-   "rep": "2026-10-19"
+   "rep": "2026-11-09"
+  },
+  {
+   "id": "kr-2026-11-12-실적",
+   "src": "kr",
+   "region": "KR",
+   "sponsor": "클래시스",
+   "asset": "실적",
+   "event": "",
+   "ind": "",
+   "ta": "",
+   "type": "earnings",
+   "status": "upcoming",
+   "date": "2026-11-12",
+   "sort": "2026-11-12",
+   "prec": "day",
+   "end": "2026-11-12",
+   "imp": "medium",
+   "stage": null,
+   "nct": null,
+   "tk": [
+    "214150"
+   ],
+   "rep": "2026-11-09"
+  },
+  {
+   "id": "kr-2026-11-12-넥스아이-상장",
+   "src": "kr",
+   "region": "KR",
+   "sponsor": "",
+   "asset": "넥스아이 상장",
+   "event": "",
+   "ind": "",
+   "ta": "",
+   "type": "other",
+   "status": "upcoming",
+   "date": "2026-11-12",
+   "sort": "2026-11-12",
+   "prec": "day",
+   "end": "2026-11-12",
+   "imp": "medium",
+   "stage": null,
+   "nct": null,
+   "tk": [],
+   "rep": "2026-11-09"
+  },
+  {
+   "id": "kr-2026-11-13-루닛-실적",
+   "src": "kr",
+   "region": "KR",
+   "sponsor": "",
+   "asset": "루닛 실적",
+   "event": "",
+   "ind": "",
+   "ta": "",
+   "type": "earnings",
+   "status": "upcoming",
+   "date": "2026-11-13",
+   "sort": "2026-11-13",
+   "prec": "day",
+   "end": "2026-11-13",
+   "imp": "medium",
+   "stage": null,
+   "nct": null,
+   "tk": [],
+   "rep": "2026-11-09"
   },
   {
    "id": "kr-2026-11-16-알츠하이머-학회-CTAD-11-16-19일",
@@ -819,7 +915,70 @@
    "stage": null,
    "nct": null,
    "tk": [],
-   "rep": "2026-10-19"
+   "rep": "2026-11-09"
+  },
+  {
+   "id": "kr-2026-11-17-비만-학회-ObesityWeek-11-14-17일",
+   "src": "kr",
+   "region": "KR",
+   "sponsor": "",
+   "asset": "비만 학회 ObesityWeek (11/14~17일)",
+   "event": "",
+   "ind": "",
+   "ta": "",
+   "type": "data-presentation",
+   "status": "upcoming",
+   "date": "2026-11-17",
+   "sort": "2026-11-17",
+   "prec": "day",
+   "end": "2026-11-17",
+   "imp": "medium",
+   "stage": null,
+   "nct": null,
+   "tk": [],
+   "rep": "2026-11-09"
+  },
+  {
+   "id": "kr-2026-11-18-Jefferies-헬스케어-컨퍼런스-16-19일",
+   "src": "kr",
+   "region": "KR",
+   "sponsor": "",
+   "asset": "Jefferies 헬스케어 컨퍼런스(16-19일)",
+   "event": "",
+   "ind": "",
+   "ta": "",
+   "type": "data-presentation",
+   "status": "upcoming",
+   "date": "2026-11-18",
+   "sort": "2026-11-18",
+   "prec": "day",
+   "end": "2026-11-18",
+   "imp": "medium",
+   "stage": null,
+   "nct": null,
+   "tk": [],
+   "rep": "2026-11-09"
+  },
+  {
+   "id": "kr-2026-11-18-아델-기관-수요예측-11-12-18일",
+   "src": "kr",
+   "region": "KR",
+   "sponsor": "",
+   "asset": "아델 기관 수요예측(11/12~18일)",
+   "event": "",
+   "ind": "",
+   "ta": "",
+   "type": "other",
+   "status": "upcoming",
+   "date": "2026-11-18",
+   "sort": "2026-11-18",
+   "prec": "day",
+   "end": "2026-11-18",
+   "imp": "medium",
+   "stage": null,
+   "nct": null,
+   "tk": [],
+   "rep": "2026-11-09"
   },
   {
    "id": "kr-2026-11-18-3개월-확약-해제",
@@ -840,7 +999,179 @@
    "stage": null,
    "nct": null,
    "tk": [],
-   "rep": "2026-10-19"
+   "rep": "2026-11-09"
+  },
+  {
+   "id": "kr-2026-11-23-샌안토니오-유방암-심포지엄-SABCS-초록-전문-공개",
+   "src": "kr",
+   "region": "KR",
+   "sponsor": "",
+   "asset": "샌안토니오 유방암 심포지엄 SABCS 초록 전문 공개",
+   "event": "",
+   "ind": "",
+   "ta": "",
+   "type": "data-presentation",
+   "status": "upcoming",
+   "date": "2026-11-23",
+   "sort": "2026-11-23",
+   "prec": "day",
+   "end": "2026-11-23",
+   "imp": "medium",
+   "stage": null,
+   "nct": null,
+   "tk": [],
+   "rep": "2026-11-09"
+  },
+  {
+   "id": "kr-2026-11-26-이노보테라퓨틱스-수요예측-11-26-12-2",
+   "src": "kr",
+   "region": "KR",
+   "sponsor": "",
+   "asset": "이노보테라퓨틱스 수요예측(11/26~12/2)",
+   "event": "",
+   "ind": "",
+   "ta": "",
+   "type": "other",
+   "status": "upcoming",
+   "date": "2026-11-26",
+   "sort": "2026-11-26",
+   "prec": "day",
+   "end": "2026-11-26",
+   "imp": "medium",
+   "stage": null,
+   "nct": null,
+   "tk": [],
+   "rep": "2026-11-09"
+  },
+  {
+   "id": "kr-2026-11-27-2차-부분파업-종료일-27일",
+   "src": "kr",
+   "region": "KR",
+   "sponsor": "삼성바이오로직스",
+   "asset": "2차 부분파업 종료일(~27일)",
+   "event": "",
+   "ind": "",
+   "ta": "",
+   "type": "other",
+   "status": "upcoming",
+   "date": "2026-11-27",
+   "sort": "2026-11-27",
+   "prec": "day",
+   "end": "2026-11-27",
+   "imp": "medium",
+   "stage": null,
+   "nct": null,
+   "tk": [
+    "207940"
+   ],
+   "rep": "2026-11-09"
+  },
+  {
+   "id": "kr-2026-11-30-IRA-3차-협상-약가-발표",
+   "src": "kr",
+   "region": "KR",
+   "sponsor": "",
+   "asset": "IRA 3차 협상 약가 발표",
+   "event": "",
+   "ind": "",
+   "ta": "",
+   "type": "other",
+   "status": "upcoming",
+   "date": "2026-11-30",
+   "sort": "2026-11-30",
+   "prec": "day",
+   "end": "2026-11-30",
+   "imp": "medium",
+   "stage": null,
+   "nct": null,
+   "tk": [],
+   "rep": "2026-11-09"
+  },
+  {
+   "id": "kr-2026-11-30-유상증자-신주-상장-예정일",
+   "src": "kr",
+   "region": "KR",
+   "sponsor": "삼성바이오로직스",
+   "asset": "유상증자 신주 상장 예정일",
+   "event": "",
+   "ind": "",
+   "ta": "",
+   "type": "other",
+   "status": "upcoming",
+   "date": "2026-11-30",
+   "sort": "2026-11-30",
+   "prec": "day",
+   "end": "2026-11-30",
+   "imp": "medium",
+   "stage": null,
+   "nct": null,
+   "tk": [
+    "207940"
+   ],
+   "rep": "2026-11-09"
+  },
+  {
+   "id": "kr-2026-12-02-아델-상장-예정일",
+   "src": "kr",
+   "region": "KR",
+   "sponsor": "",
+   "asset": "아델 상장 예정일",
+   "event": "",
+   "ind": "",
+   "ta": "",
+   "type": "other",
+   "status": "upcoming",
+   "date": "2026-12-02",
+   "sort": "2026-12-02",
+   "prec": "day",
+   "end": "2026-12-02",
+   "imp": "medium",
+   "stage": null,
+   "nct": null,
+   "tk": [],
+   "rep": "2026-11-09"
+  },
+  {
+   "id": "kr-2026-12-05-ASH-Late-Breaking-초록-공개-12-7",
+   "src": "kr",
+   "region": "KR",
+   "sponsor": "",
+   "asset": "ASH Late-Breaking 초록 공개(12/7)",
+   "event": "",
+   "ind": "",
+   "ta": "",
+   "type": "data-presentation",
+   "status": "upcoming",
+   "date": "2026-12-05",
+   "sort": "2026-12-05",
+   "prec": "day",
+   "end": "2026-12-05",
+   "imp": "medium",
+   "stage": null,
+   "nct": null,
+   "tk": [],
+   "rep": "2026-11-09"
+  },
+  {
+   "id": "kr-2026-12-15-오파칼림-RISE-3-탑라인",
+   "src": "kr",
+   "region": "KR",
+   "sponsor": "",
+   "asset": "오파칼림 RISE 3 탑라인",
+   "event": "",
+   "ind": "",
+   "ta": "",
+   "type": "phase-readout",
+   "status": "upcoming",
+   "date": "2026-12-15",
+   "sort": "2026-12-15",
+   "prec": "day",
+   "end": "2026-12-15",
+   "imp": "medium",
+   "stage": null,
+   "nct": null,
+   "tk": [],
+   "rep": "2026-11-09"
   }
  ]
 }
