@@ -4,11 +4,11 @@
  "n": 54,
  "items": [
   {
-   "id": "kr-2026-08-06-휴젤-실적",
+   "id": "kr-2026-08-06-실적",
    "src": "kr",
    "region": "KR",
-   "sponsor": "",
-   "asset": "휴젤 실적",
+   "sponsor": "휴젤",
+   "asset": "실적",
    "event": "",
    "ind": "",
    "ta": "",
@@ -21,7 +21,9 @@
    "imp": "medium",
    "stage": null,
    "nct": null,
-   "tk": [],
+   "tk": [
+    "145020"
+   ],
    "rep": "2026-08-03"
   },
   {
@@ -876,11 +878,11 @@
    "rep": "2026-11-09"
   },
   {
-   "id": "kr-2026-11-13-루닛-실적",
+   "id": "kr-2026-11-13-실적",
    "src": "kr",
    "region": "KR",
-   "sponsor": "",
-   "asset": "루닛 실적",
+   "sponsor": "루닛",
+   "asset": "실적",
    "event": "",
    "ind": "",
    "ta": "",
@@ -1156,7 +1158,7 @@
    "id": "kr-2026-12-15-오파칼림-RISE-3-탑라인",
    "src": "kr",
    "region": "KR",
-   "sponsor": "",
+   "sponsor": "SK바이오팜",
    "asset": "오파칼림 RISE 3 탑라인",
    "event": "",
    "ind": "",
@@ -1170,7 +1172,9 @@
    "imp": "medium",
    "stage": null,
    "nct": null,
-   "tk": [],
+   "tk": [
+    "326030"
+   ],
    "rep": "2026-11-09"
   }
  ]
