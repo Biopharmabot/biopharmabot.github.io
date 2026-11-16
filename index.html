@@ -148,8 +148,8 @@ h3.sec.big{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:va
 .note{font-size:12px;color:var(--mute);margin:6px 0}
 .grp{display:grid;grid-template-columns:76px 1fr;gap:4px 10px;font-size:13px;padding:4px 0;border-bottom:1px solid var(--line)}
 .grp .k{font-family:var(--mono);font-size:11px;color:var(--mute);padding-top:2px}
-.grp .v{display:flex;flex-wrap:wrap;gap:6px 18px}
-.grp .hco{display:inline-flex;align-items:baseline;gap:5px;white-space:nowrap}
+.grp .v{display:flex;flex-wrap:wrap;gap:6px 18px;min-width:0}
+.grp .hco{display:inline-flex;flex-wrap:wrap;align-items:baseline;gap:5px;max-width:100%;overflow-wrap:anywhere}
 .tk{font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-radius:3px;padding:0 5px;cursor:pointer;background:var(--panel)}
 .tk:hover{border-color:var(--acc);color:var(--acc)}
 /* 2026-10-10 사용자 결정: 13F 매집/축소 칩 색 없음(모두 회색) */
